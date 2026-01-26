@@ -1,0 +1,427 @@
+{
+  "id": "00000000-0000-0000-0000-000000000000",
+  "prevId": "",
+  "version": "6",
+  "dialect": "sqlite",
+  "tables": {
+    "card": {
+      "name": "card",
+      "columns": {
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "text",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "data": {
+          "autoincrement": false,
+          "name": "data",
+          "type": "blob",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "player": {
+      "name": "player",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "league": {
+      "name": "league",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {},
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "league_player": {
+      "name": "league_player",
+      "columns": {
+        "league_id": {
+          "autoincrement": false,
+          "name": "league_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "player_id": {
+          "autoincrement": false,
+          "name": "player_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "role": {
+          "autoincrement": false,
+          "name": "role",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "league_player_league_id_player_id_pk": {
+          "columns": [
+            "league_id",
+            "player_id"
+          ],
+          "name": "league_player_league_id_player_id_pk"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "league_player_player_id_player_id_fk": {
+          "name": "league_player_player_id_player_id_fk",
+          "tableFrom": "league_player",
+          "tableTo": "player",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "league_player_league_id_league_id_fk": {
+          "name": "league_player_league_id_league_id_fk",
+          "tableFrom": "league_player",
+          "tableTo": "league",
+          "columnsFrom": [
+            "league_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "collection_card": {
+      "name": "collection_card",
+      "columns": {
+        "player_id": {
+          "autoincrement": false,
+          "name": "player_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "league_id": {
+          "autoincrement": false,
+          "name": "league_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_name": {
+          "autoincrement": false,
+          "name": "card_name",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "quantity": {
+          "autoincrement": false,
+          "name": "quantity",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "collection_card_player_id_league_id_card_name_pk": {
+          "columns": [
+            "player_id",
+            "league_id",
+            "card_name"
+          ],
+          "name": "collection_card_player_id_league_id_card_name_pk"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "collection_card_card_name_card_name_fk": {
+          "name": "collection_card_card_name_card_name_fk",
+          "tableFrom": "collection_card",
+          "tableTo": "card",
+          "columnsFrom": [
+            "card_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "collection_card_player_id_player_id_fk": {
+          "name": "collection_card_player_id_player_id_fk",
+          "tableFrom": "collection_card",
+          "tableTo": "player",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "collection_card_league_id_league_id_fk": {
+          "name": "collection_card_league_id_league_id_fk",
+          "tableFrom": "collection_card",
+          "tableTo": "league",
+          "columnsFrom": [
+            "league_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "deck": {
+      "name": "deck",
+      "columns": {
+        "id": {
+          "autoincrement": false,
+          "name": "id",
+          "type": "integer",
+          "primaryKey": true,
+          "notNull": true
+        },
+        "player_id": {
+          "autoincrement": false,
+          "name": "player_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "league_id": {
+          "autoincrement": false,
+          "name": "league_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "name": {
+          "autoincrement": false,
+          "name": "name",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {},
+      "indexes": {},
+      "foreignKeys": {
+        "deck_player_id_player_id_fk": {
+          "name": "deck_player_id_player_id_fk",
+          "tableFrom": "deck",
+          "tableTo": "player",
+          "columnsFrom": [
+            "player_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "deck_league_id_league_id_fk": {
+          "name": "deck_league_id_league_id_fk",
+          "tableFrom": "deck",
+          "tableTo": "league",
+          "columnsFrom": [
+            "league_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    },
+    "deck_card": {
+      "name": "deck_card",
+      "columns": {
+        "deck_id": {
+          "autoincrement": false,
+          "name": "deck_id",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        },
+        "card_name": {
+          "autoincrement": false,
+          "name": "card_name",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true
+        }
+      },
+      "compositePrimaryKeys": {
+        "deck_card_deck_id_card_name_pk": {
+          "columns": [
+            "deck_id",
+            "card_name"
+          ],
+          "name": "deck_card_deck_id_card_name_pk"
+        }
+      },
+      "indexes": {},
+      "foreignKeys": {
+        "deck_card_card_name_card_name_fk": {
+          "name": "deck_card_card_name_card_name_fk",
+          "tableFrom": "deck_card",
+          "tableTo": "card",
+          "columnsFrom": [
+            "card_name"
+          ],
+          "columnsTo": [
+            "name"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        },
+        "deck_card_deck_id_deck_id_fk": {
+          "name": "deck_card_deck_id_deck_id_fk",
+          "tableFrom": "deck_card",
+          "tableTo": "deck",
+          "columnsFrom": [
+            "deck_id"
+          ],
+          "columnsTo": [
+            "id"
+          ],
+          "onDelete": "no action",
+          "onUpdate": "no action"
+        }
+      },
+      "uniqueConstraints": {},
+      "checkConstraints": {
+        "league_player_check_1": {
+          "name": "league_player_check_1",
+          "value": "role IN ('owner', 'admin', 'player'"
+        },
+        "collection_card_check_2": {
+          "name": "collection_card_check_2",
+          "value": "quantity > 0"
+        }
+      }
+    }
+  },
+  "views": {},
+  "enums": {},
+  "_meta": {
+    "schemas": {},
+    "tables": {},
+    "columns": {}
+  }
+}
