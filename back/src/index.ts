@@ -1,30 +1,37 @@
-import "dotenv/config";
 import { onError } from "@orpc/server";
-import { RPCHandler } from "@orpc/server/fetch";
-import { CORSPlugin } from "@orpc/server/plugins";
 import { router } from "./routes";
 import { drizzle } from "drizzle-orm/bun-sqlite";
-
-const handler = new RPCHandler(router, {
-  plugins: [new CORSPlugin()],
-  interceptors: [onError((error) => console.log(error))],
-});
+import { OpenAPIHandler } from "@orpc/openapi/fetch";
+import { auth } from "./auth";
+import { Hono } from "hono";
 
 const db = drizzle(process.env.DB_FILE_NAME!);
 
+const handler = new OpenAPIHandler(router, {
+  interceptors: [onError((error) => console.log(error))],
+});
+
+const app = new Hono();
+
+app.use("/api/auth/*", async (c, next) => {
+  return await auth.handler(c.req.raw);
+});
+
+app.use("/api/*", async (c, next) => {
+  const { matched, response } = await handler.handle(c.req.raw, {
+    prefix: "/api",
+    context: { env: { db } },
+  });
+  if (matched) {
+    return c.newResponse(response.body, response);
+  }
+
+  await next();
+});
+
 const server = Bun.serve({
   port: 3000,
-  async fetch(request) {
-    const { matched, response } = await handler.handle(request, {
-      prefix: "/rpc",
-      context: { db },
-    });
-
-    if (matched) {
-      return response;
-    }
-    return new Response("Not Found", { status: 404 });
-  },
+  fetch: app.fetch,
 });
 
 console.log(`Server running at ${server.url}`);

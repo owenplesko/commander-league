@@ -1,8 +1,15 @@
 import * as z from "zod";
 import { CollectionCardSchema } from "../schemas/card";
-import { base } from ".";
-import { card, collectionCard, league } from "../db/schema";
+import { card, collectionCard } from "../db/schema";
 import { eq, and, sql } from "drizzle-orm";
+import { os } from "@orpc/server";
+import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+
+export const base = os.$context<{
+  env: {
+    db: BunSQLiteDatabase;
+  };
+}>();
 
 const InputSchema = z.object({ leagueId: z.number(), playerId: z.number() });
 
@@ -11,7 +18,7 @@ export const listCollectionCards = base
   .input(InputSchema)
   .output(CollectionCardSchema.array())
   .handler(({ input, context }) => {
-    return context.db
+    return context.env.db
       .select({
         name: card.name,
         data: card.data,
@@ -38,7 +45,7 @@ export const setCollectionCards = base
   .route({ method: "PUT", path: "/{leagueId}/{playerId}/collection" })
   .input(InsertInputSchema)
   .handler(async ({ input, context }) => {
-    await context.db.transaction(async (tx) => {
+    await context.env.db.transaction(async (tx) => {
       await tx
         .delete(collectionCard)
         .where(
@@ -62,7 +69,7 @@ export const addCollectionCards = base
   .route({ method: "PATCH", path: "/{leagueId}/{playerId}/collection" })
   .input(InsertInputSchema)
   .handler(async ({ input, context }) => {
-    await context.db
+    await context.env.db
       .insert(collectionCard)
       .values(
         input.collectionCards.map((card) => ({
@@ -96,7 +103,7 @@ export const removeCollectionCard = base
   })
   .input(DeleteInputSchema)
   .handler(async ({ input, context }) => {
-    await context.db
+    await context.env.db
       .update(collectionCard)
       .set({
         quantity: sql`${collectionCard.quantity} - ${input.quantity}`,
