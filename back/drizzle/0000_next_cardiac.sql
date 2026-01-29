@@ -1,21 +1,3 @@
-CREATE TABLE `account` (
-	`id` text PRIMARY KEY NOT NULL,
-	`accountId` text NOT NULL,
-	`providerId` text NOT NULL,
-	`userId` text NOT NULL,
-	`accessToken` text,
-	`refreshToken` text,
-	`idToken` text,
-	`accessTokenExpiresAt` numeric,
-	`refreshTokenExpiresAt` numeric,
-	`scope` text,
-	`password` text,
-	`createdAt` numeric NOT NULL,
-	`updatedAt` numeric NOT NULL,
-	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
-CREATE INDEX `account_userId_idx` ON `account` (`userId`);--> statement-breakpoint
 CREATE TABLE `card` (
 	`name` text PRIMARY KEY NOT NULL,
 	`data` blob NOT NULL
@@ -61,37 +43,3 @@ CREATE TABLE `league_player` (
 	FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON UPDATE no action ON DELETE no action,
 	CONSTRAINT "league_player_check_1" CHECK(role IN ('owner', 'admin', 'player'))
 );
---> statement-breakpoint
-CREATE TABLE `session` (
-	`id` text PRIMARY KEY NOT NULL,
-	`expiresAt` numeric NOT NULL,
-	`token` text NOT NULL,
-	`createdAt` numeric NOT NULL,
-	`updatedAt` numeric NOT NULL,
-	`ipAddress` text,
-	`userAgent` text,
-	`userId` text NOT NULL,
-	FOREIGN KEY (`userId`) REFERENCES `user`(`id`) ON UPDATE no action ON DELETE cascade
-);
---> statement-breakpoint
-CREATE INDEX `session_userId_idx` ON `session` (`userId`);--> statement-breakpoint
-CREATE TABLE `user` (
-	`id` text PRIMARY KEY NOT NULL,
-	`name` text NOT NULL,
-	`email` text NOT NULL,
-	`emailVerified` integer NOT NULL,
-	`image` text,
-	`createdAt` numeric NOT NULL,
-	`updatedAt` numeric NOT NULL
-);
---> statement-breakpoint
-CREATE TABLE `verification` (
-	`id` text PRIMARY KEY NOT NULL,
-	`identifier` text NOT NULL,
-	`value` text NOT NULL,
-	`expiresAt` numeric NOT NULL,
-	`createdAt` numeric NOT NULL,
-	`updatedAt` numeric NOT NULL
-);
---> statement-breakpoint
-CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);
