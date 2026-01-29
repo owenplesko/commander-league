@@ -16,4 +16,5 @@ export type Card = z.infer<typeof CardSchema>;
 export const CollectionCardSchema = CardSchema.extend({
   quantity: z.number(),
 });
+
 export type CollectionCard = z.infer<typeof CollectionCardSchema>;

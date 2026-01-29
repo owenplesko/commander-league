@@ -1,13 +1,12 @@
 import { onError, os } from "@orpc/server";
-import { routes } from "./routes";
-import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
+import { routes } from "./routes/";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { auth, authMiddleware } from "./auth";
 import { Hono } from "hono";
+import { type BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import db from "./db";
 
 const app = new Hono();
-
-const db = drizzle(process.env.DB_FILE_NAME!);
 
 const orpcRouter = os
   .$context<{

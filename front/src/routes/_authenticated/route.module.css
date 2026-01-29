@@ -1,0 +1,21 @@
+.page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  place-items: center;
+  background-color: var(--surface-ground);
+}
+
+header {
+  width: 100%;
+  display: flex;
+  padding: 1.25rem;
+
+  > :global(.p-avatar) {
+    margin-left: auto;
+  }
+}
+
+main {
+  flex-grow: 1;
+}

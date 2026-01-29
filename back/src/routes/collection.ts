@@ -2,22 +2,9 @@ import * as z from "zod";
 import { CollectionCardSchema } from "../schemas/card";
 import { card, collectionCard } from "../db/schema";
 import { eq, and, sql } from "drizzle-orm";
-import { os } from "@orpc/server";
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import { base } from "./base";
 
-export const base = os.$context<{
-  headers: Headers;
-  userId: string | null;
-  env: {
-    db: BunSQLiteDatabase;
-  };
-}>();
-
-export const pong = base.handler(() => {
-  return "pong";
-});
-
-const InputSchema = z.object({ leagueId: z.number(), playerId: z.number() });
+const InputSchema = z.object({ leagueId: z.number(), playerId: z.string() });
 
 export const listCollectionCards = base
   .route({ method: "GET", path: "/{leagueId}/{playerId}/collection" })
@@ -124,7 +111,6 @@ export const removeCollectionCard = base
   });
 
 export const collectionRoutes = {
-  ping: pong,
   list: listCollectionCards,
   set: setCollectionCards,
   add: addCollectionCards,

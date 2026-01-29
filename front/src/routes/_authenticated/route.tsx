@@ -1,15 +1,21 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { authClient } from "../../lib/authClient";
 import { Avatar } from "primereact/avatar";
-import { Button } from "primereact/button";
+import classes from "./route.module.css";
 
 export const Route = createFileRoute("/_authenticated")({
   component: RouteComponent,
-  beforeLoad: async () => {
+  beforeLoad: async ({ location }) => {
     const session = await authClient.getSession();
     const user = session.data?.user;
 
-    if (!user) throw redirect({ to: "/login" });
+    if (!user)
+      throw redirect({
+        to: "/login",
+        search: {
+          callbackURL: `${window.location.origin}${location.pathname}`,
+        },
+      });
 
     return {
       user,
@@ -21,17 +27,14 @@ function RouteComponent() {
   const { user } = Route.useRouteContext();
 
   return (
-    <>
+    <div className={classes.page}>
       <header>
-        <Button
-          label="Logout"
-          onClick={() => {
-            authClient.signOut();
-          }}
-        />
-        <Avatar image={user.image ?? undefined} />
+        <Avatar shape="circle" image={user.image ?? undefined} />
       </header>
-      <Outlet />
-    </>
+      <main>
+        <Outlet />
+      </main>
+      <footer>feet</footer>
+    </div>
   );
 }

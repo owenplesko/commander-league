@@ -1,9 +1,11 @@
-import { os } from "@orpc/server";
+import { ORPCError, os } from "@orpc/server";
 import { betterAuth } from "better-auth";
+import Database from "bun:sqlite";
 
 export const auth = betterAuth({
   secret: process.env.BETTER_AUTH_SECRET,
   trustedOrigins: ["http://localhost:5173"],
+  database: new Database("db.sqlite"),
   socialProviders: {
     discord: {
       enabled: true,
@@ -20,13 +22,11 @@ export const authMiddleware = os
     const user = await auth.api.getSession({ headers: context.headers });
     const userId = user?.user.id;
 
-    if (user) console.log(user);
+    if (!userId) throw new ORPCError("UNAUTHORIZED");
 
-    const result = await next({
+    return await next({
       context: {
-        userId: userId ?? null,
+        userId: userId,
       },
     });
-
-    return result;
   });
