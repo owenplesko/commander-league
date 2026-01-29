@@ -6,10 +6,16 @@ import { os } from "@orpc/server";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 
 export const base = os.$context<{
+  headers: Headers;
+  userId: string | null;
   env: {
     db: BunSQLiteDatabase;
   };
 }>();
+
+export const pong = base.handler(() => {
+  return "pong";
+});
 
 const InputSchema = z.object({ leagueId: z.number(), playerId: z.number() });
 
@@ -118,6 +124,7 @@ export const removeCollectionCard = base
   });
 
 export const collectionRoutes = {
+  ping: pong,
   list: listCollectionCards,
   set: setCollectionCards,
   add: addCollectionCards,

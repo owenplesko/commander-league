@@ -1,26 +1,38 @@
-import { onError } from "@orpc/server";
-import { router } from "./routes";
-import { drizzle } from "drizzle-orm/bun-sqlite";
+import { onError, os } from "@orpc/server";
+import { routes } from "./routes";
+import { BunSQLiteDatabase, drizzle } from "drizzle-orm/bun-sqlite";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
-import { auth } from "./auth";
+import { auth, authMiddleware } from "./auth";
 import { Hono } from "hono";
-
-const db = drizzle(process.env.DB_FILE_NAME!);
-
-const handler = new OpenAPIHandler(router, {
-  interceptors: [onError((error) => console.log(error))],
-});
 
 const app = new Hono();
 
+const db = drizzle(process.env.DB_FILE_NAME!);
+
+const orpcRouter = os
+  .$context<{
+    headers: Headers;
+    env: {
+      db: BunSQLiteDatabase;
+    };
+  }>()
+  .use(authMiddleware)
+  .router(routes);
+
+const orpcHandler = new OpenAPIHandler(orpcRouter, {
+  interceptors: [onError((error) => console.log(error))],
+});
+
 app.use("/api/auth/*", async (c, next) => {
-  return await auth.handler(c.req.raw);
+  const res = await auth.handler(c.req.raw);
+  next();
+  return res;
 });
 
 app.use("/api/*", async (c, next) => {
-  const { matched, response } = await handler.handle(c.req.raw, {
+  const { matched, response } = await orpcHandler.handle(c.req.raw, {
     prefix: "/api",
-    context: { env: { db } },
+    context: { headers: c.req.raw.headers, env: { db } },
   });
   if (matched) {
     return c.newResponse(response.body, response);
