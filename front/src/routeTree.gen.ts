@@ -12,7 +12,9 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedLeagueLeagueIdIndexRouteImport } from './routes/_authenticated/league.$leagueId/index'
+import { Route as AuthenticatedLeagueLeagueIdRouteRouteImport } from './routes/_authenticated/league.$leagueId/route'
+import { Route as AuthenticatedLeagueLeagueIdShopRouteImport } from './routes/_authenticated/league.$leagueId/shop'
+import { Route as AuthenticatedLeagueLeagueIdCollectionPlayerIdRouteImport } from './routes/_authenticated/league.$leagueId/collection.$playerId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -28,41 +30,71 @@ const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
-const AuthenticatedLeagueLeagueIdIndexRoute =
-  AuthenticatedLeagueLeagueIdIndexRouteImport.update({
-    id: '/league/$leagueId/',
-    path: '/league/$leagueId/',
+const AuthenticatedLeagueLeagueIdRouteRoute =
+  AuthenticatedLeagueLeagueIdRouteRouteImport.update({
+    id: '/league/$leagueId',
+    path: '/league/$leagueId',
     getParentRoute: () => AuthenticatedRouteRoute,
+  } as any)
+const AuthenticatedLeagueLeagueIdShopRoute =
+  AuthenticatedLeagueLeagueIdShopRouteImport.update({
+    id: '/shop',
+    path: '/shop',
+    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
+  } as any)
+const AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute =
+  AuthenticatedLeagueLeagueIdCollectionPlayerIdRouteImport.update({
+    id: '/collection/$playerId',
+    path: '/collection/$playerId',
+    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof AuthenticatedIndexRoute
   '/login': typeof LoginRoute
-  '/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
+  '/league/$leagueId/shop': typeof AuthenticatedLeagueLeagueIdShopRoute
+  '/league/$leagueId/collection/$playerId': typeof AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthenticatedIndexRoute
-  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdIndexRoute
+  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
+  '/league/$leagueId/shop': typeof AuthenticatedLeagueLeagueIdShopRoute
+  '/league/$leagueId/collection/$playerId': typeof AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/login': typeof LoginRoute
   '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
+  '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
+  '/_authenticated/league/$leagueId/shop': typeof AuthenticatedLeagueLeagueIdShopRoute
+  '/_authenticated/league/$leagueId/collection/$playerId': typeof AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/login' | '/league/$leagueId/'
+  fullPaths:
+    | '/'
+    | '/login'
+    | '/league/$leagueId'
+    | '/league/$leagueId/shop'
+    | '/league/$leagueId/collection/$playerId'
   fileRoutesByTo: FileRoutesByTo
-  to: '/login' | '/' | '/league/$leagueId'
+  to:
+    | '/login'
+    | '/'
+    | '/league/$leagueId'
+    | '/league/$leagueId/shop'
+    | '/league/$leagueId/collection/$playerId'
   id:
     | '__root__'
     | '/_authenticated'
     | '/login'
     | '/_authenticated/'
-    | '/_authenticated/league/$leagueId/'
+    | '/_authenticated/league/$leagueId'
+    | '/_authenticated/league/$leagueId/shop'
+    | '/_authenticated/league/$leagueId/collection/$playerId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -93,24 +125,56 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedIndexRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
-    '/_authenticated/league/$leagueId/': {
-      id: '/_authenticated/league/$leagueId/'
+    '/_authenticated/league/$leagueId': {
+      id: '/_authenticated/league/$leagueId'
       path: '/league/$leagueId'
-      fullPath: '/league/$leagueId/'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdIndexRouteImport
+      fullPath: '/league/$leagueId'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdRouteRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/league/$leagueId/shop': {
+      id: '/_authenticated/league/$leagueId/shop'
+      path: '/shop'
+      fullPath: '/league/$leagueId/shop'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdShopRouteImport
+      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
+    }
+    '/_authenticated/league/$leagueId/collection/$playerId': {
+      id: '/_authenticated/league/$leagueId/collection/$playerId'
+      path: '/collection/$playerId'
+      fullPath: '/league/$leagueId/collection/$playerId'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdCollectionPlayerIdRouteImport
+      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
   }
 }
 
+interface AuthenticatedLeagueLeagueIdRouteRouteChildren {
+  AuthenticatedLeagueLeagueIdShopRoute: typeof AuthenticatedLeagueLeagueIdShopRoute
+  AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute: typeof AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute
+}
+
+const AuthenticatedLeagueLeagueIdRouteRouteChildren: AuthenticatedLeagueLeagueIdRouteRouteChildren =
+  {
+    AuthenticatedLeagueLeagueIdShopRoute: AuthenticatedLeagueLeagueIdShopRoute,
+    AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute:
+      AuthenticatedLeagueLeagueIdCollectionPlayerIdRoute,
+  }
+
+const AuthenticatedLeagueLeagueIdRouteRouteWithChildren =
+  AuthenticatedLeagueLeagueIdRouteRoute._addFileChildren(
+    AuthenticatedLeagueLeagueIdRouteRouteChildren,
+  )
+
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedLeagueLeagueIdIndexRoute: typeof AuthenticatedLeagueLeagueIdIndexRoute
+  AuthenticatedLeagueLeagueIdRouteRoute: typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
 }
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedLeagueLeagueIdIndexRoute: AuthenticatedLeagueLeagueIdIndexRoute,
+  AuthenticatedLeagueLeagueIdRouteRoute:
+    AuthenticatedLeagueLeagueIdRouteRouteWithChildren,
 }
 
 const AuthenticatedRouteRouteWithChildren =

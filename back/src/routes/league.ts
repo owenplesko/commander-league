@@ -1,9 +1,10 @@
 import { base } from "./base";
-import { league, leaguePlayer } from "../db/schema";
+import { league, leaguePlayer, user } from "../db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
 
 export const leagueRoutes = {
+  // TODO: add a search param for userId instead of getting from auth
   list: base
     .route({
       method: "GET",
@@ -15,6 +16,36 @@ export const leagueRoutes = {
         .from(league)
         .innerJoin(leaguePlayer, eq(league.id, leaguePlayer.leagueId))
         .where(eq(leaguePlayer.playerId, context.userId));
+    }),
+
+  get: base
+    .route({
+      method: "GET",
+      path: "/league/{leagueId}",
+    })
+    .input(z.object({ leagueId: z.coerce.number() }))
+    .handler(({ input, context }) => {
+      return context.env.db
+        .select({ id: league.id, name: league.name })
+        .from(league)
+        .where(eq(league.id, input.leagueId))
+        .get();
+    }),
+
+  getPlayers: base
+    .route({ method: "GET", path: "/league/{leagueId}/player" })
+    .input(z.object({ leagueId: z.coerce.number() }))
+    .handler(({ input, context }) => {
+      return context.env.db
+        .select({
+          id: user.id,
+          name: user.name,
+          image: user.image,
+          role: leaguePlayer.role,
+        })
+        .from(leaguePlayer)
+        .innerJoin(user, eq(leaguePlayer.playerId, user.id))
+        .where(eq(leaguePlayer.leagueId, input.leagueId));
     }),
 
   create: base
@@ -35,7 +66,7 @@ export const leagueRoutes = {
 
   delete: base
     .route({ method: "DELETE", path: "/league/{leagueId}" })
-    .input(z.object({ leagueId: z.number() }))
+    .input(z.object({ leagueId: z.coerce.number() }))
     .handler(({ input, context }) => {
       context.env.db.delete(league).where(eq(league.id, input.leagueId));
     }),

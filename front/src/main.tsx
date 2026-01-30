@@ -3,6 +3,7 @@ import { createRoot } from "react-dom/client";
 import { PrimeReactProvider } from "primereact/api";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import "primereact/resources/themes/lara-light-cyan/theme.css";
+import "primeicons/primeicons.css";
 import "./index.css";
 
 import { routeTree } from "./routeTree.gen.ts";

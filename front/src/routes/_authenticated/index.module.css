@@ -1,10 +1,24 @@
 .league-grid {
   display: grid;
+  padding: 4rem;
   grid-template-columns: repeat(auto-fit, 25rem);
-  grid-template-rows: repeat(auto-fit, 15rem);
+  grid-auto-rows: 15rem;
   gap: 1rem;
+  justify-content: center;
 }
 
 .league-card {
   cursor: pointer;
+}
+
+.new-league-card {
+  border: 3px dashed var(--primary-color);
+  border-radius: var(--border-radius);
+  display: grid;
+  place-items: center;
+
+  i {
+    color: var(--primary-color);
+    font-size: 2rem;
+  }
 }

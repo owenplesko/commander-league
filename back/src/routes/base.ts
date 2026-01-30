@@ -1,10 +1,10 @@
 import { os } from "@orpc/server";
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import type { DB } from "../db";
 
 export const base = os.$context<{
   headers: Headers;
   userId: string;
   env: {
-    db: BunSQLiteDatabase;
+    db: DB;
   };
 }>();

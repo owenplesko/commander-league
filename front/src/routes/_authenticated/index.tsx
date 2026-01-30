@@ -2,6 +2,7 @@ import classes from "./index.module.css";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { orpc } from "../../lib/client";
 import { Card } from "primereact/card";
+import { classNames } from "primereact/utils";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -30,6 +31,14 @@ function RouteComponent() {
           }}
         ></Card>
       ))}
+      <div
+        className={classNames(
+          classes["league-card"],
+          classes["new-league-card"],
+        )}
+      >
+        <i className="pi pi-plus" />
+      </div>
     </div>
   );
 }
