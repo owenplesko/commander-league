@@ -1,7 +1,7 @@
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 import { authClient } from "../../lib/authClient";
-import { Avatar } from "primereact/avatar";
 import classes from "./route.module.css";
+import { Avatar } from "primereact/avatar";
 
 export const Route = createFileRoute("/_authenticated")({
   component: RouteComponent,
@@ -27,14 +27,14 @@ function RouteComponent() {
   const { user } = Route.useRouteContext();
 
   return (
-    <div className={classes.page}>
-      <header>
+    <>
+      <header className={classes.header}>
+        <h1 className={classes.logo}>Commander League</h1>
         <Avatar shape="circle" image={user.image ?? undefined} />
       </header>
-      <main>
+      <main className={classes.main}>
         <Outlet />
       </main>
-      <footer>feet</footer>
-    </div>
+    </>
   );
 }

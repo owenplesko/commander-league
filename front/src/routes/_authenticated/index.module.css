@@ -1,0 +1,10 @@
+.league-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, 25rem);
+  grid-template-rows: repeat(auto-fit, 15rem);
+  gap: 1rem;
+}
+
+.league-card {
+  cursor: pointer;
+}
