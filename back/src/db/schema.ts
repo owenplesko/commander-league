@@ -8,10 +8,11 @@ import {
   index,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
+import type { CardData } from "../schemas/card";
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
-  data: blob().notNull(),
+  data: blob({ mode: "json" }).$type<CardData>().notNull(),
 });
 
 export const collectionCard = sqliteTable(

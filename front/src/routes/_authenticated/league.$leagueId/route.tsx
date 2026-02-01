@@ -15,7 +15,7 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   params: z.object({ leagueId: z.coerce.number() }),
   loader: async ({ params }) => {
     const leaguePromise = orpc.league.get({ leagueId: params.leagueId });
-    const leaguePlayersPromise = orpc.league.getPlayers({
+    const leaguePlayersPromise = orpc.leaguePlayer.list({
       leagueId: params.leagueId,
     });
 

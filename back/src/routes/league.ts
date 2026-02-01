@@ -1,5 +1,5 @@
 import { base } from "./base";
-import { league, leaguePlayer, user } from "../db/schema";
+import { league, leaguePlayer } from "../db/schema";
 import { eq } from "drizzle-orm";
 import z from "zod";
 
@@ -30,22 +30,6 @@ export const leagueRoutes = {
         .from(league)
         .where(eq(league.id, input.leagueId))
         .get();
-    }),
-
-  getPlayers: base
-    .route({ method: "GET", path: "/league/{leagueId}/player" })
-    .input(z.object({ leagueId: z.coerce.number() }))
-    .handler(({ input, context }) => {
-      return context.env.db
-        .select({
-          id: user.id,
-          name: user.name,
-          image: user.image,
-          role: leaguePlayer.role,
-        })
-        .from(leaguePlayer)
-        .innerJoin(user, eq(leaguePlayer.playerId, user.id))
-        .where(eq(leaguePlayer.leagueId, input.leagueId));
     }),
 
   create: base

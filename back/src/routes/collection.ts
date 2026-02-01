@@ -4,7 +4,10 @@ import { card, collectionCard } from "../db/schema";
 import { eq, and, sql } from "drizzle-orm";
 import { base } from "./base";
 
-const InputSchema = z.object({ leagueId: z.number(), playerId: z.string() });
+const InputSchema = z.object({
+  leagueId: z.coerce.number(),
+  playerId: z.string(),
+});
 
 export const listCollectionCards = base
   .route({ method: "GET", path: "/{leagueId}/{playerId}/collection" })
