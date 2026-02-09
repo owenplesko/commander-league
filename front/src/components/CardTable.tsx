@@ -4,63 +4,64 @@ import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState, type ReactNode } from "react";
 
-export type GroupByOptions = "COLOR";
-
-type CardGroups = Record<string, CollectionCard[]>;
+type CardGroup = { groupId: string; count: number; cards: CollectionCard[] };
 
 export function organizeCards(
   cards: CollectionCard[],
   { groupOption }: { groupOption: GroupOption },
-): CardGroups {
-  const cardGroups: CardGroups = {};
+): CardGroup[] {
+  const cardGroups: Record<string, CardGroup> = {};
 
   for (const card of cards) {
     const groupId = groupOption.groupId(card);
 
     if (!(groupId in cardGroups)) {
-      cardGroups[groupId] = [];
+      cardGroups[groupId] = { groupId, count: 0, cards: [] };
     }
 
-    cardGroups[groupId]?.push(card);
+    const group = cardGroups[groupId]!;
+
+    group.cards.push(card);
+    group.count += 1;
   }
 
-  return cardGroups;
+  return Object.values(cardGroups).sort((a, b) => b.count - a.count);
 }
 
 type GroupOption = {
   label: string;
   groupId: (c: Card) => string;
-  Header: (id: string) => ReactNode;
+  header: (id: string) => ReactNode;
 };
 
 const groupOptions: GroupOption[] = [
   {
     label: "Color",
     groupId: (card) => card.data.colorIdentity.join(","),
-    Header: (groupId) => {
+    header: (groupId) => {
       const colorIdentities = groupId.split(",");
-      return <div>{colorIdentities.join(" ")}</div>;
+      return colorIdentities.join(" ");
     },
   },
   {
     label: "Rarity",
     groupId: (c) => c.data.rarity,
-    Header: (rarity) => <div>{rarity}</div>,
+    header: (rarity) => rarity,
   },
   {
     label: "Type",
     groupId: (c) => c.data.types.join(","),
-    Header: (groupId) => {
+    header: (groupId) => {
       const types = groupId.split(",");
-      return <div>{types.join(" ")}</div>;
+      return types.join(" ");
     },
   },
   {
     label: "Subtype",
     groupId: (c) => c.data.subTypes.join(","),
-    Header: (groupId) => {
+    header: (groupId) => {
       const subTypes = groupId.split(",");
-      return <div>{subTypes.join(" ") || "N/A"}</div>;
+      return subTypes.join(" ") || "N/A";
     },
   },
 ];
@@ -96,9 +97,12 @@ export function CardTable({
       </div>
       {/* Content */}
       <div className={classes.content}>
-        {Object.entries(organizedCards).map(([groupId, cards]) => (
+        {organizedCards.map(({ groupId, count, cards }) => (
           <div>
-            {groupMethods.Header(groupId)}
+            <div className={classes.groupHeader}>
+              {groupMethods.header(groupId)}
+              <span className={classes.count}>{`(${count})`}</span>
+            </div>
             <ul>
               {cards.map((card) => (
                 <li
