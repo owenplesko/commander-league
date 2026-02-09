@@ -4,11 +4,14 @@ import {
   Link,
   notFound,
   Outlet,
+  useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
 import { orpc } from "../../../lib/client";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
+import { Button } from "primereact/button";
+import { authClient } from "../../../lib/authClient";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -29,6 +32,7 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
 });
 
 function RouteComponent() {
+  const router = useRouter();
   const { user } = Route.useRouteContext();
   const { players, league } = Route.useLoaderData();
 
@@ -73,7 +77,7 @@ function RouteComponent() {
                   <Avatar
                     style={{ height: "1rem", width: "1rem" }}
                     shape="circle"
-                    image={user.image ?? undefined}
+                    image={player.image ?? undefined}
                   />
                   {player.name}
                 </Link>
@@ -90,6 +94,15 @@ function RouteComponent() {
         >
           <Avatar shape="circle" image={user.image ?? undefined} />
           {user.name}
+          <Button
+            style={{ marginLeft: "auto" }}
+            text
+            icon="pi pi-sign-out"
+            onClick={() => {
+              authClient.signOut();
+              router.invalidate();
+            }}
+          />
         </div>
       </div>
       <div className={classes.output}>
