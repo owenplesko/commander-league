@@ -10,12 +10,12 @@ type CardGroups = Record<string, CollectionCard[]>;
 
 export function organizeCards(
   cards: CollectionCard[],
-  { groupMethods }: { groupMethods: GroupMethods },
+  { groupOption }: { groupOption: GroupOption },
 ): CardGroups {
   const cardGroups: CardGroups = {};
 
   for (const card of cards) {
-    const groupId = groupMethods.groupId(card);
+    const groupId = groupOption.groupId(card);
 
     if (!(groupId in cardGroups)) {
       cardGroups[groupId] = [];
@@ -27,24 +27,40 @@ export function organizeCards(
   return cardGroups;
 }
 
-type GroupMethods = {
-  groupId: (c: Card) => string;
-  Header: (id: string) => ReactNode;
-};
 type GroupOption = {
   label: string;
-  methods: GroupMethods;
+  groupId: (c: Card) => string;
+  Header: (id: string) => ReactNode;
 };
 
 const groupOptions: GroupOption[] = [
   {
     label: "Color",
-    methods: {
-      groupId: (card) => card.data.colorIdentity.join(","),
-      Header: (groupId) => {
-        const colorIdentities = groupId.split(",");
-        return <div>{colorIdentities.join(" ")}</div>;
-      },
+    groupId: (card) => card.data.colorIdentity.join(","),
+    Header: (groupId) => {
+      const colorIdentities = groupId.split(",");
+      return <div>{colorIdentities.join(" ")}</div>;
+    },
+  },
+  {
+    label: "Rarity",
+    groupId: (c) => c.data.rarity,
+    Header: (rarity) => <div>{rarity}</div>,
+  },
+  {
+    label: "Type",
+    groupId: (c) => c.data.types.join(","),
+    Header: (groupId) => {
+      const types = groupId.split(",");
+      return <div>{types.join(" ")}</div>;
+    },
+  },
+  {
+    label: "Subtype",
+    groupId: (c) => c.data.subTypes.join(","),
+    Header: (groupId) => {
+      const subTypes = groupId.split(",");
+      return <div>{subTypes.join(" ") || "N/A"}</div>;
     },
   },
 ];
@@ -56,11 +72,11 @@ export function CardTable({
   cards: CollectionCard[];
   setHovered?: (c: Card) => void;
 }) {
-  const [groupMethods, setGroupMethods] = useState<GroupMethods>(
-    groupOptions[0].methods,
+  const [groupMethods, setGroupMethods] = useState<GroupOption>(
+    groupOptions[0],
   );
 
-  const organizedCards = organizeCards(cards, { groupMethods: groupMethods });
+  const organizedCards = organizeCards(cards, { groupOption: groupMethods });
 
   return (
     <div>
@@ -73,6 +89,7 @@ export function CardTable({
             onChange={(e) => setGroupMethods(e.value)}
             optionLabel="label"
             optionValue="methods"
+            useOptionAsValue={true}
           />
           <label>Group</label>
         </FloatLabel>

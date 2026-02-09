@@ -7,6 +7,9 @@ const sets = setData.data as Record<string, Set>;
 type CardData = {
   manaValue: number;
   colorIdentity: string[];
+  rarity: string;
+  types: string[];
+  subTypes: string[];
   printings: {
     set: string;
     number: string;
@@ -30,6 +33,9 @@ for (const [setName, set] of Object.entries(sets)) {
       cardData[name] = {
         manaValue: card.manaValue,
         colorIdentity: card.colorIdentity,
+        rarity: card.rarity,
+        types: card.types,
+        subTypes: card.subtypes,
         printings: [],
       };
     }

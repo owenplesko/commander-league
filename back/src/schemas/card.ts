@@ -10,6 +10,9 @@ export type CarPrinting = z.infer<typeof CardPrintingSchema>;
 export const CardDataSchema = z.object({
   manaValue: z.number(),
   colorIdentity: z.string().array(),
+  rarity: z.string(),
+  types: z.string().array(),
+  subTypes: z.string().array(),
   printings: CardPrintingSchema.array(),
 });
 export type CardData = z.infer<typeof CardDataSchema>;
