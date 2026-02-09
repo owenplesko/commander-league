@@ -92,7 +92,9 @@ function RouteComponent() {
           {user.name}
         </div>
       </div>
-      <Outlet />
+      <div className={classes.output}>
+        <Outlet />
+      </div>
     </div>
   );
 }

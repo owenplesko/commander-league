@@ -1,8 +1,13 @@
-* {
-  margin: 0;
-  padding: 0;
+li,
+a {
   list-style-type: none;
   text-decoration: none;
+}
+
+ul,
+body {
+  margin: 0;
+  padding: 0;
 }
 
 a {
