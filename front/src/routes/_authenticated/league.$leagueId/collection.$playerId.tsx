@@ -35,7 +35,7 @@ function RouteComponent() {
 
   return (
     <div className={classes.wrapper}>
-      <h1>{`${player.name}'s Collection !`}</h1>
+      <h1>{`${player.name}'s Collection`}</h1>
       <div className={classes.layout}>
         <div>
           {hoveredCard && (

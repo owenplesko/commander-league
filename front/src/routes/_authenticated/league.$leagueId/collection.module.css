@@ -3,7 +3,7 @@
 }
 
 .layout {
-  padding-top: 4rem;
+  margin-top: 2rem;
   display: grid;
   grid-template-columns: auto 1fr;
   gap: 1rem;
