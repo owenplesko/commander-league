@@ -9,44 +9,7 @@
   gap: 1rem;
 }
 
-.header {
-  display: flex;
-  gap: 1rem;
-  padding-bottom: 1rem;
-  :global(.p-dropdown) {
-    width: 10rem;
-  }
-}
-
 .preview {
   position: sticky;
   top: 0;
-}
-
-@supports (display: grid-lanes) {
-  .masonry {
-    display: grid-lanes;
-    gap: 2rem;
-    grid-template-columns: repeat(auto-fit, minmax(15rem, 1fr));
-  }
-}
-
-@supports not (display: grid-lanes) {
-  .masonry {
-    columns: 16rem;
-    column-gap: 2rem;
-    & > * {
-      break-inside: avoid;
-      margin-bottom: 2rem;
-    }
-  }
-}
-
-.card {
-  cursor: pointer;
-  padding: 0.5rem 0;
-  border-top: 1px solid var(--surface-border);
-  &:hover {
-    background-color: var(--surface-hover);
-  }
 }
