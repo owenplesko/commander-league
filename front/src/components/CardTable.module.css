@@ -28,6 +28,7 @@
 
 .groupHeader {
   display: flex;
+  gap: 0.25rem;
   font-weight: 500;
   margin-bottom: 0.5rem;
   .count {

@@ -40,7 +40,17 @@ const groupOptions: GroupOption[] = [
     groupId: (card) => card.data.colorIdentity.join(","),
     header: (groupId) => {
       const colorIdentities = groupId.split(",");
-      return colorIdentities.join(" ");
+      return (
+        <>
+          {colorIdentities.map((c) => (
+            <img
+              width={18}
+              height={18}
+              src={`https://svgs.scryfall.io/card-symbols/${c || "C"}.svg`}
+            />
+          ))}
+        </>
+      );
     },
   },
   {
