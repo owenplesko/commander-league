@@ -2,39 +2,52 @@ import classes from "./CardTable.module.css";
 import type { Card, CollectionCard } from "../../../back/src/schemas/card";
 import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 export type GroupByOptions = "COLOR";
 
-type CardGroups = Record<string, { cards: CollectionCard[] }>;
-
-function getGroupId(card: Card, groupBy: GroupByOptions): string {
-  switch (groupBy) {
-    case "COLOR":
-      return card.data.colorIdentity.join(",");
-  }
-}
+type CardGroups = Record<string, CollectionCard[]>;
 
 export function organizeCards(
   cards: CollectionCard[],
-  { groupBy }: { groupBy: GroupByOptions },
+  { groupMethods }: { groupMethods: GroupMethods },
 ): CardGroups {
   const cardGroups: CardGroups = {};
 
   for (const card of cards) {
-    const groupId = getGroupId(card, groupBy);
+    const groupId = groupMethods.groupId(card);
 
     if (!(groupId in cardGroups)) {
-      cardGroups[groupId] = { cards: [] };
+      cardGroups[groupId] = [];
     }
 
-    cardGroups[groupId]?.cards.push(card);
+    cardGroups[groupId]?.push(card);
   }
 
   return cardGroups;
 }
 
-const groupOptions = [{ label: "Color", value: "COLOR" }];
+type GroupMethods = {
+  groupId: (c: Card) => string;
+  Header: (id: string) => ReactNode;
+};
+type GroupOption = {
+  label: string;
+  methods: GroupMethods;
+};
+
+const groupOptions: GroupOption[] = [
+  {
+    label: "Color",
+    methods: {
+      groupId: (card) => card.data.colorIdentity.join(","),
+      Header: (groupId) => {
+        const colorIdentities = groupId.split(",");
+        return <div>{colorIdentities.join(" ")}</div>;
+      },
+    },
+  },
+];
 
 export function CardTable({
   cards,
@@ -43,9 +56,11 @@ export function CardTable({
   cards: CollectionCard[];
   setHovered?: (c: Card) => void;
 }) {
-  const [groupBy, setGroupBy] = useState<GroupByOptions>("COLOR");
+  const [groupMethods, setGroupMethods] = useState<GroupMethods>(
+    groupOptions[0].methods,
+  );
 
-  const organizedCards = organizeCards(cards, { groupBy });
+  const organizedCards = organizeCards(cards, { groupMethods: groupMethods });
 
   return (
     <div>
@@ -54,26 +69,19 @@ export function CardTable({
         <FloatLabel>
           <Dropdown
             options={groupOptions}
-            value={groupBy}
-            onChange={(e) => setGroupBy(e.value)}
+            value={groupMethods}
+            onChange={(e) => setGroupMethods(e.value)}
             optionLabel="label"
+            optionValue="methods"
           />
           <label>Group</label>
-        </FloatLabel>
-        <FloatLabel>
-          <Dropdown />
-          <label>Filter</label>
-        </FloatLabel>
-        <FloatLabel>
-          <Dropdown />
-          <label>Sort</label>
         </FloatLabel>
       </div>
       {/* Content */}
       <div className={classes.content}>
-        {Object.entries(organizedCards).map(([groupId, { cards }]) => (
+        {Object.entries(organizedCards).map(([groupId, cards]) => (
           <div>
-            {groupId}
+            {groupMethods.Header(groupId)}
             <ul>
               {cards.map((card) => (
                 <li
