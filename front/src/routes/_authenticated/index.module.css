@@ -7,13 +7,20 @@
   justify-content: center;
 }
 
-.league-card {
+.card {
   cursor: pointer;
+  border-radius: var(--border-radius);
+  background-color: var(--surface-card);
 }
 
-.new-league-card {
+.card-header {
+  font-weight: 500;
+  padding: 1rem;
+}
+
+.new {
+  background-color: transparent;
   border: 3px dashed var(--primary-color);
-  border-radius: var(--border-radius);
   display: grid;
   place-items: center;
 

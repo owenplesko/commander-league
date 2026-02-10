@@ -36,7 +36,7 @@ export const leagueRoutes = {
     .route({ method: "POST", path: "/league" })
     .input(z.object({ name: z.string().min(1).max(50) }))
     .handler(async ({ input, context }) => {
-      await context.env.db.transaction(async (tx) => {
+      const leagueId = await context.env.db.transaction(async (tx) => {
         const res = await tx
           .insert(league)
           .values(input)
@@ -45,7 +45,9 @@ export const leagueRoutes = {
         await tx
           .insert(leaguePlayer)
           .values({ leagueId, playerId: context.userId, role: "owner" });
+        return leagueId;
       });
+      return { id: leagueId };
     }),
 
   delete: base

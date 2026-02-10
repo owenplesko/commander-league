@@ -1,8 +1,9 @@
 import classes from "./index.module.css";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { orpc } from "../../lib/client";
-import { Card } from "primereact/card";
 import { classNames } from "primereact/utils";
+import { useState } from "react";
+import { NewLeagueForm } from "../../components/NewLeagueForm";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -16,29 +17,32 @@ export const Route = createFileRoute("/_authenticated/")({
 function RouteComponent() {
   const { leagues } = Route.useLoaderData();
   const router = useRouter();
+  const [visible, setVisible] = useState(false);
 
   return (
-    <div className={classes["league-grid"]}>
-      {leagues.map((league) => (
-        <Card
-          className={classes["league-card"]}
-          title={league.name}
-          onClick={() => {
-            router.navigate({
-              to: "/league/$leagueId",
-              params: { leagueId: league.id },
-            });
-          }}
-        ></Card>
-      ))}
-      <div
-        className={classNames(
-          classes["league-card"],
-          classes["new-league-card"],
-        )}
-      >
-        <i className="pi pi-plus" />
+    <>
+      <div className={classes["league-grid"]}>
+        {leagues.map((league) => (
+          <div
+            className={classes.card}
+            onClick={() => {
+              router.navigate({
+                to: "/league/$leagueId",
+                params: { leagueId: league.id },
+              });
+            }}
+          >
+            <div className={classes["card-header"]}>{league.name}</div>
+          </div>
+        ))}
+        <div
+          className={classNames(classes.card, classes.new)}
+          onClick={() => setVisible(true)}
+        >
+          <i className="pi pi-plus" />
+        </div>
       </div>
-    </div>
+      <NewLeagueForm visible={visible} onHide={() => setVisible(false)} />
+    </>
   );
 }
