@@ -3,7 +3,7 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { orpc } from "../../lib/client";
 import { classNames } from "primereact/utils";
 import { useState } from "react";
-import { NewLeagueForm } from "../../components/NewLeagueForm";
+import { NewLeague } from "../../components/modals/NewLeague";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -42,7 +42,7 @@ function RouteComponent() {
           <i className="pi pi-plus" />
         </div>
       </div>
-      <NewLeagueForm visible={visible} onHide={() => setVisible(false)} />
+      <NewLeague visible={visible} onHide={() => setVisible(false)} />
     </>
   );
 }

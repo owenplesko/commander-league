@@ -50,10 +50,23 @@ export const leagueRoutes = {
       return { id: leagueId };
     }),
 
+  update: base
+    .route({ method: "PATCH", path: "/league/{leagueId}", successStatus: 201 })
+    .input(
+      z.object({ leagueId: z.coerce.number(), name: z.string().optional() }),
+    )
+    .handler(async ({ input, context }) => {
+      const { leagueId, ...values } = input;
+      await context.env.db
+        .update(league)
+        .set(values)
+        .where(eq(league.id, leagueId));
+    }),
+
   delete: base
     .route({ method: "DELETE", path: "/league/{leagueId}" })
     .input(z.object({ leagueId: z.coerce.number() }))
-    .handler(({ input, context }) => {
-      context.env.db.delete(league).where(eq(league.id, input.leagueId));
+    .handler(async ({ input, context }) => {
+      await context.env.db.delete(league).where(eq(league.id, input.leagueId));
     }),
 };
