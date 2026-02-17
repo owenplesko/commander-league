@@ -1,22 +1,11 @@
-import { onError, os } from "@orpc/server";
-import { routes } from "./routes/";
+import { onError } from "@orpc/server";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
-import { auth, authMiddleware } from "./auth";
+import { auth } from "./auth";
 import { Hono } from "hono";
-import { type BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import db from "./db";
+import { orpcRouter } from "./orpc";
 
 const app = new Hono();
-
-const orpcRouter = os
-  .$context<{
-    headers: Headers;
-    env: {
-      db: BunSQLiteDatabase;
-    };
-  }>()
-  .use(authMiddleware)
-  .router(routes);
 
 const orpcHandler = new OpenAPIHandler(orpcRouter, {
   interceptors: [onError((error) => console.log(error))],
@@ -34,7 +23,7 @@ app.use("/api/*", async (c, next) => {
     context: { headers: c.req.raw.headers, env: { db } },
   });
   if (matched) {
-    return c.newResponse(response.body, response);
+    return response;
   }
 
   await next();

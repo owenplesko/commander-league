@@ -1,0 +1,12 @@
+# dependencies 
+**/node_modules
+
+# build
+**/dist
+
+# dotenv environment variable files
+**/.env
+**/.local
+
+# Finder (MacOS) folder config
+**/.DS_Store

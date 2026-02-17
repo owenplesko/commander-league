@@ -1,6 +1,8 @@
 import setData from "./AllPrintings.json";
 import { Database } from "bun:sqlite";
 import type { Set } from "./AllMTGJSONTypes.ts";
+
+// @ts-ignore
 const sets = setData.data as Record<string, Set>;
 
 // Get card printing set, number, scryfall id mapped to name by oracleId
