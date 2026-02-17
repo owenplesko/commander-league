@@ -1,8 +1,8 @@
-import { os } from "@orpc/server";
+import { implement } from "@orpc/server";
 import type { DB } from "../db";
 import { contract } from "@commander-league/contract";
 
-export const base = os.$context<{
+export const os = implement(contract).$context<{
   headers: Headers;
   userId: string;
   env: {
