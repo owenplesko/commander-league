@@ -117,8 +117,8 @@ function RouteComponent() {
               {members.map((member) => (
                 <li>
                   <Link
-                    to="/league/$leagueId/collection/$playerId"
-                    params={{ leagueId: league.id, playerId: member.user.id }}
+                    to="/league/$leagueId/collection/$userId"
+                    params={{ leagueId: league.id, userId: member.user.id }}
                     className={classNames(classes.item, classes.interactable)}
                   >
                     <Avatar
