@@ -3,7 +3,8 @@
   "version": "1.0.0",
   "type": "module",
   "exports": {
-    ".": "./src/contract.ts"
+    ".": "./src/contract.ts",
+    "./schemas": "./src/schemas/index.ts"
   },
   "devDependencies": {
     "@types/bun": "latest"

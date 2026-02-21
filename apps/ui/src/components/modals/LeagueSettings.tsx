@@ -3,7 +3,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useState } from "react";
-import { orpc } from "../../lib/client";
+import { client } from "../../lib/client";
 
 type Props = {
   visible: boolean;
@@ -18,7 +18,7 @@ export function LeagueSettings({ visible, onHide }: Props) {
   const [leagueName, setLeagueName] = useState(league.name);
 
   async function save() {
-    await orpc.league.update({ leagueId: league.id, name: leagueName });
+    await client.league.update({ leagueId: league.id, name: leagueName });
   }
 
   return (

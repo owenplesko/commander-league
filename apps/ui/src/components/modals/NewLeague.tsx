@@ -2,7 +2,7 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useState } from "react";
-import { orpc } from "../../lib/client";
+import { client } from "../../lib/client";
 import { useRouter } from "@tanstack/react-router";
 
 type Props = {
@@ -15,7 +15,7 @@ export function NewLeague({ visible, onHide }: Props) {
   const router = useRouter();
 
   async function createLeague() {
-    const res = await orpc.league.create({ name });
+    const res = await client.league.create({ name });
     onHide();
     router.navigate({ to: "/league/$leagueId", params: { leagueId: res.id } });
   }

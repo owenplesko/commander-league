@@ -7,7 +7,7 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
-import { orpc } from "../../../lib/client";
+import { client } from "../../../lib/client";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
 import { useRef, useState } from "react";
@@ -22,24 +22,24 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
   params: z.object({ leagueId: z.coerce.number() }),
   beforeLoad: async ({ params }) => {
-    const league = await orpc.league.get({ leagueId: params.leagueId });
+    const league = await client.league.get({ leagueId: params.leagueId });
 
     if (!league) throw notFound();
 
     return { league };
   },
   loader: async ({ params, context }) => {
-    const players = await orpc.leaguePlayer.list({
+    const members = await client.league.member.list({
       leagueId: params.leagueId,
     });
 
-    return { players, league: context.league };
+    return { members, league: context.league };
   },
 });
 
 function RouteComponent() {
   const router = useRouter();
-  const { players, league } = Route.useLoaderData();
+  const { members, league } = Route.useLoaderData();
   const menuRef = useRef<Menu>(null);
   const [modal, setModal] = useState<"settings" | "invite" | null>(null);
 
@@ -67,7 +67,7 @@ function RouteComponent() {
           acceptClassName: "p-button-danger",
           icon: PrimeIcons.EXCLAMATION_TRIANGLE,
           accept: async () => {
-            await orpc.league.delete({ leagueId: league.id });
+            await client.league.delete({ leagueId: league.id });
             router.navigate({ to: "/" });
           },
         });
@@ -114,19 +114,19 @@ function RouteComponent() {
           <nav>
             <strong className={classes.item}>Collections</strong>
             <ul>
-              {players.map((player) => (
+              {members.map((member) => (
                 <li>
                   <Link
                     to="/league/$leagueId/collection/$playerId"
-                    params={{ leagueId: league.id, playerId: player.id }}
+                    params={{ leagueId: league.id, playerId: member.user.id }}
                     className={classNames(classes.item, classes.interactable)}
                   >
                     <Avatar
                       style={{ height: "1rem", width: "1rem" }}
                       shape="circle"
-                      image={player.image ?? undefined}
+                      image={member.user.image ?? undefined}
                     />
-                    {player.name}
+                    {member.user.name}
                   </Link>
                 </li>
               ))}

@@ -1,27 +1,30 @@
 import { card, collectionCard } from "../db/schema";
 import { eq, and } from "drizzle-orm";
-import { os } from "./base";
+import { base } from "./base";
+import type { CollectionCard } from "@commander-league/contract/schemas";
 
-const getCollection = os.collection.get.handler(({ input, context }) => {
-  const cards = context.env.db
-    .select({
-      name: card.name,
-      data: card.data,
-      quantity: collectionCard.quantity,
-    })
-    .from(collectionCard)
-    .innerJoin(card, eq(collectionCard.cardName, card.name))
-    .where(
-      and(
-        eq(collectionCard.leagueId, input.leagueId),
-        eq(collectionCard.playerId, input.userId),
-      ),
-    );
+const getCollection = base.collection.get.handler(
+  async ({ input, context }) => {
+    const cards: CollectionCard[] = await context.env.db
+      .select({
+        name: card.name,
+        data: card.data,
+        quantity: collectionCard.quantity,
+      })
+      .from(collectionCard)
+      .innerJoin(card, eq(collectionCard.cardName, card.name))
+      .where(
+        and(
+          eq(collectionCard.leagueId, input.leagueId),
+          eq(collectionCard.playerId, input.userId),
+        ),
+      );
 
-  return { cards };
-});
+    return { cards };
+  },
+);
 
-const setCollection = os.collection.set.handler(() => {});
+const setCollection = base.collection.set.handler(() => {});
 
 export const collectionRoutes = {
   get: getCollection,

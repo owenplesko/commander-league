@@ -8,7 +8,7 @@ import {
   index,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
-import type { CardData } from "../schemas/card";
+import type { CardData } from "@commander-league/contract/schemas";
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
@@ -74,7 +74,9 @@ export const leaguePlayer = sqliteTable(
     leagueId: integer("league_id")
       .notNull()
       .references(() => league.id),
-    playerId: text("player_id").notNull(),
+    playerId: text("player_id")
+      .notNull()
+      .references(() => user.id),
     role: text().notNull(),
   },
   (table) => [

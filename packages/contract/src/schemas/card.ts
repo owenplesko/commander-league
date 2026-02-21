@@ -5,7 +5,7 @@ export const CardPrintingSchema = z.object({
   number: z.string(),
   scryfallId: z.string(),
 });
-export type CarPrinting = z.infer<typeof CardPrintingSchema>;
+export type CardPrinting = z.infer<typeof CardPrintingSchema>;
 
 export const CardDataSchema = z.object({
   manaValue: z.number(),

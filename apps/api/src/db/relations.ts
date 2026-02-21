@@ -57,6 +57,7 @@ export const leaguePlayerRelations = relations(leaguePlayer, ({ one }) => ({
     fields: [leaguePlayer.leagueId],
     references: [league.id],
   }),
+  user: one(user, { fields: [leaguePlayer.playerId], references: [user.id] }),
 }));
 
 // auth stuff
@@ -78,4 +79,3 @@ export const accountRelations = relations(account, ({ one }) => ({
     references: [user.id],
   }),
 }));
-

@@ -10,10 +10,11 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@commander-league/contract": "workspace:*",
     "@orpc/client": "^1.13.4",
+    "@orpc/contract": "^1.13.5",
     "@orpc/openapi": "^1.13.4",
     "@orpc/openapi-client": "^1.13.5",
-    "@orpc/server": "^1.13.4",
     "@tanstack/react-router": "^1.157.16",
     "better-auth": "^1.4.17",
     "primeicons": "^7.0.0",

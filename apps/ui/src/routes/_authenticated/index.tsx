@@ -1,6 +1,6 @@
 import classes from "./index.module.css";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { orpc } from "../../lib/client";
+import { client } from "../../lib/client";
 import { classNames } from "primereact/utils";
 import { useState } from "react";
 import { NewLeague } from "../../components/modals/NewLeague";
@@ -9,7 +9,7 @@ export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
 
   loader: async () => {
-    const userLeagues = await orpc.league.list();
+    const userLeagues = await client.league.list();
     return { leagues: userLeagues };
   },
 });

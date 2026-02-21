@@ -11,4 +11,6 @@ export const GetLeagueSchema = z.object({ leagueId: LeagueSchema.shape.id });
 
 export const CreateLeagueSchema = LeagueSchema.omit({ id: true });
 
-export const UpdateLeagueSchema = LeagueSchema.partial().required({ id: true });
+export const UpdateLeagueSchema = LeagueSchema.omit({ id: true })
+  .partial()
+  .extend(GetLeagueSchema.shape);
