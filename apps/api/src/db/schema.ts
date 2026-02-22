@@ -66,6 +66,7 @@ export const deckCard = sqliteTable(
 export const league = sqliteTable("league", {
   id: integer().primaryKey().notNull(),
   name: text().notNull(),
+  inviteCode: text().unique(),
 });
 
 export const leaguePlayer = sqliteTable(
