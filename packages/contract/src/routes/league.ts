@@ -10,6 +10,7 @@ import {
   LeagueMemberSchema,
 } from "../schemas/leagueMember.ts";
 import {
+  GetInviteCodeSchema,
   InviteCodeSchema,
   UpdateInviteCodeSchema,
 } from "../schemas/inviteCode.ts";
@@ -42,18 +43,19 @@ const deleteLeague = oc
   .route({ method: "DELETE", path: "/league/{leagueId}", successStatus: 204 })
   .input(GetLeagueSchema);
 
-const getInviteCode = oc
+const listInviteCodes = oc
   .route({
     method: "GET",
     path: "/league/{leagueId}/invite-code",
   })
   .input(GetLeagueSchema)
-  .output(InviteCodeSchema);
+  .output(InviteCodeSchema.array());
 
-const regenerateInviteCode = oc
+const createInviteCode = oc
   .route({
-    method: "POST",
-    path: "/league/{leagueId}/invite-code/regenerate",
+    method: "PUT",
+    path: "/league/{leagueId}/invite-code",
+    successStatus: 201,
   })
   .input(GetLeagueSchema)
   .output(InviteCodeSchema);
@@ -61,10 +63,18 @@ const regenerateInviteCode = oc
 const updateInviteCode = oc
   .route({
     method: "PATCH",
-    path: "/league/{leagueId}/invite-code",
+    path: "/league/{leagueId}/invite-code/{}",
   })
   .input(UpdateInviteCodeSchema)
   .output(InviteCodeSchema);
+
+const deleteInviteCode = oc
+  .route({
+    method: "DELETE",
+    path: "/league/{leagueId}/invite-code",
+    successStatus: 204,
+  })
+  .input(GetInviteCodeSchema);
 
 const listLeagueMembers = oc
   .route({ method: "GET", path: "/league/{leagueId}/member" })
@@ -83,9 +93,10 @@ export const leagueRoutes = {
   update: updateLeague,
   delete: deleteLeague,
   inviteCode: {
-    get: getInviteCode,
+    list: listInviteCodes,
+    create: createInviteCode,
     update: updateInviteCode,
-    regenerate: regenerateInviteCode,
+    delete: deleteInviteCode,
   },
   member: {
     list: listLeagueMembers,
