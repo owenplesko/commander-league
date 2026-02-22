@@ -50,7 +50,7 @@ for (const [setName, set] of Object.entries(sets)) {
   }
 }
 
-const db = new Database("./back/db.sqlite");
+const db = new Database("./apps/api/db.sqlite");
 
 const insertCard = db.prepare(`
   INSERT INTO card (name, data)

@@ -2,13 +2,14 @@ import { Database } from "bun:sqlite";
 import { readFileSync } from "fs";
 
 // Open the database
-const db = new Database("./back/db.sqlite");
+const db = new Database("./apps/api/db.sqlite");
+
+db.run("PRAGMA foreign_keys = ON;");
 
 // Prepare the insert statement
 const insertCard = db.prepare(`
-  INSERT INTO collection_card (player_id, league_id, card_name, quantity)
-  VALUES('l3Jb09KhRq2UZVc7yu88M57S5eLmyo6j', 1, ?, ?)
-  ON CONFLICT DO NOTHING
+  INSERT INTO collection_card (user_id, league_id, card_name, quantity)
+  VALUES('CshwFERMYdG443PLmR8xI9vJ4zvTK3mC', 1, ?, ?)
 `);
 
 // Read the collection file

@@ -16,7 +16,7 @@ const getCollection = base.collection.get.handler(
       .where(
         and(
           eq(collectionCard.leagueId, input.leagueId),
-          eq(collectionCard.playerId, input.userId),
+          eq(collectionCard.userId, input.userId),
         ),
       );
 

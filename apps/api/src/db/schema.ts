@@ -18,10 +18,12 @@ export const card = sqliteTable("card", {
 export const collectionCard = sqliteTable(
   "collection_card",
   {
-    playerId: text("player_id").notNull(),
+    userId: text("user_id")
+      .notNull()
+      .references(() => user.id),
     leagueId: integer("league_id")
       .notNull()
-      .references(() => league.id),
+      .references(() => league.id, { onDelete: "cascade" }),
     cardName: text("card_name")
       .notNull()
       .references(() => card.name),
@@ -29,7 +31,7 @@ export const collectionCard = sqliteTable(
   },
   (table) => [
     primaryKey({
-      columns: [table.playerId, table.leagueId, table.cardName],
+      columns: [table.userId, table.leagueId, table.cardName],
       name: "collection_card_player_id_league_id_card_name_pk",
     }),
     check("collection_card_check_1", sql`quantity > 0`),
@@ -41,7 +43,7 @@ export const deck = sqliteTable("deck", {
   playerId: text("player_id").notNull(),
   leagueId: integer("league_id")
     .notNull()
-    .references(() => league.id),
+    .references(() => league.id, { onDelete: "cascade" }),
   name: text().notNull(),
 });
 
@@ -50,7 +52,7 @@ export const deckCard = sqliteTable(
   {
     deckId: integer("deck_id")
       .notNull()
-      .references(() => deck.id),
+      .references(() => deck.id, { onDelete: "cascade" }),
     cardName: text("card_name")
       .notNull()
       .references(() => card.name),
@@ -77,7 +79,7 @@ export const leaguePlayer = sqliteTable(
       .references(() => league.id),
     playerId: text("player_id")
       .notNull()
-      .references(() => user.id),
+      .references(() => user.id, { onDelete: "cascade" }),
     role: text().notNull(),
   },
   (table) => [
@@ -85,7 +87,7 @@ export const leaguePlayer = sqliteTable(
       columns: [table.leagueId, table.playerId],
       name: "league_player_league_id_player_id_pk",
     }),
-    check("league_player_check_1", sql`role IN ('owner', 'admin', 'player'`),
+    check("league_player_check_1", sql`role IN ('owner', 'admin', 'player')`),
   ],
 );
 
