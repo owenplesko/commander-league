@@ -68,7 +68,6 @@ export const deckCard = sqliteTable(
 export const league = sqliteTable("league", {
   id: integer().primaryKey().notNull(),
   name: text().notNull(),
-  inviteCode: text().unique(),
 });
 
 export const leaguePlayer = sqliteTable(
@@ -90,6 +89,15 @@ export const leaguePlayer = sqliteTable(
     check("league_player_check_1", sql`role IN ('owner', 'admin', 'player')`),
   ],
 );
+
+export const inviteCode = sqliteTable("invite_code", {
+  leagueId: integer("league_id")
+    .notNull()
+    .references(() => league.id),
+  code: text(),
+  active: integer({ mode: "boolean" }).default(false).notNull(),
+  uses: integer().default(0).notNull(),
+});
 
 // auth stuff
 export const user = sqliteTable("user", {
