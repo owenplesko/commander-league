@@ -1,9 +1,10 @@
-import { league, leaguePlayer } from "../db/schema";
-import { eq } from "drizzle-orm";
+import { inviteCode, league, leaguePlayer } from "../db/schema";
+import { and, eq } from "drizzle-orm";
 import { base } from "./base";
 import type { League, LeagueMember } from "@commander-league/contract/schemas";
 
 import { ORPCError } from "@orpc/server";
+import type { InviteCode } from "../../../../packages/contract/src/schemas/inviteCode";
 
 // TODO: add a search param for userId instead of getting from auth
 const listLeague = base.league.list.handler(async ({ context }) => {
@@ -81,6 +82,51 @@ const getLeagueMember = base.league.member.get.handler(
   },
 );
 
+const listInviteCodes = base.league.inviteCode.list.handler(
+  async ({ input, context }) => {
+    const codes = await context.env.db
+      .select()
+      .from(inviteCode)
+      .where(eq(inviteCode.leagueId, input.leagueId));
+    return codes;
+  },
+);
+
+const createInviteCode = base.league.inviteCode.create.handler(
+  async ({ input, context }) => {
+    const code = crypto.randomUUID();
+    const res = context.env.db
+      .insert(inviteCode)
+      .values({ code, leagueId: input.leagueId })
+      .returning()
+      .get();
+
+    return res;
+  },
+);
+
+const updateInviteCode = base.league.inviteCode.update.handler(
+  async ({ input, context }) => {
+    const { leagueId, code, ...values } = input;
+    const res = context.env.db
+      .update(inviteCode)
+      .set(values)
+      .where(and(eq(inviteCode.leagueId, leagueId), eq(inviteCode.code, code)))
+      .returning()
+      .get();
+    return res;
+  },
+);
+
+const deleteInviteCode = base.league.inviteCode.delete.handler(
+  async ({ input, context }) => {
+    const { leagueId, code } = input;
+    await context.env.db
+      .delete(inviteCode)
+      .where(and(eq(inviteCode.leagueId, leagueId), eq(inviteCode.code, code)));
+  },
+);
+
 export const leagueRoutes = {
   list: listLeague,
   get: getLeague,
@@ -90,5 +136,11 @@ export const leagueRoutes = {
   member: {
     list: listLeagueMembers,
     get: getLeagueMember,
+  },
+  inviteCode: {
+    list: listInviteCodes,
+    create: createInviteCode,
+    update: updateInviteCode,
+    delete: deleteInviteCode,
   },
 };
