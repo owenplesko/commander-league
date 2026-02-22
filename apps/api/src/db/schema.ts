@@ -91,10 +91,10 @@ export const leaguePlayer = sqliteTable(
 );
 
 export const inviteCode = sqliteTable("invite_code", {
+  code: text().notNull().primaryKey(),
   leagueId: integer("league_id")
     .notNull()
     .references(() => league.id),
-  code: text(),
   active: integer({ mode: "boolean" }).default(false).notNull(),
   uses: integer().default(0).notNull(),
 });

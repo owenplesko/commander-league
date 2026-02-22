@@ -15,6 +15,13 @@
       "when": 1771774132507,
       "tag": "0001_minor_doctor_doom",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "6",
+      "when": 1771776276882,
+      "tag": "0002_outstanding_dexter_bennett",
+      "breakpoints": true
     }
   ]
 }
