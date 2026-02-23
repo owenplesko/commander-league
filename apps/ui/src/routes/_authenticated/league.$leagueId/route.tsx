@@ -7,7 +7,7 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
-import { client } from "../../../lib/client";
+import { client, orpc } from "../../../lib/client";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
 import { useRef, useState } from "react";
@@ -17,6 +17,7 @@ import { PrimeIcons } from "primereact/api";
 import { LeagueSettings } from "../../../components/modals/LeagueSettings";
 import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
+import { useMutation } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -32,16 +33,29 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
     const members = await client.league.member.list({
       leagueId: params.leagueId,
     });
+    const membership = await client.league.member.get({
+      leagueId: params.leagueId,
+      userId: context.user.id,
+    });
 
-    return { members, league: context.league };
+    return { members, league: context.league, membership };
   },
 });
 
 function RouteComponent() {
   const router = useRouter();
-  const { members, league } = Route.useLoaderData();
+  const { members, league, membership } = Route.useLoaderData();
   const menuRef = useRef<Menu>(null);
   const [modal, setModal] = useState<"settings" | "invite" | null>(null);
+
+  const leaveMutation = useMutation(
+    orpc.league.member.delete.mutationOptions({
+      onSuccess: (_output, _input, _err, ctx) => {
+        ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
+        router.navigate({ to: "/" });
+      },
+    }),
+  );
 
   const menuItems: MenuItem[] = [
     {
@@ -56,23 +70,43 @@ function RouteComponent() {
         setModal("settings");
       },
     },
-    {
-      label: "Delete",
-      icon: PrimeIcons.TRASH,
-      command: () => {
-        confirmDialog({
-          header: "Delete Confirmation",
-          message: "Are you sure you want to delete this league?",
-          defaultFocus: "reject",
-          acceptClassName: "p-button-danger",
-          icon: PrimeIcons.EXCLAMATION_TRIANGLE,
-          accept: async () => {
-            await client.league.delete({ leagueId: league.id });
-            router.navigate({ to: "/" });
+    membership.role === "owner"
+      ? {
+          label: "Delete",
+          icon: PrimeIcons.TRASH,
+          command: () => {
+            confirmDialog({
+              header: "Confirm",
+              message: "Are you sure you want to delete this league?",
+              defaultFocus: "reject",
+              acceptClassName: "p-button-danger",
+              icon: PrimeIcons.EXCLAMATION_TRIANGLE,
+              accept: async () => {
+                await client.league.delete({ leagueId: league.id });
+                router.navigate({ to: "/" });
+              },
+            });
           },
-        });
-      },
-    },
+        }
+      : {
+          label: "Leave",
+          icon: PrimeIcons.SIGN_OUT,
+          command: () => {
+            confirmDialog({
+              header: "Confirm",
+              message: "Are you sure you want to leave this league?",
+              defaultFocus: "reject",
+              acceptClassName: "p-button-danger",
+              icon: PrimeIcons.EXCLAMATION_TRIANGLE,
+              accept: () => {
+                leaveMutation.mutate({
+                  leagueId: league.id,
+                  userId: membership.user.id,
+                });
+              },
+            });
+          },
+        },
   ];
 
   return (

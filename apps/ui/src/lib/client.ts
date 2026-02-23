@@ -33,6 +33,21 @@ export const orpc = createTanstackQueryUtils(client, {
           },
         },
       },
+      member: {
+        delete: {
+          mutationOptions: {
+            onSuccess: (_output, input, _err, ctx) => {
+              ctx.client.invalidateQueries({
+                queryKey: [
+                  orpc.league.member.list.key({
+                    input: { leagueId: input.leagueId },
+                  }),
+                ],
+              });
+            },
+          },
+        },
+      },
       inviteCode: {
         create: {
           mutationOptions: {

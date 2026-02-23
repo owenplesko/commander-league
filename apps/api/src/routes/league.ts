@@ -1,5 +1,5 @@
 import { inviteCode, league, leaguePlayer } from "../db/schema";
-import { and, count, eq } from "drizzle-orm";
+import { and, count, eq, ne } from "drizzle-orm";
 import { base } from "./base";
 import type { League, LeagueMember } from "@commander-league/contract/schemas";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
@@ -112,6 +112,20 @@ const getLeagueMember = base.league.member.get.handler(
   },
 );
 
+const deleteLeagueMember = base.league.member.delete.handler(
+  async ({ input, context }) => {
+    await context.env.db
+      .delete(leaguePlayer)
+      .where(
+        and(
+          eq(leaguePlayer.leagueId, input.leagueId),
+          eq(leaguePlayer.playerId, input.userId),
+          ne(leaguePlayer.role, "owner"),
+        ),
+      );
+  },
+);
+
 const listInviteCodes = base.league.inviteCode.list.handler(
   async ({ input, context }) => {
     const codes = await context.env.db
@@ -184,6 +198,7 @@ export const leagueRoutes = {
   member: {
     list: listLeagueMembers,
     get: getLeagueMember,
+    delete: deleteLeagueMember,
   },
   inviteCode: {
     list: listInviteCodes,

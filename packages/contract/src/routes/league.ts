@@ -95,6 +95,14 @@ const getLeagueMember = oc
   .input(GetLeagueMemberSchema)
   .output(LeagueMemberSchema);
 
+const deleteLeagueMember = oc
+  .route({
+    method: "DELETE",
+    path: "/league/{leagueId}/member/{userId}",
+    successStatus: 204,
+  })
+  .input(GetLeagueMemberSchema);
+
 export const leagueRoutes = {
   list: listLeagues,
   get: getLeague,
@@ -111,5 +119,6 @@ export const leagueRoutes = {
   member: {
     list: listLeagueMembers,
     get: getLeagueMember,
+    delete: deleteLeagueMember,
   },
 };
