@@ -12,6 +12,7 @@ import {
 import {
   GetInviteCodeSchema,
   InviteCodeSchema,
+  JoinLeagueSchema,
   UpdateInviteCodeSchema,
 } from "../schemas/inviteCode.ts";
 
@@ -35,6 +36,11 @@ const createLeague = oc
   .input(CreateLeagueSchema)
   .output(LeagueSchema);
 
+const joinLeague = oc
+  .route({ method: "POST", path: "/league/join", successStatus: 201 })
+  .input(JoinLeagueSchema)
+  .output(LeagueSchema);
+
 const updateLeague = oc
   .route({ method: "PATCH", path: "/league/{leagueId}", successStatus: 204 })
   .input(UpdateLeagueSchema);
@@ -53,7 +59,7 @@ const listInviteCodes = oc
 
 const createInviteCode = oc
   .route({
-    method: "PUT",
+    method: "POST",
     path: "/league/{leagueId}/invite-code",
     successStatus: 201,
   })
@@ -90,6 +96,7 @@ export const leagueRoutes = {
   list: listLeagues,
   get: getLeague,
   create: createLeague,
+  join: joinLeague,
   update: updateLeague,
   delete: deleteLeague,
   inviteCode: {

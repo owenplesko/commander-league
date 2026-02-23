@@ -15,6 +15,10 @@ export const GetInviteCodeSchema = InviteCodeSchema.pick({
   code: true,
 });
 
+export const JoinLeagueSchema = z.object({
+  inviteCode: InviteCodeSchema.shape.code,
+});
+
 export const UpdateInviteCodeSchema = GetInviteCodeSchema.extend(
   InviteCodeSchema.pick({ active: true }).shape,
 );
