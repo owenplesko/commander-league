@@ -10,14 +10,14 @@ type Props = {
   onHide: () => void;
 };
 
-export function NewLeague({ visible, onHide }: Props) {
-  const [name, setName] = useState<string>("");
+export function JoinLeague({ visible, onHide }: Props) {
+  const [inviteCode, setInviteCode] = useState<string>("");
 
-  const mutation = useMutation(orpc.league.create.mutationOptions());
+  const mutation = useMutation(orpc.league.join.mutationOptions());
 
   return (
     <Dialog
-      header="New League"
+      header="Join League"
       visible={visible}
       onHide={onHide}
       style={{ width: "40rem" }}
@@ -26,20 +26,18 @@ export function NewLeague({ visible, onHide }: Props) {
       modal
       footer={
         <Button
-          label="Create"
-          onClick={() => {
-            mutation.mutate({ name }, { onSuccess: onHide });
-          }}
+          label="Join"
+          onClick={() => mutation.mutate({ inviteCode }, { onSuccess: onHide })}
         />
       }
     >
       <div className="form">
         <div className="field">
-          <label>League Name</label>
+          <label>Invite Code</label>
           <InputText
-            placeholder="name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
+            placeholder="invite code..."
+            value={inviteCode}
+            onChange={(e) => setInviteCode(e.target.value)}
           />
         </div>
       </div>

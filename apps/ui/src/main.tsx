@@ -7,7 +7,8 @@ import "primeicons/primeicons.css";
 import "./index.css";
 
 import { routeTree } from "./routeTree.gen.ts";
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { QueryClientProvider } from "@tanstack/react-query";
+import { queryClient } from "./lib/client.ts";
 
 const router = createRouter({ routeTree });
 
@@ -16,8 +17,6 @@ declare module "@tanstack/react-router" {
     router: typeof router;
   }
 }
-
-const queryClient = new QueryClient();
 
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {

@@ -23,9 +23,9 @@
   border: 3px dashed var(--primary-color);
   display: grid;
   place-items: center;
+}
 
-  i {
-    color: var(--primary-color);
-    font-size: 2rem;
-  }
+.actions {
+  display: flex;
+  flex-direction: column;
 }

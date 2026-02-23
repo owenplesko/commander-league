@@ -55,7 +55,7 @@ const joinLeague = base.league.join.handler(async ({ input, context }) => {
     await tx.insert(leaguePlayer).values({
       leagueId: leagueRes.league.id,
       playerId: context.userId,
-      role: "member",
+      role: "player",
     });
 
     return leagueRes.league;
