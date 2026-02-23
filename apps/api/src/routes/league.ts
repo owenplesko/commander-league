@@ -41,6 +41,29 @@ const createLeague = base.league.create.handler(async ({ input, context }) => {
   return newLeague;
 });
 
+const joinLeague = base.league.join.handler(async ({ input, context }) => {
+  const leagueRes = await context.env.db.transaction(async (tx) => {
+    const leagueRes = tx
+      .select()
+      .from(league)
+      .innerJoin(inviteCode, eq(league.id, inviteCode.leagueId))
+      .where(eq(inviteCode.code, input.inviteCode))
+      .get();
+
+    if (!leagueRes) throw new ORPCError("NOT_FOUND");
+
+    await tx.insert(leaguePlayer).values({
+      leagueId: leagueRes.league.id,
+      playerId: context.userId,
+      role: "member",
+    });
+
+    return leagueRes.league;
+  });
+
+  return leagueRes;
+});
+
 const updateLeague = base.league.update.handler(async ({ input, context }) => {
   const { leagueId, ...values } = input;
   await context.env.db
@@ -148,6 +171,7 @@ export const leagueRoutes = {
   list: listLeague,
   get: getLeague,
   create: createLeague,
+  join: joinLeague,
   update: updateLeague,
   delete: deleteLeague,
   member: {
