@@ -51,53 +51,51 @@ export function InviteCode({ visible, onHide }: Props) {
       modal
     >
       <div className="form">
-        <div className="field">
-          <DataTable value={inviteCodes}>
-            <Column field="code" header="Code" />
-            <Column field="uses" header="Uses" />
-            <Column
-              field="active"
-              header="Active"
-              body={(rowData: InviteCode) => (
-                <InputSwitch
-                  checked={rowData.active}
-                  onChange={(e) =>
-                    updateMutation.mutate({
-                      leagueId: rowData.leagueId,
-                      code: rowData.code,
-                      active: e.value,
-                    })
-                  }
-                />
-              )}
-            />
-            <Column
-              header="Delete"
-              body={(rowData: InviteCode) => (
-                <Button
-                  text
-                  severity="danger"
-                  icon={PrimeIcons.TRASH}
-                  onClick={() =>
-                    deleteMutation.mutate({
-                      leagueId: rowData.leagueId,
-                      code: rowData.code,
-                    })
-                  }
-                />
-              )}
-            />
-          </DataTable>
-          <Button
-            text
-            style={{ marginLeft: "auto" }}
-            label="Generate New Code"
-            disabled={inviteCodes.length >= MAX_INVITE_COUNT}
-            onClick={() => {
-              creationMutation.mutate({ leagueId: league.id });
-            }}
+        <DataTable value={inviteCodes} size={"small"}>
+          <Column field="code" header="Code" />
+          <Column field="uses" header="Uses" />
+          <Column
+            field="active"
+            header="Active"
+            body={(rowData: InviteCode) => (
+              <InputSwitch
+                checked={rowData.active}
+                onChange={(e) =>
+                  updateMutation.mutate({
+                    leagueId: rowData.leagueId,
+                    code: rowData.code,
+                    active: e.value,
+                  })
+                }
+              />
+            )}
           />
-        </div>
+          <Column
+            header="Delete"
+            body={(rowData: InviteCode) => (
+              <Button
+                text
+                severity="danger"
+                icon={PrimeIcons.TRASH}
+                onClick={() =>
+                  deleteMutation.mutate({
+                    leagueId: rowData.leagueId,
+                    code: rowData.code,
+                  })
+                }
+              />
+            )}
+          />
+        </DataTable>
+        <Button
+          text
+          style={{ marginLeft: "auto" }}
+          label="Generate New Code"
+          disabled={inviteCodes.length >= MAX_INVITE_COUNT}
+          onClick={() => {
+            creationMutation.mutate({ leagueId: league.id });
+          }}
+        />
       </div>
     </Dialog>
   );
