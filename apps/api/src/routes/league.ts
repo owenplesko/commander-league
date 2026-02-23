@@ -47,7 +47,9 @@ const joinLeague = base.league.join.handler(async ({ input, context }) => {
       .select()
       .from(league)
       .innerJoin(inviteCode, eq(league.id, inviteCode.leagueId))
-      .where(eq(inviteCode.code, input.inviteCode))
+      .where(
+        and(eq(inviteCode.code, input.inviteCode), eq(inviteCode.active, true)),
+      )
       .get();
 
     if (!leagueRes) throw new ORPCError("NOT_FOUND");
@@ -57,6 +59,11 @@ const joinLeague = base.league.join.handler(async ({ input, context }) => {
       playerId: context.userId,
       role: "player",
     });
+
+    await tx
+      .update(inviteCode)
+      .set({ uses: leagueRes.invite_code.uses + 1 })
+      .where(eq(inviteCode.code, input.inviteCode));
 
     return leagueRes.league;
   });
