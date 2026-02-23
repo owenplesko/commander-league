@@ -4,6 +4,8 @@ import { InputText } from "primereact/inputtext";
 import { useState } from "react";
 import { orpc } from "../../lib/client";
 import { useMutation } from "@tanstack/react-query";
+import { isDefinedError } from "@orpc/client";
+import { Message } from "primereact/message";
 
 type Props = {
   visible: boolean;
@@ -12,14 +14,23 @@ type Props = {
 
 export function JoinLeague({ visible, onHide }: Props) {
   const [inviteCode, setInviteCode] = useState<string>("");
-
   const mutation = useMutation(orpc.league.join.mutationOptions());
+  const notFound =
+    !!mutation.error &&
+    isDefinedError(mutation.error) &&
+    mutation.error.code === "NOT_FOUND";
+
+  const handleClose = () => {
+    setInviteCode("");
+    mutation.reset();
+    onHide();
+  };
 
   return (
     <Dialog
       header="Join League"
       visible={visible}
-      onHide={onHide}
+      onHide={handleClose}
       style={{ width: "40rem" }}
       draggable={false}
       resizable={false}
@@ -27,7 +38,9 @@ export function JoinLeague({ visible, onHide }: Props) {
       footer={
         <Button
           label="Join"
-          onClick={() => mutation.mutate({ inviteCode }, { onSuccess: onHide })}
+          onClick={() =>
+            mutation.mutate({ inviteCode }, { onSuccess: handleClose })
+          }
         />
       }
     >
@@ -36,9 +49,11 @@ export function JoinLeague({ visible, onHide }: Props) {
           <label>Invite Code</label>
           <InputText
             placeholder="invite code..."
+            invalid={notFound}
             value={inviteCode}
             onChange={(e) => setInviteCode(e.target.value)}
           />
+          {notFound && <Message severity="error" text="Invite code invalid" />}
         </div>
       </div>
     </Dialog>

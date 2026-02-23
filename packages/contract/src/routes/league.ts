@@ -39,7 +39,10 @@ const createLeague = oc
 const joinLeague = oc
   .route({ method: "POST", path: "/league/join", successStatus: 201 })
   .input(JoinLeagueSchema)
-  .output(LeagueSchema);
+  .output(LeagueSchema)
+  .errors({
+    NOT_FOUND: {},
+  });
 
 const updateLeague = oc
   .route({ method: "PATCH", path: "/league/{leagueId}", successStatus: 204 })
