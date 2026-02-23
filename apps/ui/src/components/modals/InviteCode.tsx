@@ -44,7 +44,7 @@ export function InviteCode({ visible, onHide }: Props) {
       header="Invites"
       visible={visible}
       onHide={onHide}
-      style={{ width: "50rem" }}
+      style={{ width: "40rem" }}
       draggable={false}
       resizable={false}
       modal

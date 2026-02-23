@@ -5,6 +5,7 @@ import type { League, LeagueMember } from "@commander-league/contract/schemas";
 
 import { ORPCError } from "@orpc/server";
 import type { InviteCode } from "../../../../packages/contract/src/schemas/inviteCode";
+import { generateBase36Code } from "../lib/generateInviteCode";
 
 // TODO: add a search param for userId instead of getting from auth
 const listLeague = base.league.list.handler(async ({ context }) => {
@@ -94,7 +95,7 @@ const listInviteCodes = base.league.inviteCode.list.handler(
 
 const createInviteCode = base.league.inviteCode.create.handler(
   async ({ input, context }) => {
-    const code = crypto.randomUUID();
+    const code = generateBase36Code();
     const res = context.env.db
       .insert(inviteCode)
       .values({ code, leagueId: input.leagueId, active: true })
