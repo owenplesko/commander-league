@@ -95,7 +95,7 @@ export const inviteCode = sqliteTable("invite_code", {
   leagueId: integer("league_id")
     .notNull()
     .references(() => league.id),
-  active: integer({ mode: "boolean" }).default(false).notNull(),
+  active: integer({ mode: "boolean" }).notNull(),
   uses: integer().default(0).notNull(),
 });
 

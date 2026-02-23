@@ -97,7 +97,7 @@ const createInviteCode = base.league.inviteCode.create.handler(
     const code = crypto.randomUUID();
     const res = context.env.db
       .insert(inviteCode)
-      .values({ code, leagueId: input.leagueId })
+      .values({ code, leagueId: input.leagueId, active: true })
       .returning()
       .get();
 

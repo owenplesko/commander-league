@@ -1,7 +1,7 @@
 import z from "zod";
 
 export const LeagueSchema = z.object({
-  id: z.coerce.number(),
+  id: z.coerce.number<number>(),
   name: z.string().min(3).max(50),
 });
 

@@ -1,7 +1,8 @@
 import z from "zod";
+import { LeagueSchema } from "./league";
 
 export const InviteCodeSchema = z.object({
-  leagueId: z.number(),
+  leagueId: LeagueSchema.shape.id,
   code: z.string(),
   active: z.boolean(),
   uses: z.number(),

@@ -63,7 +63,7 @@ const createInviteCode = oc
 const updateInviteCode = oc
   .route({
     method: "PATCH",
-    path: "/league/{leagueId}/invite-code/{}",
+    path: "/league/{leagueId}/invite-code/{code}",
   })
   .input(UpdateInviteCodeSchema)
   .output(InviteCodeSchema);
@@ -71,7 +71,7 @@ const updateInviteCode = oc
 const deleteInviteCode = oc
   .route({
     method: "DELETE",
-    path: "/league/{leagueId}/invite-code",
+    path: "/league/{leagueId}/invite-code/{code}",
     successStatus: 204,
   })
   .input(GetInviteCodeSchema);
