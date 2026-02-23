@@ -8,6 +8,7 @@ import { DataTable } from "primereact/datatable";
 import { Column } from "primereact/column";
 import type { InviteCode } from "../../../../../packages/contract/src/schemas/inviteCode";
 import { InputSwitch } from "primereact/inputswitch";
+import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 
 type Props = {
   visible: boolean;
@@ -88,9 +89,10 @@ export function InviteCode({ visible, onHide }: Props) {
             />
           </DataTable>
           <Button
-            style={{ marginLeft: "auto" }}
             text
+            style={{ marginLeft: "auto" }}
             label="Generate New Code"
+            disabled={inviteCodes.length >= MAX_INVITE_COUNT}
             onClick={() => {
               creationMutation.mutate({ leagueId: league.id });
             }}

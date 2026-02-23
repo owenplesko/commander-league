@@ -1,10 +1,9 @@
 import { inviteCode, league, leaguePlayer } from "../db/schema";
-import { and, eq } from "drizzle-orm";
+import { and, count, eq } from "drizzle-orm";
 import { base } from "./base";
 import type { League, LeagueMember } from "@commander-league/contract/schemas";
-
+import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 import { ORPCError } from "@orpc/server";
-import type { InviteCode } from "../../../../packages/contract/src/schemas/inviteCode";
 import { generateBase36Code } from "../lib/generateInviteCode";
 
 // TODO: add a search param for userId instead of getting from auth
@@ -96,13 +95,30 @@ const listInviteCodes = base.league.inviteCode.list.handler(
 const createInviteCode = base.league.inviteCode.create.handler(
   async ({ input, context }) => {
     const code = generateBase36Code();
-    const res = context.env.db
-      .insert(inviteCode)
-      .values({ code, leagueId: input.leagueId, active: true })
-      .returning()
-      .get();
 
-    return res;
+    const insertRes = await context.env.db.transaction(async (tx) => {
+      const countRes = tx
+        .select({ count: count() })
+        .from(inviteCode)
+        .where(eq(inviteCode.leagueId, input.leagueId))
+        .get()!;
+
+      if (countRes.count >= MAX_INVITE_COUNT) {
+        throw new ORPCError("CONFLICT", {
+          message: `cannot exceed ${MAX_INVITE_COUNT} invite codes`,
+        });
+      }
+
+      const insertRes = context.env.db
+        .insert(inviteCode)
+        .values({ code, leagueId: input.leagueId, active: true })
+        .returning()
+        .get();
+
+      return insertRes;
+    });
+
+    return insertRes;
   },
 );
 

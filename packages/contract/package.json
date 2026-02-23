@@ -4,6 +4,7 @@
   "type": "module",
   "exports": {
     ".": "./src/contract.ts",
+    "./constants": "./src/constants.ts",
     "./schemas": "./src/schemas/index.ts"
   },
   "devDependencies": {
