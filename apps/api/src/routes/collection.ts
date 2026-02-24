@@ -1,9 +1,9 @@
 import { card, collectionCard } from "../db/schema";
 import { eq, and } from "drizzle-orm";
-import { base } from "./base";
 import type { CollectionCard } from "@commander-league/contract/schemas";
+import { authed } from "../orpc";
 
-const getCollection = base.collection.get.handler(
+const getCollection = authed.collection.get.handler(
   async ({ input, context }) => {
     const cards: CollectionCard[] = await context.env.db
       .select({
@@ -24,7 +24,7 @@ const getCollection = base.collection.get.handler(
   },
 );
 
-const setCollection = base.collection.set.handler(() => {});
+const setCollection = authed.collection.set.handler(() => {});
 
 export const collectionRoutes = {
   get: getCollection,

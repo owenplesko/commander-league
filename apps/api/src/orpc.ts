@@ -1,14 +1,24 @@
-import { routes } from "./routes/";
-import { os } from "@orpc/server";
-import { authMiddleware } from "./auth";
+import { implement, ORPCError } from "@orpc/server";
 import type { DB } from "./db";
+import { contract } from "@commander-league/contract";
+import { auth } from "./auth";
 
-export const orpcRouter = os
-  .$context<{
-    headers: Headers;
-    env: {
-      db: DB;
-    };
-  }>()
-  .use(authMiddleware)
-  .router(routes);
+export const pub = implement(contract).$context<{
+  headers: Headers;
+  env: {
+    db: DB;
+  };
+}>();
+
+export const authed = pub.use(async ({ context, next }) => {
+  const user = await auth.api.getSession({ headers: context.headers });
+  const userId = user?.user.id;
+
+  if (!userId) throw new ORPCError("UNAUTHORIZED");
+
+  return await next({
+    context: {
+      userId: userId,
+    },
+  });
+});

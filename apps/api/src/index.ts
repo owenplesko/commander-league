@@ -1,11 +1,14 @@
 import { onError } from "@orpc/server";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
-import { auth } from "./auth";
+import { auth, authMiddleware } from "./auth";
 import { Hono } from "hono";
 import db from "./db";
-import { orpcRouter } from "./orpc";
+import { pub } from "./orpc";
+import { routes } from "./routes";
 
 const app = new Hono();
+
+export const orpcRouter = pub.use(authMiddleware).router(routes);
 
 const orpcHandler = new OpenAPIHandler(orpcRouter, {
   interceptors: [onError((error) => console.log(error))],

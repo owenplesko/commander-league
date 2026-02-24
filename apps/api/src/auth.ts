@@ -1,4 +1,3 @@
-import { ORPCError, os } from "@orpc/server";
 import { betterAuth } from "better-auth";
 import { drizzleAdapter } from "better-auth/adapters/drizzle";
 import db from "./db";
@@ -17,18 +16,3 @@ export const auth = betterAuth({
   },
   baseURL: process.env.BETTER_AUTH_URL,
 });
-
-export const authMiddleware = os
-  .$context<{ headers: Headers }>()
-  .middleware(async ({ context, next }) => {
-    const user = await auth.api.getSession({ headers: context.headers });
-    const userId = user?.user.id;
-
-    if (!userId) throw new ORPCError("UNAUTHORIZED");
-
-    return await next({
-      context: {
-        userId: userId,
-      },
-    });
-  });
