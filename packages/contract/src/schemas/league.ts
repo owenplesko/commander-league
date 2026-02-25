@@ -8,6 +8,7 @@ export const LeagueSchema = z.object({
 export type League = z.infer<typeof LeagueSchema>;
 
 export const GetLeagueSchema = z.object({ leagueId: LeagueSchema.shape.id });
+export type GetLeagueInput = z.infer<typeof GetLeagueSchema>;
 
 export const CreateLeagueSchema = LeagueSchema.omit({ id: true });
 

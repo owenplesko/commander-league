@@ -12,3 +12,5 @@ export const GetLeagueMemberSchema = z.object({
   leagueId: LeagueSchema.shape.id,
   userId: UserSchema.shape.id,
 });
+
+export type GetLeagueMemberInput = z.infer<typeof GetLeagueMemberSchema>;

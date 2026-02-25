@@ -1,10 +1,15 @@
 import { card, collectionCard } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import type { CollectionCard } from "@commander-league/contract/schemas";
-import { authed } from "../orpc";
+import { pub } from "../orpc";
+import {
+  leagueMemberGuard,
+  leagueOwnerGuard,
+} from "../middleware/leagueMembership";
 
-const getCollection = authed.collection.get.handler(
-  async ({ input, context }) => {
+const getCollection = pub.collection.get
+  .use(leagueMemberGuard)
+  .handler(async ({ input, context }) => {
     const cards: CollectionCard[] = await context.env.db
       .select({
         name: card.name,
@@ -21,10 +26,11 @@ const getCollection = authed.collection.get.handler(
       );
 
     return { cards };
-  },
-);
+  });
 
-const setCollection = authed.collection.set.handler(() => {});
+const setCollection = pub.collection.set
+  .use(leagueOwnerGuard)
+  .handler(() => {});
 
 export const collectionRoutes = {
   get: getCollection,

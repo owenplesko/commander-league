@@ -17,12 +17,7 @@ import { PrimeIcons } from "primereact/api";
 import { LeagueSettings } from "../../../components/modals/LeagueSettings";
 import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
-import {
-  useMutation,
-  useQueries,
-  useQuery,
-  useSuspenseQuery,
-} from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
