@@ -7,7 +7,7 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
-import { client, orpc } from "../../../lib/client";
+import { orpc, queryClient } from "../../../lib/client";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
 import { useRef, useState } from "react";
@@ -17,39 +17,61 @@ import { PrimeIcons } from "primereact/api";
 import { LeagueSettings } from "../../../components/modals/LeagueSettings";
 import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
-import { useMutation } from "@tanstack/react-query";
+import {
+  useMutation,
+  useQueries,
+  useQuery,
+  useSuspenseQuery,
+} from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
   params: z.object({ leagueId: z.coerce.number() }),
   beforeLoad: async ({ params }) => {
-    const league = await client.league.get({ leagueId: params.leagueId });
+    const league = await queryClient.ensureQueryData(
+      orpc.league.get.queryOptions({ input: { leagueId: params.leagueId } }),
+    );
 
     if (!league) throw notFound();
-
-    return { league };
   },
-  loader: async ({ params, context }) => {
-    const members = await client.league.member.list({
-      leagueId: params.leagueId,
-    });
-    const membership = await client.league.member.get({
-      leagueId: params.leagueId,
-      userId: context.user.id,
-    });
-
-    return { members, league: context.league, membership };
+  loader: async ({ params }) => {
+    await queryClient.ensureQueryData(
+      orpc.league.member.list.queryOptions({
+        input: { leagueId: params.leagueId },
+      }),
+    );
   },
 });
 
 function RouteComponent() {
+  const { leagueId } = Route.useParams();
+  const { user } = Route.useRouteContext();
+
   const router = useRouter();
-  const { members, league, membership } = Route.useLoaderData();
   const menuRef = useRef<Menu>(null);
   const [modal, setModal] = useState<"settings" | "invite" | null>(null);
 
+  const { data: league } = useSuspenseQuery(
+    orpc.league.get.queryOptions({ input: { leagueId } }),
+  );
+
+  const { data: members } = useSuspenseQuery(
+    orpc.league.member.list.queryOptions({ input: { leagueId } }),
+  );
+
+  const membership = members.find((member) => member.user.id === user.id);
+
   const leaveMutation = useMutation(
     orpc.league.member.delete.mutationOptions({
+      onSuccess: (_output, _input, _err, ctx) => {
+        ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
+        router.navigate({ to: "/" });
+      },
+    }),
+  );
+
+  const deleteMutation = useMutation(
+    orpc.league.delete.mutationOptions({
       onSuccess: (_output, _input, _err, ctx) => {
         ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
         router.navigate({ to: "/" });
@@ -70,7 +92,7 @@ function RouteComponent() {
         setModal("settings");
       },
     },
-    membership.role === "owner"
+    membership?.role === "owner"
       ? {
           label: "Delete",
           icon: PrimeIcons.TRASH,
@@ -81,9 +103,8 @@ function RouteComponent() {
               defaultFocus: "reject",
               acceptClassName: "p-button-danger",
               icon: PrimeIcons.EXCLAMATION_TRIANGLE,
-              accept: async () => {
-                await client.league.delete({ leagueId: league.id });
-                router.navigate({ to: "/" });
+              accept: () => {
+                deleteMutation.mutate({ leagueId: league.id });
               },
             });
           },
@@ -101,7 +122,7 @@ function RouteComponent() {
               accept: () => {
                 leaveMutation.mutate({
                   leagueId: league.id,
-                  userId: membership.user.id,
+                  userId: user.id,
                 });
               },
             });
@@ -173,10 +194,15 @@ function RouteComponent() {
       </div>
       <Menu popup ref={menuRef} model={menuItems} />
       <LeagueSettings
+        league={league}
         visible={modal === "settings"}
         onHide={() => setModal(null)}
       />
-      <InviteCode visible={modal === "invite"} onHide={() => setModal(null)} />
+      <InviteCode
+        leagueId={leagueId}
+        visible={modal === "invite"}
+        onHide={() => setModal(null)}
+      />
     </>
   );
 }

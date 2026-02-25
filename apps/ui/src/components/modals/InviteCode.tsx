@@ -1,4 +1,3 @@
-import { useRouteContext } from "@tanstack/react-router";
 import { Dialog } from "primereact/dialog";
 import { orpc } from "../../lib/client";
 import { useMutation, useQuery } from "@tanstack/react-query";
@@ -11,18 +10,15 @@ import { InputSwitch } from "primereact/inputswitch";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 
 type Props = {
+  leagueId: number;
   visible: boolean;
   onHide: () => void;
 };
 
-export function InviteCode({ visible, onHide }: Props) {
-  const { league } = useRouteContext({
-    from: "/_authenticated/league/$leagueId",
-  });
-
+export function InviteCode({ leagueId, visible, onHide }: Props) {
   const { data: inviteCodes } = useQuery(
     orpc.league.inviteCode.list.queryOptions({
-      input: { leagueId: league.id },
+      input: { leagueId },
     }),
   );
 
@@ -93,7 +89,7 @@ export function InviteCode({ visible, onHide }: Props) {
           label="Generate New Code"
           disabled={inviteCodes.length >= MAX_INVITE_COUNT}
           onClick={() => {
-            creationMutation.mutate({ leagueId: league.id });
+            creationMutation.mutate({ leagueId });
           }}
         />
       </div>

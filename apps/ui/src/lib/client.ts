@@ -14,7 +14,7 @@ const link = new OpenAPILink(contract, {
 
 type Client = JsonifiedClient<ContractRouterClient<typeof contract>>;
 
-export const client: Client = createORPCClient(link);
+const client: Client = createORPCClient(link);
 
 export const orpc = createTanstackQueryUtils(client, {
   experimental_defaults: {

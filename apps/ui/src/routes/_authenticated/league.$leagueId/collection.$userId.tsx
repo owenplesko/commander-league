@@ -1,35 +1,43 @@
 import classes from "./collection.module.css";
 import { createFileRoute, notFound } from "@tanstack/react-router";
-import { client } from "../../../lib/client";
 import { scryfallImgUrl } from "../../../lib/utils";
 import { useState } from "react";
 import { CardTable } from "../../../components/CardTable";
 import type { CollectionCard } from "@commander-league/contract/schemas";
+import { orpc, queryClient } from "../../../lib/client";
+import { useSuspenseQuery } from "@tanstack/react-query";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/collection/$userId",
 )({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const memberPromise = client.league.member.get({
-      leagueId: params.leagueId,
-      userId: params.userId,
-    });
-    const collectionPromise = client.collection.get({
-      leagueId: params.leagueId,
-      userId: params.userId,
-    });
+    const member = await queryClient.ensureQueryData(
+      orpc.league.member.get.queryOptions({
+        input: { leagueId: params.leagueId, userId: params.userId },
+      }),
+    );
 
-    const member = await memberPromise;
     if (!member) throw notFound();
-    const collection = await collectionPromise;
 
-    return { member, collection };
+    await queryClient.ensureQueryData(
+      orpc.collection.get.queryOptions({
+        input: { leagueId: params.leagueId, userId: params.userId },
+      }),
+    );
   },
 });
 
 function RouteComponent() {
-  const { member, collection } = Route.useLoaderData();
+  const { leagueId, userId } = Route.useParams();
+
+  const { data: member } = useSuspenseQuery(
+    orpc.league.member.get.queryOptions({ input: { leagueId, userId } }),
+  );
+  const { data: collection } = useSuspenseQuery(
+    orpc.collection.get.queryOptions({ input: { leagueId, userId } }),
+  );
+
   const [hoveredCard, setHoveredCard] = useState<CollectionCard | null>(
     collection.cards.at(0) ?? null,
   );

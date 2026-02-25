@@ -1,25 +1,30 @@
-import { useRouteContext } from "@tanstack/react-router";
+import { useMutation } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useState } from "react";
-import { client } from "../../lib/client";
+import { orpc } from "../../lib/client";
+import type { League } from "@commander-league/contract/schemas";
 
 type Props = {
+  league: League;
   visible: boolean;
   onHide: () => void;
 };
 
-export function LeagueSettings({ visible, onHide }: Props) {
-  const { league } = useRouteContext({
-    from: "/_authenticated/league/$leagueId",
-  });
-
+export function LeagueSettings({ league, visible, onHide }: Props) {
   const [leagueName, setLeagueName] = useState(league.name);
 
-  async function save() {
-    await client.league.update({ leagueId: league.id, name: leagueName });
-  }
+  const saveMutation = useMutation(
+    orpc.league.update.mutationOptions({
+      onSuccess: (_output, _input, _err, ctx) => {
+        ctx.client.invalidateQueries({
+          queryKey: orpc.league.get.key({ input: { leagueId: league.id } }),
+        });
+        onHide();
+      },
+    }),
+  );
 
   return (
     <Dialog
@@ -33,9 +38,8 @@ export function LeagueSettings({ visible, onHide }: Props) {
         <div>
           <Button text>Reset</Button>
           <Button
-            onClick={async () => {
-              await save();
-              onHide();
+            onClick={() => {
+              saveMutation.mutate({ leagueId: league.id, name: leagueName });
             }}
           >
             Save
