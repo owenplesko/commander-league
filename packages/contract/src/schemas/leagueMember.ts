@@ -2,8 +2,10 @@ import z from "zod";
 import { LeagueSchema } from "./league";
 import { UserSchema } from "./user";
 
+export const leagueRoleValues = ["owner", "admin", "player"] as const;
+
 export const LeagueMemberSchema = z.object({
-  role: z.string(),
+  role: z.enum(leagueRoleValues),
   user: UserSchema,
 });
 export type LeagueMember = z.infer<typeof LeagueMemberSchema>;
