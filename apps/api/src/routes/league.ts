@@ -1,22 +1,19 @@
 import { inviteCode, league, leaguePlayer } from "../db/schema";
 import { and, count, eq, ne } from "drizzle-orm";
-import type {
-  GetLeagueMemberInput,
-  League,
-  LeagueMember,
-} from "@commander-league/contract/schemas";
+import type { League, LeagueMember } from "@commander-league/contract/schemas";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 import { ORPCError } from "@orpc/server";
 import { generateBase36Code } from "../lib/generateInviteCode";
-import { pub } from "../orpc";
+import { base } from "../orpc";
 import {
-  leagueMemberGuard,
-  leagueOwnerGuard,
+  memberOfLeague,
+  leagueOwner,
+  selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
 import { authGuard } from "../middleware/auth";
 
 // TODO: add a search param for userId instead of getting from auth
-const listLeague = pub.league.list
+const listLeague = base.league.list
   .use(authGuard)
   .handler(async ({ context }) => {
     const leagues: League[] = await context.env.db
@@ -27,8 +24,8 @@ const listLeague = pub.league.list
     return leagues;
   });
 
-const getLeague = pub.league.get
-  .use(leagueMemberGuard)
+const getLeague = base.league.get
+  .use(memberOfLeague)
   .handler(({ input, context }) => {
     const res: League | undefined = context.env.db
       .select({ id: league.id, name: league.name })
@@ -41,7 +38,7 @@ const getLeague = pub.league.get
     return res;
   });
 
-const createLeague = pub.league.create
+const createLeague = base.league.create
   .use(authGuard)
   .handler(async ({ input, context }) => {
     const newLeague = await context.env.db.transaction(async (tx) => {
@@ -56,7 +53,7 @@ const createLeague = pub.league.create
     return newLeague;
   });
 
-const joinLeague = pub.league.join
+const joinLeague = base.league.join
   .use(authGuard)
   .handler(async ({ input, context }) => {
     const leagueRes = await context.env.db.transaction(async (tx) => {
@@ -91,8 +88,8 @@ const joinLeague = pub.league.join
     return leagueRes;
   });
 
-const updateLeague = pub.league.update
-  .use(leagueOwnerGuard)
+const updateLeague = base.league.update
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const { leagueId, ...values } = input;
     await context.env.db
@@ -101,14 +98,14 @@ const updateLeague = pub.league.update
       .where(eq(league.id, leagueId));
   });
 
-const deleteLeague = pub.league.delete
-  .use(leagueOwnerGuard)
+const deleteLeague = base.league.delete
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     await context.env.db.delete(league).where(eq(league.id, input.leagueId));
   });
 
-const listLeagueMembers = pub.league.member.list
-  .use(leagueMemberGuard)
+const listLeagueMembers = base.league.member.list
+  .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leaguePlayer.findMany({
       where: (lp, { eq }) => eq(lp.leagueId, input.leagueId),
@@ -119,8 +116,8 @@ const listLeagueMembers = pub.league.member.list
     return res;
   });
 
-const getLeagueMember = pub.league.member.get
-  .use(leagueMemberGuard)
+const getLeagueMember = base.league.member.get
+  .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res: LeagueMember | undefined =
       await context.env.db.query.leaguePlayer.findFirst({
@@ -136,17 +133,8 @@ const getLeagueMember = pub.league.member.get
     return res;
   });
 
-const deleteLeagueMember = pub.league.member.delete
-  .use(
-    leagueMemberGuard.concat(
-      ({ context, next }, input: GetLeagueMemberInput) => {
-        if (context.leagueRole === "owner" || context.userId === input.userId)
-          return next();
-
-        throw new ORPCError("UNAUTHORIZED");
-      },
-    ),
-  )
+const deleteLeagueMember = base.league.member.delete
+  .use(selfOrLeagueOwner)
   .handler(async ({ input, context }) => {
     await context.env.db
       .delete(leaguePlayer)
@@ -159,8 +147,8 @@ const deleteLeagueMember = pub.league.member.delete
       );
   });
 
-const listInviteCodes = pub.league.inviteCode.list
-  .use(leagueOwnerGuard)
+const listInviteCodes = base.league.inviteCode.list
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const codes = await context.env.db
       .select()
@@ -169,8 +157,8 @@ const listInviteCodes = pub.league.inviteCode.list
     return codes;
   });
 
-const createInviteCode = pub.league.inviteCode.create
-  .use(leagueOwnerGuard)
+const createInviteCode = base.league.inviteCode.create
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const code = generateBase36Code();
 
@@ -199,8 +187,8 @@ const createInviteCode = pub.league.inviteCode.create
     return insertRes;
   });
 
-const updateInviteCode = pub.league.inviteCode.update
-  .use(leagueOwnerGuard)
+const updateInviteCode = base.league.inviteCode.update
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const { leagueId, code, ...values } = input;
     const res = context.env.db
@@ -212,8 +200,8 @@ const updateInviteCode = pub.league.inviteCode.update
     return res;
   });
 
-const deleteInviteCode = pub.league.inviteCode.delete
-  .use(leagueOwnerGuard)
+const deleteInviteCode = base.league.inviteCode.delete
+  .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const { leagueId, code } = input;
     await context.env.db

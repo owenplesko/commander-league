@@ -3,12 +3,12 @@ import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { auth } from "./auth";
 import { Hono } from "hono";
 import db from "./db";
-import { pub } from "./orpc";
+import { base } from "./orpc";
 import { routes } from "./routes";
 
 const app = new Hono();
 
-export const orpcRouter = pub.router(routes);
+export const orpcRouter = base.router(routes);
 
 const orpcHandler = new OpenAPIHandler(orpcRouter, {
   interceptors: [onError((error) => console.log(error))],

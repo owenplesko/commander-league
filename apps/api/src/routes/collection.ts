@@ -1,14 +1,11 @@
 import { card, collectionCard } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import type { CollectionCard } from "@commander-league/contract/schemas";
-import { pub } from "../orpc";
-import {
-  leagueMemberGuard,
-  leagueOwnerGuard,
-} from "../middleware/leagueMembership";
+import { base } from "../orpc";
+import { memberOfLeague, leagueOwner } from "../middleware/leagueMembership";
 
-const getCollection = pub.collection.get
-  .use(leagueMemberGuard)
+const getCollection = base.collection.get
+  .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const cards: CollectionCard[] = await context.env.db
       .select({
@@ -28,9 +25,7 @@ const getCollection = pub.collection.get
     return { cards };
   });
 
-const setCollection = pub.collection.set
-  .use(leagueOwnerGuard)
-  .handler(() => {});
+const setCollection = base.collection.set.use(leagueOwner).handler(() => {});
 
 export const collectionRoutes = {
   get: getCollection,

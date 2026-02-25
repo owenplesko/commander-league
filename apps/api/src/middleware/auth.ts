@@ -1,8 +1,8 @@
 import { ORPCError } from "@orpc/server";
 import { auth } from "../auth";
-import { pub } from "../orpc";
+import { base } from "../orpc";
 
-export const authGuard = pub.middleware(async ({ context, next }) => {
+export const authGuard = base.middleware(async ({ context, next }) => {
   const user = await auth.api.getSession({ headers: context.headers });
   const userId = user?.user.id;
 

@@ -9,4 +9,4 @@ type BaseContext = {
   };
 };
 
-export const pub = implement(contract).$context<BaseContext>();
+export const base = implement(contract).$context<BaseContext>();
