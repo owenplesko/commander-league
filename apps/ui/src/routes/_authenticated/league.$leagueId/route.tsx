@@ -74,56 +74,59 @@ function RouteComponent() {
     }),
   );
 
-  const menuItems: MenuItem[] = [
-    {
-      label: "Invite Code",
-      icon: PrimeIcons.USER_PLUS,
-      command: () => setModal("invite"),
-    },
-    {
-      label: "Settings",
-      icon: PrimeIcons.COG,
-      command: () => {
-        setModal("settings");
-      },
-    },
+  const menuItems: MenuItem[] =
     membership?.role === "owner"
-      ? {
-          label: "Delete",
-          icon: PrimeIcons.TRASH,
-          command: () => {
-            confirmDialog({
-              header: "Confirm",
-              message: "Are you sure you want to delete this league?",
-              defaultFocus: "reject",
-              acceptClassName: "p-button-danger",
-              icon: PrimeIcons.EXCLAMATION_TRIANGLE,
-              accept: () => {
-                deleteMutation.mutate({ leagueId: league.id });
-              },
-            });
+      ? [
+          {
+            label: "Invite Code",
+            icon: PrimeIcons.USER_PLUS,
+            command: () => setModal("invite"),
           },
-        }
-      : {
-          label: "Leave",
-          icon: PrimeIcons.SIGN_OUT,
-          command: () => {
-            confirmDialog({
-              header: "Confirm",
-              message: "Are you sure you want to leave this league?",
-              defaultFocus: "reject",
-              acceptClassName: "p-button-danger",
-              icon: PrimeIcons.EXCLAMATION_TRIANGLE,
-              accept: () => {
-                leaveMutation.mutate({
-                  leagueId: league.id,
-                  userId: user.id,
-                });
-              },
-            });
+          {
+            label: "Settings",
+            icon: PrimeIcons.COG,
+            command: () => {
+              setModal("settings");
+            },
           },
-        },
-  ];
+          {
+            label: "Delete",
+            icon: PrimeIcons.TRASH,
+            command: () => {
+              confirmDialog({
+                header: "Confirm",
+                message: "Are you sure you want to delete this league?",
+                defaultFocus: "reject",
+                acceptClassName: "p-button-danger",
+                icon: PrimeIcons.EXCLAMATION_TRIANGLE,
+                accept: () => {
+                  deleteMutation.mutate({ leagueId: league.id });
+                },
+              });
+            },
+          },
+        ]
+      : [
+          {
+            label: "Leave",
+            icon: PrimeIcons.SIGN_OUT,
+            command: () => {
+              confirmDialog({
+                header: "Confirm",
+                message: "Are you sure you want to leave this league?",
+                defaultFocus: "reject",
+                acceptClassName: "p-button-danger",
+                icon: PrimeIcons.EXCLAMATION_TRIANGLE,
+                accept: () => {
+                  leaveMutation.mutate({
+                    leagueId: league.id,
+                    userId: user.id,
+                  });
+                },
+              });
+            },
+          },
+        ];
 
   return (
     <>
