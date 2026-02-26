@@ -1,7 +1,7 @@
 import classes from "./collection.module.css";
 import { createFileRoute, notFound } from "@tanstack/react-router";
 import { scryfallImgUrl } from "../../../lib/utils";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { CardTable } from "../../../components/CardTable";
 import type { CollectionCard } from "@commander-league/contract/schemas";
 import { orpc, queryClient } from "../../../lib/client";
@@ -38,22 +38,24 @@ function RouteComponent() {
     orpc.collection.get.queryOptions({ input: { leagueId, userId } }),
   );
 
-  const [hoveredCard, setHoveredCard] = useState<CollectionCard | null>(
-    collection.cards.at(0) ?? null,
-  );
+  const [hoveredCard, setHoveredCard] = useState<CollectionCard | null>(null);
+
+  useEffect(() => {
+    setHoveredCard(null);
+  }, [leagueId, userId]);
 
   return (
     <div className={classes.wrapper}>
       <h1>{`${member.user.name}'s Collection`}</h1>
       <div className={classes.layout}>
         <div>
-          {hoveredCard && (
-            <img
-              className={classes.preview}
-              width={250}
-              src={scryfallImgUrl(hoveredCard.data.printings.at(0)!.scryfallId)}
-            />
-          )}
+          <img
+            className={classes.preview}
+            width={250}
+            src={scryfallImgUrl(
+              hoveredCard?.data.printings.at(0)!.scryfallId ?? null,
+            )}
+          />
         </div>
         <CardTable
           cards={collection.cards}

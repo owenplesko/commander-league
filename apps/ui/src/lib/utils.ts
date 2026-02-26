@@ -1,4 +1,6 @@
-export function scryfallImgUrl(scryfallId: string) {
+export function scryfallImgUrl(scryfallId: string | null) {
+  if (!scryfallId) return "https://cards.scryfall.io/back.png";
+
   const fileFace: string = "front";
   const fileType: string = "png";
   const fileFormat: string = "png";
