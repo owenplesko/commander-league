@@ -6,6 +6,8 @@ import { CardTable } from "../../../components/CardTable";
 import type { CollectionCard } from "@commander-league/contract/schemas";
 import { orpc, queryClient } from "../../../lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { Button } from "primereact/button";
+import { CollectionBulkEditModal } from "../../../components/modals/CollectionBulkEdit";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/collection/$userId",
@@ -39,29 +41,47 @@ function RouteComponent() {
   );
 
   const [hoveredCard, setHoveredCard] = useState<CollectionCard | null>(null);
+  const [modal, setModal] = useState<"bulk-edit" | null>(null);
 
   useEffect(() => {
     setHoveredCard(null);
   }, [leagueId, userId]);
 
   return (
-    <div className={classes.wrapper}>
-      <h1>{`${member.user.name}'s Collection`}</h1>
-      <div className={classes.layout}>
-        <div>
-          <img
-            className={classes.preview}
-            width={250}
-            src={scryfallImgUrl(
-              hoveredCard?.data.printings.at(0)!.scryfallId ?? null,
-            )}
+    <>
+      <div className={classes.wrapper}>
+        <h1>{`${member.user.name}'s Collection`}</h1>
+        <Button
+          label="Bulk Edit"
+          onClick={() => {
+            setModal("bulk-edit");
+          }}
+        />
+        <div className={classes.layout}>
+          <div>
+            <img
+              className={classes.preview}
+              width={250}
+              src={scryfallImgUrl(
+                hoveredCard?.data.printings.at(0)!.scryfallId ?? null,
+              )}
+            />
+          </div>
+          <CardTable
+            cards={collection.cards}
+            setHovered={(c) => setHoveredCard(c)}
           />
         </div>
-        <CardTable
-          cards={collection.cards}
-          setHovered={(c) => setHoveredCard(c)}
-        />
       </div>
-    </div>
+      <CollectionBulkEditModal
+        collection={collection}
+        userId={userId}
+        leagueId={leagueId}
+        visible={modal === "bulk-edit"}
+        onHide={() => {
+          setModal(null);
+        }}
+      />
+    </>
   );
 }

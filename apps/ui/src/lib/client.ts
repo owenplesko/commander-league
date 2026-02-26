@@ -82,5 +82,18 @@ export const orpc = createTanstackQueryUtils(client, {
         },
       },
     },
+    collection: {
+      set: {
+        mutationOptions: {
+          onSuccess: (_output, { userId, leagueId }, _err, ctx) => {
+            ctx.client.invalidateQueries({
+              queryKey: orpc.collection.get.key({
+                input: { leagueId, userId },
+              }),
+            });
+          },
+        },
+      },
+    },
   },
 });

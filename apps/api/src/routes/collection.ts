@@ -2,7 +2,11 @@ import { card, collectionCard } from "../db/schema";
 import { eq, and } from "drizzle-orm";
 import type { CollectionCard } from "@commander-league/contract/schemas";
 import { base } from "../orpc";
-import { memberOfLeague, leagueOwner } from "../middleware/leagueMembership";
+import {
+  memberOfLeague,
+  leagueOwner,
+  selfOrLeagueOwner,
+} from "../middleware/leagueMembership";
 
 const getCollection = base.collection.get
   .use(memberOfLeague)
@@ -25,7 +29,32 @@ const getCollection = base.collection.get
     return { cards };
   });
 
-const setCollection = base.collection.set.use(leagueOwner).handler(() => {});
+const setCollection = base.collection.set
+  .use(selfOrLeagueOwner)
+  .handler(async ({ input, context }) => {
+    await context.env.db.transaction(async (tx) => {
+      await tx
+        .delete(collectionCard)
+        .where(
+          and(
+            eq(collectionCard.leagueId, input.leagueId),
+            eq(collectionCard.userId, input.userId),
+          ),
+        );
+
+      await tx
+        .insert(collectionCard)
+        .values(
+          input.cards.map(({ name, quantity }) => ({
+            cardName: name,
+            quantity,
+            leagueId: input.leagueId,
+            userId: input.userId,
+          })),
+        )
+        .onConflictDoNothing();
+    });
+  });
 
 export const collectionRoutes = {
   get: getCollection,
