@@ -135,11 +135,15 @@ function RouteComponent() {
           },
         ];
 
-  const memberMenuItems: MenuItem[] = [
-    { label: "Trade" },
+  const adminMenuItems: MenuItem[] = [
     {
       label: "Kick",
     },
+  ];
+
+  const memberMenuItems: MenuItem[] = [
+    { label: "Trade" },
+    ...(membership?.role === "owner" ? adminMenuItems : []),
   ];
 
   return (
