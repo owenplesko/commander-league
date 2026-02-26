@@ -1,6 +1,6 @@
 import { inviteCode, league, leaguePlayer } from "../db/schema";
 import { and, count, eq, ne } from "drizzle-orm";
-import type { League, LeagueMember } from "@commander-league/contract/schemas";
+import type { League } from "@commander-league/contract/schemas";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 import { ORPCError } from "@orpc/server";
 import { generateBase36Code } from "../lib/generateInviteCode";
@@ -119,14 +119,13 @@ const listLeagueMembers = base.league.member.list
 const getLeagueMember = base.league.member.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
-    const res: LeagueMember | undefined =
-      await context.env.db.query.leaguePlayer.findFirst({
-        where: (lp, { and, eq }) =>
-          and(eq(lp.leagueId, input.leagueId), eq(lp.playerId, input.userId)),
-        with: {
-          user: true,
-        },
-      });
+    const res = await context.env.db.query.leaguePlayer.findFirst({
+      where: (lp, { and, eq }) =>
+        and(eq(lp.leagueId, input.leagueId), eq(lp.playerId, input.userId)),
+      with: {
+        user: true,
+      },
+    });
 
     if (!res) throw new ORPCError("NOT_FOUND");
 

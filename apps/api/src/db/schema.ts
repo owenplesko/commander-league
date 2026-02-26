@@ -78,7 +78,7 @@ export const leaguePlayer = sqliteTable(
   {
     leagueId: integer("league_id")
       .notNull()
-      .references(() => league.id),
+      .references(() => league.id, { onDelete: "cascade" }),
     playerId: text("player_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
@@ -97,7 +97,7 @@ export const inviteCode = sqliteTable("invite_code", {
   code: text().notNull().primaryKey(),
   leagueId: integer("league_id")
     .notNull()
-    .references(() => league.id),
+    .references(() => league.id, { onDelete: "cascade" }),
   active: integer({ mode: "boolean" }).notNull(),
   uses: integer().default(0).notNull(),
 });

@@ -1,11 +1,15 @@
+import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import * as schema from "./schema";
 import * as relations from "./relations.ts";
 
-const db = drizzle(process.env.DB_FILE_NAME!, {
+const sqlite = new Database(process.env.DB_FILE_NAME!);
+
+sqlite.run("PRAGMA foreign_keys = ON;");
+
+const db = drizzle(sqlite, {
   schema: { ...schema, ...relations },
 });
 
 export default db;
-
 export type DB = typeof db;
