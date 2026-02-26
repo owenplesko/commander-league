@@ -18,6 +18,11 @@ import { LeagueSettings } from "../../../components/modals/LeagueSettings";
 import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import type {
+  LeagueMember,
+  LeagueRole,
+} from "@commander-league/contract/schemas";
+import { ContextMenu } from "primereact/contextmenu";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -43,8 +48,10 @@ function RouteComponent() {
   const { user } = Route.useRouteContext();
 
   const router = useRouter();
-  const menuRef = useRef<Menu>(null);
+  const leagueMenuRef = useRef<Menu>(null);
+  const memberMenuRef = useRef<ContextMenu>(null);
   const [modal, setModal] = useState<"settings" | "invite" | null>(null);
+  const [selectedUser, setSelectedUser] = useState<LeagueMember | null>(null);
 
   const { data: league } = useSuspenseQuery(
     orpc.league.get.queryOptions({ input: { leagueId } }),
@@ -74,7 +81,7 @@ function RouteComponent() {
     }),
   );
 
-  const menuItems: MenuItem[] =
+  const leagueMenuItems: MenuItem[] =
     membership?.role === "owner"
       ? [
           {
@@ -128,6 +135,13 @@ function RouteComponent() {
           },
         ];
 
+  const memberMenuItems: MenuItem[] = [
+    { label: "Trade" },
+    {
+      label: "Kick",
+    },
+  ];
+
   return (
     <>
       <div className={classes.wrapper}>
@@ -138,7 +152,7 @@ function RouteComponent() {
               classes.item,
               classes.interactable,
             )}
-            onClick={(e) => menuRef.current?.toggle(e)}
+            onClick={(e) => leagueMenuRef.current?.toggle(e)}
           >
             {league.name}
           </div>
@@ -146,43 +160,56 @@ function RouteComponent() {
             <ul>
               <li>
                 <Link
+                  to="/league/$leagueId/collection/$userId"
+                  params={{ leagueId: league.id, userId: user.id }}
+                  className={classNames(classes.item, classes.interactable)}
+                >
+                  Collection
+                </Link>
+              </li>
+              <li>
+                <Link
                   to="/league/$leagueId/shop"
                   params={{ leagueId: league.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
-                  <i className="pi pi-shopping-bag" />
                   Shop
                 </Link>
               </li>
               <li className={classNames(classes.item, classes.interactable)}>
-                <i className="pi pi-arrow-right-arrow-left" />
                 Trades
               </li>
               <li className={classNames(classes.item, classes.interactable)}>
-                <i className="pi pi-gift" />
                 Wishlist
               </li>
             </ul>
           </nav>
           <nav>
-            <strong className={classes.item}>Collections</strong>
+            <strong className={classes.item}>Players</strong>
             <ul>
-              {members.map((member) => (
-                <li>
-                  <Link
-                    to="/league/$leagueId/collection/$userId"
-                    params={{ leagueId: league.id, userId: member.user.id }}
-                    className={classNames(classes.item, classes.interactable)}
+              {members
+                .filter((member) => member.user.id !== user.id)
+                .map((member) => (
+                  <li
+                    onContextMenu={(e) => {
+                      setSelectedUser(member);
+                      memberMenuRef.current?.show(e);
+                    }}
                   >
-                    <Avatar
-                      style={{ height: "1rem", width: "1rem" }}
-                      shape="circle"
-                      image={member.user.image ?? undefined}
-                    />
-                    {member.user.name}
-                  </Link>
-                </li>
-              ))}
+                    <Link
+                      to="/league/$leagueId/collection/$userId"
+                      params={{ leagueId: league.id, userId: member.user.id }}
+                      className={classNames(classes.item, classes.interactable)}
+                    >
+                      <Avatar
+                        style={{ height: "1rem", width: "1rem" }}
+                        shape="circle"
+                        image={member.user.image ?? undefined}
+                      />
+                      {member.user.name}
+                    </Link>
+                  </li>
+                ))}
             </ul>
           </nav>
         </div>
@@ -190,7 +217,8 @@ function RouteComponent() {
           <Outlet />
         </div>
       </div>
-      <Menu popup ref={menuRef} model={menuItems} />
+      <Menu popup ref={leagueMenuRef} model={leagueMenuItems} />
+      <ContextMenu ref={memberMenuRef} model={memberMenuItems} />
       <LeagueSettings
         league={league}
         visible={modal === "settings"}

@@ -4,6 +4,8 @@ import { UserSchema } from "./user";
 
 export const leagueRoleValues = ["owner", "admin", "player"] as const;
 
+export type LeagueRole = (typeof leagueRoleValues)[number];
+
 export const LeagueMemberSchema = z.object({
   role: z.enum(leagueRoleValues),
   user: UserSchema,
