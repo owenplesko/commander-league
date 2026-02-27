@@ -8,6 +8,11 @@ const listTrades = oc
   .output(TradeRequestSchema.array());
 
 const createTrade = oc
-  .route({ path: "/league/{leagueId}/trade" })
+  .route({ method: "POST", path: "/league/{leagueId}/trade" })
   .input(GetLeagueSchema.extend(CreateTradeRequestSchema.shape))
   .output(TradeRequestSchema);
+
+export const tradeRoutes = {
+  list: listTrades,
+  create: createTrade,
+};
