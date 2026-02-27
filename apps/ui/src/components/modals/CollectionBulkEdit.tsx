@@ -90,6 +90,7 @@ export function CollectionBulkEditModal({
         <div className="field">
           <label>Collection</label>
           <InputTextarea
+            invalid={!!mutation.error}
             autoResize={true}
             rows={10}
             value={collectionText}
