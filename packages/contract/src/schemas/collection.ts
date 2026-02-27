@@ -21,6 +21,10 @@ export const GetCollectionSchema = z.object({
   userId: z.string(),
 });
 
-export const SetCollectionSchema = GetLeagueMemberSchema.extend({
+export const SetCollectionDataSchema = z.object({
   cards: CollectionCardSchema.pick({ name: true, quantity: true }).array(),
 });
+
+export const SetCollectionSchema = GetLeagueMemberSchema.extend(
+  SetCollectionDataSchema.shape,
+);

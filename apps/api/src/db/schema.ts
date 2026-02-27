@@ -128,6 +128,9 @@ export const tradeRequest = sqliteTable(
         cards: { cardName: string; quantity: number }[];
       }>()
       .notNull(),
+    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+      .$onUpdate(() => new Date())
+      .notNull(),
   },
   () => [check("trade_request_not_self", sql`requester_id <> recipient_id`)],
 );
