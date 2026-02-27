@@ -18,10 +18,7 @@ import { LeagueSettings } from "../../../components/modals/LeagueSettings";
 import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import type {
-  LeagueMember,
-  LeagueRole,
-} from "@commander-league/contract/schemas";
+import type { LeagueMember } from "@commander-league/contract/schemas";
 import { ContextMenu } from "primereact/contextmenu";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
@@ -61,13 +58,23 @@ function RouteComponent() {
     orpc.league.member.list.queryOptions({ input: { leagueId } }),
   );
 
-  const membership = members.find((member) => member.user.id === user.id);
+  const leaveLeague = members.find((member) => member.user.id === user.id);
 
-  const leaveMutation = useMutation(
+  const deleteMember = useMutation(
     orpc.league.member.delete.mutationOptions({
       onSuccess: (_output, _input, _err, ctx) => {
         ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
         router.navigate({ to: "/" });
+      },
+    }),
+  );
+
+  const kickMember = useMutation(
+    orpc.league.member.delete.mutationOptions({
+      onSuccess: (_output, _input, _err, ctx) => {
+        ctx.client.invalidateQueries({
+          queryKey: orpc.league.member.list.key({ input: { leagueId } }),
+        });
       },
     }),
   );
@@ -82,7 +89,7 @@ function RouteComponent() {
   );
 
   const leagueMenuItems: MenuItem[] =
-    membership?.role === "owner"
+    leaveLeague?.role === "owner"
       ? [
           {
             label: "Invite Code",
@@ -125,7 +132,7 @@ function RouteComponent() {
                 acceptClassName: "p-button-danger",
                 icon: PrimeIcons.EXCLAMATION_TRIANGLE,
                 accept: () => {
-                  leaveMutation.mutate({
+                  deleteMember.mutate({
                     leagueId: league.id,
                     userId: user.id,
                   });
@@ -138,12 +145,16 @@ function RouteComponent() {
   const adminMenuItems: MenuItem[] = [
     {
       label: "Kick",
+      command: () => {
+        if (!selectedUser) return;
+        kickMember.mutate({ leagueId, userId: selectedUser.user.id });
+      },
     },
   ];
 
   const memberMenuItems: MenuItem[] = [
     { label: "Trade" },
-    ...(membership?.role === "owner" ? adminMenuItems : []),
+    ...(leaveLeague?.role === "owner" ? adminMenuItems : []),
   ];
 
   return (
