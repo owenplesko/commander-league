@@ -1,5 +1,5 @@
 import classes from "./collection.module.css";
-import { createFileRoute, notFound } from "@tanstack/react-router";
+import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
 import { scryfallImgUrl } from "../../../lib/utils";
 import { useEffect, useState } from "react";
 import { CardTable } from "../../../components/CardTable";
@@ -14,13 +14,15 @@ export const Route = createFileRoute(
 )({
   component: RouteComponent,
   loader: async ({ params }) => {
-    const member = await queryClient.ensureQueryData(
-      orpc.league.member.get.queryOptions({
-        input: { leagueId: params.leagueId, userId: params.userId },
-      }),
-    );
-
-    if (!member) throw notFound();
+    try {
+      await queryClient.ensureQueryData(
+        orpc.league.member.get.queryOptions({
+          input: { leagueId: params.leagueId, userId: params.userId },
+        }),
+      );
+    } catch {
+      throw redirect({ to: "/league/$leagueId", params });
+    }
 
     await queryClient.ensureQueryData(
       orpc.collection.get.queryOptions({

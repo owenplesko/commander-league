@@ -4,6 +4,7 @@ import {
   Link,
   notFound,
   Outlet,
+  redirect,
   useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
@@ -25,11 +26,13 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
   params: z.object({ leagueId: z.coerce.number() }),
   beforeLoad: async ({ params }) => {
-    const league = await queryClient.ensureQueryData(
-      orpc.league.get.queryOptions({ input: { leagueId: params.leagueId } }),
-    );
-
-    if (!league) throw notFound();
+    try {
+      await queryClient.ensureQueryData(
+        orpc.league.get.queryOptions({ input: { leagueId: params.leagueId } }),
+      );
+    } catch {
+      throw redirect({ to: "/" });
+    }
   },
   loader: async ({ params }) => {
     await queryClient.ensureQueryData(
