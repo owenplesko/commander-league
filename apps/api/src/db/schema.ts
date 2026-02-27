@@ -12,6 +12,7 @@ import {
   leagueRoleValues,
   type CardData,
 } from "@commander-league/contract/schemas";
+import { boolean } from "zod";
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
@@ -101,6 +102,35 @@ export const inviteCode = sqliteTable("invite_code", {
   active: integer({ mode: "boolean" }).notNull(),
   uses: integer().default(0).notNull(),
 });
+
+export const tradeRequest = sqliteTable(
+  "trade_request",
+  {
+    id: integer().primaryKey().notNull(),
+    leagueId: integer("league_id")
+      .notNull()
+      .references(() => league.id, { onDelete: "cascade" }),
+    requesterId: text("requester_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    requesterAccept: integer({ mode: "boolean" }).default(false).notNull(),
+    recipientId: text("recipient_id")
+      .notNull()
+      .references(() => user.id, { onDelete: "cascade" }),
+    recipientAccept: integer({ mode: "boolean" }).default(false).notNull(),
+    requesterItems: blob("requester_items", { mode: "json" })
+      .$type<{
+        cards: { cardName: string; quantity: number }[];
+      }>()
+      .notNull(),
+    recipientItems: blob("requester_items", { mode: "json" })
+      .$type<{
+        cards: { cardName: string; quantity: number }[];
+      }>()
+      .notNull(),
+  },
+  () => [check("trade_request_not_self", sql`requester_id <> recipient_id`)],
+);
 
 // auth stuff
 export const user = sqliteTable("user", {
