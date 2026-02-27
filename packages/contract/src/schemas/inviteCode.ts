@@ -1,5 +1,5 @@
 import z from "zod";
-import { LeagueSchema } from "./league";
+import { GetLeagueSchema, LeagueSchema } from "./league";
 
 export const InviteCodeSchema = z.object({
   leagueId: LeagueSchema.shape.id,
@@ -10,15 +10,16 @@ export const InviteCodeSchema = z.object({
 
 export type InviteCode = z.infer<typeof InviteCodeSchema>;
 
-export const GetInviteCodeSchema = InviteCodeSchema.pick({
-  leagueId: true,
-  code: true,
-});
+export const GetInviteCodeSchema = GetLeagueSchema.extend(
+  InviteCodeSchema.pick({
+    code: true,
+  }).shape,
+);
 
 export const JoinLeagueSchema = z.object({
   inviteCode: InviteCodeSchema.shape.code,
 });
 
-export const UpdateInviteCodeSchema = GetInviteCodeSchema.extend(
-  InviteCodeSchema.pick({ active: true }).shape,
-);
+export const UpdateInviteCodeSchema = InviteCodeSchema.pick({
+  active: true,
+});

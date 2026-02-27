@@ -12,6 +12,4 @@ export type GetLeagueInput = z.infer<typeof GetLeagueSchema>;
 
 export const CreateLeagueSchema = LeagueSchema.omit({ id: true });
 
-export const UpdateLeagueSchema = LeagueSchema.omit({ id: true })
-  .partial()
-  .extend(GetLeagueSchema.shape);
+export const UpdateLeagueSchema = LeagueSchema.omit({ id: true }).partial();

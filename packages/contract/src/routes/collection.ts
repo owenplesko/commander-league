@@ -1,25 +1,25 @@
 import { oc } from "@orpc/contract";
 import {
   CollectionSchema,
-  GetCollectionSchema,
-  SetCollectionSchema,
+  CreateCollectionSchema,
 } from "../schemas/collection";
+import { GetLeagueMemberSchema } from "../schemas";
 
 const getCollection = oc
   .route({
     method: "GET",
-    path: "/league/{leagueId}/collection/{userId}",
+    path: "/league/{leagueId}/member/{userId}/collection",
   })
-  .input(GetCollectionSchema)
+  .input(GetLeagueMemberSchema)
   .output(CollectionSchema);
 
 const setCollection = oc
   .route({
     method: "PUT",
-    path: "/league/{leagueId}/collection/{userId}",
+    path: "/league/{leagueId}/member/{userId}/collection",
     successStatus: 204,
   })
-  .input(SetCollectionSchema);
+  .input(GetLeagueMemberSchema.extend(CreateCollectionSchema.shape));
 
 export const collectionRoutes = {
   get: getCollection,

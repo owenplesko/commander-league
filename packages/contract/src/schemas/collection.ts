@@ -1,7 +1,5 @@
 import z from "zod";
 import { CardSchema } from "./card";
-import { LeagueSchema } from "./league";
-import { GetLeagueMemberSchema } from "./leagueMember";
 
 export const CollectionCardSchema = CardSchema.extend({
   quantity: z.number(),
@@ -15,16 +13,6 @@ export const CollectionSchema = z.object({
 
 export type Collection = z.infer<typeof CollectionSchema>;
 
-export const GetCollectionSchema = z.object({
-  leagueId: LeagueSchema.shape.id,
-  // TODO: ref player schema
-  userId: z.string(),
-});
-
-export const SetCollectionDataSchema = z.object({
+export const CreateCollectionSchema = z.object({
   cards: CollectionCardSchema.pick({ name: true, quantity: true }).array(),
 });
-
-export const SetCollectionSchema = GetLeagueMemberSchema.extend(
-  SetCollectionDataSchema.shape,
-);

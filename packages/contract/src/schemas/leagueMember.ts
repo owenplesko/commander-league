@@ -1,5 +1,5 @@
 import z from "zod";
-import { LeagueSchema } from "./league";
+import { GetLeagueSchema } from "./league";
 import { UserSchema } from "./user";
 
 export const leagueRoleValues = ["owner", "admin", "player"] as const;
@@ -12,8 +12,7 @@ export const LeagueMemberSchema = z.object({
 });
 export type LeagueMember = z.infer<typeof LeagueMemberSchema>;
 
-export const GetLeagueMemberSchema = z.object({
-  leagueId: LeagueSchema.shape.id,
+export const GetLeagueMemberSchema = GetLeagueSchema.extend({
   userId: UserSchema.shape.id,
 });
 

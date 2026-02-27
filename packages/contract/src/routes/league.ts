@@ -46,7 +46,7 @@ const joinLeague = oc
 
 const updateLeague = oc
   .route({ method: "PATCH", path: "/league/{leagueId}", successStatus: 204 })
-  .input(UpdateLeagueSchema);
+  .input(GetLeagueSchema.extend(UpdateLeagueSchema.shape));
 
 const deleteLeague = oc
   .route({ method: "DELETE", path: "/league/{leagueId}", successStatus: 204 })
@@ -74,7 +74,7 @@ const updateInviteCode = oc
     method: "PATCH",
     path: "/league/{leagueId}/invite-code/{code}",
   })
-  .input(UpdateInviteCodeSchema)
+  .input(GetInviteCodeSchema.extend(UpdateInviteCodeSchema.shape))
   .output(InviteCodeSchema);
 
 const deleteInviteCode = oc
