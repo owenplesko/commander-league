@@ -58,9 +58,9 @@ function RouteComponent() {
     orpc.league.member.list.queryOptions({ input: { leagueId } }),
   );
 
-  const leaveLeague = members.find((member) => member.user.id === user.id);
+  const membership = members.find((member) => member.user.id === user.id);
 
-  const deleteMember = useMutation(
+  const leaveLeague = useMutation(
     orpc.league.member.delete.mutationOptions({
       onSuccess: (_output, _input, _err, ctx) => {
         ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
@@ -89,7 +89,7 @@ function RouteComponent() {
   );
 
   const leagueMenuItems: MenuItem[] =
-    leaveLeague?.role === "owner"
+    membership?.role === "owner"
       ? [
           {
             label: "Invite Code",
@@ -132,7 +132,7 @@ function RouteComponent() {
                 acceptClassName: "p-button-danger",
                 icon: PrimeIcons.EXCLAMATION_TRIANGLE,
                 accept: () => {
-                  deleteMember.mutate({
+                  leaveLeague.mutate({
                     leagueId: league.id,
                     userId: user.id,
                   });
@@ -154,7 +154,7 @@ function RouteComponent() {
 
   const memberMenuItems: MenuItem[] = [
     { label: "Trade" },
-    ...(leaveLeague?.role === "owner" ? adminMenuItems : []),
+    ...(membership?.role === "owner" ? adminMenuItems : []),
   ];
 
   return (
@@ -232,8 +232,8 @@ function RouteComponent() {
           <Outlet />
         </div>
       </div>
-      <Menu popup ref={leagueMenuRef} model={leagueMenuItems} />
       <ContextMenu ref={memberMenuRef} model={memberMenuItems} />
+      <Menu popup ref={leagueMenuRef} model={leagueMenuItems} />
       <LeagueSettings
         league={league}
         visible={modal === "settings"}

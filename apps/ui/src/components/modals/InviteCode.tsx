@@ -19,6 +19,7 @@ export function InviteCode({ leagueId, visible, onHide }: Props) {
   const { data: inviteCodes } = useQuery(
     orpc.league.inviteCode.list.queryOptions({
       input: { leagueId },
+      enabled: visible,
     }),
   );
 
