@@ -2,25 +2,24 @@ import classes from "./route.module.css";
 import {
   createFileRoute,
   Link,
-  notFound,
   Outlet,
   redirect,
   useRouter,
 } from "@tanstack/react-router";
 import z from "zod";
-import { orpc, queryClient } from "../../../lib/client";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
 import { useRef, useState } from "react";
 import { Menu } from "primereact/menu";
 import type { MenuItem } from "primereact/menuitem";
 import { PrimeIcons } from "primereact/api";
-import { LeagueSettings } from "../../../components/modals/LeagueSettings";
-import { InviteCode } from "../../../components/modals/InviteCode";
 import { confirmDialog } from "primereact/confirmdialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
 import { ContextMenu } from "primereact/contextmenu";
+import { InviteCode } from "../../../../components/modals/InviteCode";
+import { LeagueSettings } from "../../../../components/modals/LeagueSettings";
+import { queryClient, orpc } from "../../../../lib/client";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -185,14 +184,8 @@ function RouteComponent() {
                   Collection
                 </Link>
               </li>
-              <li>
-                <Link
-                  to="/league/$leagueId/shop"
-                  params={{ leagueId: league.id }}
-                  className={classNames(classes.item, classes.interactable)}
-                >
-                  Shop
-                </Link>
+              <li className={classNames(classes.item, classes.interactable)}>
+                Shop
               </li>
               <li className={classNames(classes.item, classes.interactable)}>
                 Trades

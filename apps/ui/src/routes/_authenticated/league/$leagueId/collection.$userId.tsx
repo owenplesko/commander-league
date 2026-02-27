@@ -1,13 +1,13 @@
 import classes from "./collection.module.css";
-import { createFileRoute, notFound, redirect } from "@tanstack/react-router";
-import { scryfallImgUrl } from "../../../lib/utils";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { CardTable } from "../../../components/CardTable";
 import type { CollectionCard } from "@commander-league/contract/schemas";
-import { orpc, queryClient } from "../../../lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
-import { CollectionBulkEditModal } from "../../../components/modals/CollectionBulkEdit";
+import { CardTable } from "../../../../components/CardTable";
+import { CollectionBulkEditModal } from "../../../../components/modals/CollectionBulkEdit";
+import { queryClient, orpc } from "../../../../lib/client";
+import { scryfallImgUrl } from "../../../../lib/utils";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/collection/$userId",
