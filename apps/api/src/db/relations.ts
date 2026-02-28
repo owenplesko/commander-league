@@ -5,7 +5,6 @@ import {
   league,
   leagueMember,
   tradeRequest,
-  tradeRequestCard,
   user,
 } from "./schema";
 
@@ -22,8 +21,4 @@ export const leagueRelations = relations(league, ({ many }) => ({
 
 export const leaguePlayerRelations = relations(leagueMember, ({ one }) => ({
   user: one(user, { fields: [leagueMember.userId], references: [user.id] }),
-}));
-
-export const tradeRequestRelations = relations(tradeRequest, ({ many }) => ({
-  requesterCards: many(tradeRequestCard),
 }));

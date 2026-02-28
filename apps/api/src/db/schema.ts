@@ -92,22 +92,28 @@ export const tradeRequest = sqliteTable("trade_request", {
     .notNull(),
 });
 
-export const tradeRequestCard = sqliteTable(
-  "trade_request_card",
+export const tradeItems = sqliteTable("trade_items", {
+  id: text("id").primaryKey(),
+  tradeId: integer("trade_id")
+    .notNull()
+    .references(() => tradeRequest.id),
+});
+
+export const tradeItemCard = sqliteTable(
+  "trade_item_card",
   {
-    tradeId: integer("trade_id")
+    tradeItemId: integer("trade_item_id")
       .notNull()
-      .references(() => tradeRequest.id),
+      .references(() => tradeItems.id),
     cardName: text("card_name")
       .notNull()
       .references(() => card.name),
-    role: text({ enum: ["requester", "recipient"] }).notNull(),
     quantity: integer().notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.tradeId, table.cardName, table.role],
-      name: "trade_request_card_pk",
+      columns: [table.tradeItemId, table.cardName],
+      name: "trade_item_card_pk",
     }),
   ],
 );

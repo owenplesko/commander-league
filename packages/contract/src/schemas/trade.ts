@@ -23,7 +23,6 @@ export const CreateTradeRequestItemsSchema = z.object({
 });
 
 export const CreateTradeRequestSchema = z.object({
-  requesterId: UserSchema.shape.id,
   recipientId: UserSchema.shape.id,
   recipientItems: CreateTradeRequestItemsSchema,
   requesterItems: CreateTradeRequestItemsSchema,
