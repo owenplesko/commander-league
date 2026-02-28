@@ -9,9 +9,9 @@ export const TradeRequestSchema = z.object({
   recipient: UserSchema,
   requesterAccept: z.boolean(),
   recipientAccept: z.boolean(),
-  requesterItems: CollectionSchema,
-  recipientItems: CollectionSchema,
-  updatedAt: z.iso.date(),
+  requesterItems: CollectionSchema.nullable(),
+  recipientItems: CollectionSchema.nullable(),
+  //  updatedAt: z.iso.date(),
 });
 
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
