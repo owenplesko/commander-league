@@ -31,18 +31,17 @@ const getCollection = base.collection.get
 const setCollection = base.collection.set
   .use(selfOrLeagueOwner)
   .handler(async ({ input, context }) => {
-    await context.env.db.transaction(async (tx) => {
-      await tx
-        .delete(collectionCard)
+    context.env.db.transaction((tx) => {
+      tx.delete(collectionCard)
         .where(
           and(
             eq(collectionCard.leagueId, input.leagueId),
             eq(collectionCard.userId, input.userId),
           ),
-        );
+        )
+        .run();
 
-      await tx
-        .insert(collectionCard)
+      tx.insert(collectionCard)
         .values(
           input.cards.map(({ name, quantity }) => ({
             cardName: name,
@@ -51,7 +50,8 @@ const setCollection = base.collection.set
             userId: input.userId,
           })),
         )
-        .onConflictDoNothing();
+        .onConflictDoNothing()
+        .run();
     });
   });
 

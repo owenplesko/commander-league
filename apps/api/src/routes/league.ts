@@ -40,23 +40,28 @@ const getLeague = base.league.get
 
 const createLeague = base.league.create
   .use(authGuard)
-  .handler(async ({ input, context }) => {
-    const newLeague = await context.env.db.transaction(async (tx) => {
+  .handler(({ input, context }) => {
+    const newLeague = context.env.db.transaction((tx) => {
       const newLeague = tx.insert(league).values(input).returning().get();
-      await tx.insert(leagueMember).values({
-        leagueId: newLeague.id,
-        userId: context.userId,
-        role: "owner",
-      });
+
+      tx.insert(leagueMember)
+        .values({
+          leagueId: newLeague.id,
+          userId: context.userId,
+          role: "owner",
+        })
+        .run();
+
       return newLeague;
     });
+
     return newLeague;
   });
 
 const joinLeague = base.league.join
   .use(authGuard)
-  .handler(async ({ input, context }) => {
-    const leagueRes = await context.env.db.transaction(async (tx) => {
+  .handler(({ input, context }) => {
+    const leagueRes = context.env.db.transaction((tx) => {
       const leagueRes = tx
         .select()
         .from(league)
@@ -71,16 +76,18 @@ const joinLeague = base.league.join
 
       if (!leagueRes) throw new ORPCError("NOT_FOUND");
 
-      await tx.insert(leagueMember).values({
-        leagueId: leagueRes.league.id,
-        userId: context.userId,
-        role: "player",
-      });
+      tx.insert(leagueMember)
+        .values({
+          leagueId: leagueRes.league.id,
+          userId: context.userId,
+          role: "player",
+        })
+        .run();
 
-      await tx
-        .update(inviteCode)
+      tx.update(inviteCode)
         .set({ uses: leagueRes.invite_code.uses + 1 })
-        .where(eq(inviteCode.code, input.inviteCode));
+        .where(eq(inviteCode.code, input.inviteCode))
+        .run();
 
       return leagueRes.league;
     });
@@ -100,31 +107,33 @@ const updateLeague = base.league.update
 
 const deleteLeague = base.league.delete
   .use(leagueOwner)
-  .handler(async ({ input, context }) => {
-    await context.env.db.delete(league).where(eq(league.id, input.leagueId));
+  .handler(({ input, context }) => {
+    context.env.db.delete(league).where(eq(league.id, input.leagueId)).run();
   });
 
 const listLeagueMembers = base.league.member.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
-    const res = await context.env.db.query.leagueMember.findMany({
-      where: (lp, { eq }) => eq(lp.leagueId, input.leagueId),
+    const member = await context.env.db.query.leagueMember.findMany({
+      where: {
+        leagueId: input.leagueId,
+      },
       with: {
         user: true,
       },
     });
-    return res;
+
+    return member;
   });
 
 const getLeagueMember = base.league.member.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leagueMember.findFirst({
-      where: (member, { and, eq }) =>
-        and(
-          eq(member.leagueId, input.leagueId),
-          eq(member.userId, input.userId),
-        ),
+      where: {
+        leagueId: input.leagueId,
+        userId: input.userId,
+      },
       with: {
         user: true,
       },
@@ -137,8 +146,8 @@ const getLeagueMember = base.league.member.get
 
 const deleteLeagueMember = base.league.member.delete
   .use(selfOrLeagueOwner)
-  .handler(async ({ input, context }) => {
-    await context.env.db
+  .handler(({ input, context }) => {
+    context.env.db
       .delete(leagueMember)
       .where(
         and(
@@ -146,25 +155,27 @@ const deleteLeagueMember = base.league.member.delete
           eq(leagueMember.userId, input.userId),
           ne(leagueMember.role, "owner"),
         ),
-      );
+      )
+      .run();
   });
 
 const listInviteCodes = base.league.inviteCode.list
   .use(leagueOwner)
-  .handler(async ({ input, context }) => {
-    const codes = await context.env.db
+  .handler(({ input, context }) => {
+    const codes = context.env.db
       .select()
       .from(inviteCode)
-      .where(eq(inviteCode.leagueId, input.leagueId));
+      .where(eq(inviteCode.leagueId, input.leagueId))
+      .all();
     return codes;
   });
 
 const createInviteCode = base.league.inviteCode.create
   .use(leagueOwner)
-  .handler(async ({ input, context }) => {
+  .handler(({ input, context }) => {
     const code = generateBase36Code();
 
-    const insertRes = await context.env.db.transaction(async (tx) => {
+    const insertRes = context.env.db.transaction((tx) => {
       const countRes = tx
         .select({ count: count() })
         .from(inviteCode)
@@ -191,7 +202,7 @@ const createInviteCode = base.league.inviteCode.create
 
 const updateInviteCode = base.league.inviteCode.update
   .use(leagueOwner)
-  .handler(async ({ input, context }) => {
+  .handler(({ input, context }) => {
     const { leagueId, code, ...values } = input;
     const res = context.env.db
       .update(inviteCode)
@@ -204,11 +215,11 @@ const updateInviteCode = base.league.inviteCode.update
 
 const deleteInviteCode = base.league.inviteCode.delete
   .use(leagueOwner)
-  .handler(async ({ input, context }) => {
-    const { leagueId, code } = input;
-    await context.env.db
+  .handler(({ input: { leagueId, code }, context }) => {
+    context.env.db
       .delete(inviteCode)
-      .where(and(eq(inviteCode.leagueId, leagueId), eq(inviteCode.code, code)));
+      .where(and(eq(inviteCode.leagueId, leagueId), eq(inviteCode.code, code)))
+      .run();
   });
 
 export const leagueRoutes = {

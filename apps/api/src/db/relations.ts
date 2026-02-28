@@ -1,24 +1,24 @@
-import { relations } from "drizzle-orm/relations";
-import {
-  card,
-  collectionCard,
-  league,
-  leagueMember,
-  tradeRequest,
-  user,
-} from "./schema";
+import { defineRelations } from "drizzle-orm/relations";
+import * as schema from "./schema";
 
-export const collectionCardRelations = relations(collectionCard, ({ one }) => ({
-  card: one(card, {
-    fields: [collectionCard.cardName],
-    references: [card.name],
-  }),
-}));
-
-export const leagueRelations = relations(league, ({ many }) => ({
-  leaguePlayers: many(leagueMember),
-}));
-
-export const leaguePlayerRelations = relations(leagueMember, ({ one }) => ({
-  user: one(user, { fields: [leagueMember.userId], references: [user.id] }),
+export const relations = defineRelations(schema, (r) => ({
+  collectionCard: {
+    card: r.one.card({
+      from: r.collectionCard.cardName,
+      to: r.card.name,
+    }),
+  },
+  league: {
+    members: r.many.leagueMember({
+      from: r.league.id,
+      to: r.leagueMember.leagueId,
+    }),
+  },
+  leagueMember: {
+    user: r.one.user({
+      from: r.leagueMember.userId,
+      to: r.user.id,
+      optional: false,
+    }),
+  },
 }));
