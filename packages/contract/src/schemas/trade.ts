@@ -1,6 +1,7 @@
 import z from "zod";
 import { UserSchema } from "./user";
-import { CollectionSchema, CreateCollectionSchema } from "./collection";
+import { CollectionSchema } from "./collection";
+import { CardSchema } from "./card";
 
 export const TradeRequestSchema = z.object({
   id: z.number(),
@@ -15,9 +16,15 @@ export const TradeRequestSchema = z.object({
 
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
 
+export const CreateTradeRequestItemsSchema = z.object({
+  cards: z
+    .object({ cardName: CardSchema.shape.name, quantity: z.number() })
+    .array(),
+});
+
 export const CreateTradeRequestSchema = z.object({
   requesterId: UserSchema.shape.id,
   recipientId: UserSchema.shape.id,
-  recipientItems: CreateCollectionSchema,
-  requesterItems: CreateCollectionSchema,
+  recipientItems: CreateTradeRequestItemsSchema,
+  requesterItems: CreateTradeRequestItemsSchema,
 });

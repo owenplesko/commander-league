@@ -4,7 +4,6 @@ import type { CollectionCard } from "@commander-league/contract/schemas";
 import { base } from "../orpc";
 import {
   memberOfLeague,
-  leagueOwner,
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
 
