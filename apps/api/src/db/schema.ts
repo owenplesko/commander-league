@@ -6,6 +6,7 @@ import {
   primaryKey,
   integer,
   index,
+  unique,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import {
@@ -92,12 +93,17 @@ export const tradeRequest = sqliteTable("trade_request", {
     .notNull(),
 });
 
-export const tradeItems = sqliteTable("trade_items", {
-  id: text("id").primaryKey(),
-  tradeId: integer("trade_id")
-    .notNull()
-    .references(() => tradeRequest.id),
-});
+export const tradeItems = sqliteTable(
+  "trade_items",
+  {
+    id: integer().primaryKey().notNull(),
+    tradeId: integer("trade_id")
+      .notNull()
+      .references(() => tradeRequest.id),
+    role: text({ enum: ["requester", "recipient"] }).notNull(),
+  },
+  (table) => [unique().on(table.tradeId, table.role)],
+);
 
 export const tradeItemCard = sqliteTable(
   "trade_item_card",

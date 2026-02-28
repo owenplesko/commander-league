@@ -1,54 +1,80 @@
-import { tradeRequest, tradeRequestCard } from "../db/schema";
+import { tradeItemCard, tradeItems, tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { base } from "../orpc";
 
 const listTrades = base.trade.list
   .use(memberOfLeague)
-  .handler(({ input, context }) => {
-    const res = context.env.db.query.tradeRequest.findMany({
-      where: (table, { and, eq, or }) =>
-        and(
-          eq(table.leagueId, input.leagueId),
-          or(
-            eq(table.requesterId, context.userId),
-            eq(table.recipientId, context.userId),
-          ),
-        ),
+  .handler(async ({ input, context }) => {
+    const trades = await context.env.db.query.tradeRequest.findMany({
+      where: {
+        leagueId: input.leagueId,
+        OR: [{ requesterId: context.userId }, { recipientId: context.userId }],
+      },
       with: {
-        requesterCards: {
-          with: {},
+        requester: true,
+        requesterItems: {
+          with: {
+            cards: {
+              with: {
+                card: true,
+              },
+            },
+          },
+        },
+        recipient: true,
+        recipientItems: {
+          with: {
+            cards: {
+              with: {
+                card: true,
+              },
+            },
+          },
         },
       },
     });
-    return [];
+
+    return trades;
   });
 
 const createTrade = base.trade.create
   .use(memberOfLeague)
   .handler(
-    async ({
+    ({
       input: { leagueId, recipientId, requesterItems, recipientItems },
       context,
     }) => {
-      const tradeId = await context.env.db.transaction(async (tx) => {
-        const { id: tradeId } = tx
+      const tradeId = context.env.db.transaction((tx) => {
+        const { tradeId } = tx
           .insert(tradeRequest)
           .values({ leagueId, requesterId: context.userId, recipientId })
-          .returning({ id: tradeRequest.id })
+          .returning({ tradeId: tradeRequest.id })
           .get();
 
-        await tx.insert(tradeRequestCard).values([
-          ...requesterItems.cards.map((card) => ({
-            tradeId,
-            role: "requester" as const,
-            ...card,
-          })),
-          ...recipientItems.cards.map((card) => ({
-            tradeId,
-            role: "recipient" as const,
-            ...card,
-          })),
-        ]);
+        const { requesterItemsId } = tx
+          .insert(tradeItems)
+          .values([{ tradeId, role: "requester" }])
+          .returning({ requesterItemsId: tradeItems.id })
+          .get();
+
+        const { recipientItemsId } = tx
+          .insert(tradeItems)
+          .values([{ tradeId, role: "recipient" }])
+          .returning({ recipientItemsId: tradeItems.id })
+          .get();
+
+        tx.insert(tradeItemCard)
+          .values([
+            ...requesterItems.cards.map((tradeCard) => ({
+              tradeItemId: requesterItemsId,
+              ...tradeCard,
+            })),
+            ...recipientItems.cards.map((tradeCard) => ({
+              tradeItemId: recipientItemsId,
+              ...tradeCard,
+            })),
+          ])
+          .run();
 
         return tradeId;
       });
@@ -58,5 +84,6 @@ const createTrade = base.trade.create
   );
 
 export const tradeRoutes = {
+  list: listTrades,
   create: createTrade,
 };
