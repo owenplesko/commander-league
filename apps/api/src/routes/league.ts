@@ -1,4 +1,4 @@
-import { inviteCode, league, leaguePlayer } from "../db/schema";
+import { inviteCode, league, leagueMember } from "../db/schema";
 import { and, count, eq, ne } from "drizzle-orm";
 import type { League } from "@commander-league/contract/schemas";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
@@ -19,8 +19,8 @@ const listLeague = base.league.list
     const leagues: League[] = await context.env.db
       .select({ id: league.id, name: league.name })
       .from(league)
-      .innerJoin(leaguePlayer, eq(league.id, leaguePlayer.leagueId))
-      .where(eq(leaguePlayer.playerId, context.userId));
+      .innerJoin(leagueMember, eq(league.id, leagueMember.leagueId))
+      .where(eq(leagueMember.userId, context.userId));
     return leagues;
   });
 
@@ -43,9 +43,9 @@ const createLeague = base.league.create
   .handler(async ({ input, context }) => {
     const newLeague = await context.env.db.transaction(async (tx) => {
       const newLeague = tx.insert(league).values(input).returning().get();
-      await tx.insert(leaguePlayer).values({
+      await tx.insert(leagueMember).values({
         leagueId: newLeague.id,
-        playerId: context.userId,
+        userId: context.userId,
         role: "owner",
       });
       return newLeague;
@@ -71,9 +71,9 @@ const joinLeague = base.league.join
 
       if (!leagueRes) throw new ORPCError("NOT_FOUND");
 
-      await tx.insert(leaguePlayer).values({
+      await tx.insert(leagueMember).values({
         leagueId: leagueRes.league.id,
-        playerId: context.userId,
+        userId: context.userId,
         role: "player",
       });
 
@@ -107,7 +107,7 @@ const deleteLeague = base.league.delete
 const listLeagueMembers = base.league.member.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
-    const res = await context.env.db.query.leaguePlayer.findMany({
+    const res = await context.env.db.query.leagueMember.findMany({
       where: (lp, { eq }) => eq(lp.leagueId, input.leagueId),
       with: {
         user: true,
@@ -119,9 +119,12 @@ const listLeagueMembers = base.league.member.list
 const getLeagueMember = base.league.member.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
-    const res = await context.env.db.query.leaguePlayer.findFirst({
-      where: (lp, { and, eq }) =>
-        and(eq(lp.leagueId, input.leagueId), eq(lp.playerId, input.userId)),
+    const res = await context.env.db.query.leagueMember.findFirst({
+      where: (member, { and, eq }) =>
+        and(
+          eq(member.leagueId, input.leagueId),
+          eq(member.userId, input.userId),
+        ),
       with: {
         user: true,
       },
@@ -136,12 +139,12 @@ const deleteLeagueMember = base.league.member.delete
   .use(selfOrLeagueOwner)
   .handler(async ({ input, context }) => {
     await context.env.db
-      .delete(leaguePlayer)
+      .delete(leagueMember)
       .where(
         and(
-          eq(leaguePlayer.leagueId, input.leagueId),
-          eq(leaguePlayer.playerId, input.userId),
-          ne(leaguePlayer.role, "owner"),
+          eq(leagueMember.leagueId, input.leagueId),
+          eq(leagueMember.userId, input.userId),
+          ne(leagueMember.role, "owner"),
         ),
       );
   });

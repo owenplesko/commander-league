@@ -12,7 +12,6 @@ import {
   leagueRoleValues,
   type CardData,
 } from "@commander-league/contract/schemas";
-import { boolean } from "zod";
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
@@ -36,36 +35,9 @@ export const collectionCard = sqliteTable(
   (table) => [
     primaryKey({
       columns: [table.userId, table.leagueId, table.cardName],
-      name: "collection_card_player_id_league_id_card_name_pk",
+      name: "collection_card_pk",
     }),
-    check("collection_card_check_1", sql`quantity > 0`),
-  ],
-);
-
-export const deck = sqliteTable("deck", {
-  id: integer().primaryKey().notNull(),
-  playerId: text("player_id").notNull(),
-  leagueId: integer("league_id")
-    .notNull()
-    .references(() => league.id, { onDelete: "cascade" }),
-  name: text().notNull(),
-});
-
-export const deckCard = sqliteTable(
-  "deck_card",
-  {
-    deckId: integer("deck_id")
-      .notNull()
-      .references(() => deck.id, { onDelete: "cascade" }),
-    cardName: text("card_name")
-      .notNull()
-      .references(() => card.name),
-  },
-  (table) => [
-    primaryKey({
-      columns: [table.deckId, table.cardName],
-      name: "deck_card_deck_id_card_name_pk",
-    }),
+    check("collection_card_quantity_check", sql`quantity > 0`),
   ],
 );
 
@@ -74,23 +46,22 @@ export const league = sqliteTable("league", {
   name: text().notNull(),
 });
 
-export const leaguePlayer = sqliteTable(
-  "league_player",
+export const leagueMember = sqliteTable(
+  "league_member",
   {
     leagueId: integer("league_id")
       .notNull()
       .references(() => league.id, { onDelete: "cascade" }),
-    playerId: text("player_id")
+    userId: text("user_id")
       .notNull()
       .references(() => user.id, { onDelete: "cascade" }),
     role: text("role", { enum: leagueRoleValues }).notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.leagueId, table.playerId],
-      name: "league_player_league_id_player_id_pk",
+      columns: [table.leagueId, table.userId],
+      name: "league_member_pk",
     }),
-    check("league_player_check_1", sql`role IN ('owner', 'admin', 'player')`),
   ],
 );
 
@@ -103,36 +74,42 @@ export const inviteCode = sqliteTable("invite_code", {
   uses: integer().default(0).notNull(),
 });
 
-export const tradeRequest = sqliteTable(
-  "trade_request",
+export const tradeRequest = sqliteTable("trade_request", {
+  id: integer().primaryKey().notNull(),
+  leagueId: integer("league_id")
+    .notNull()
+    .references(() => league.id, { onDelete: "cascade" }),
+  requesterId: text("requester_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  requesterAccept: integer({ mode: "boolean" }).default(false).notNull(),
+  recipientId: text("recipient_id")
+    .notNull()
+    .references(() => user.id, { onDelete: "cascade" }),
+  recipientAccept: integer({ mode: "boolean" }).default(false).notNull(),
+  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .$onUpdate(() => new Date())
+    .notNull(),
+});
+
+export const tradeRequestCard = sqliteTable(
+  "trade_request_card",
   {
-    id: integer().primaryKey().notNull(),
-    leagueId: integer("league_id")
+    tradeId: integer("trade_id")
       .notNull()
-      .references(() => league.id, { onDelete: "cascade" }),
-    requesterId: text("requester_id")
+      .references(() => tradeRequest.id),
+    cardName: text("card_name")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    requesterAccept: integer({ mode: "boolean" }).default(false).notNull(),
-    recipientId: text("recipient_id")
-      .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    recipientAccept: integer({ mode: "boolean" }).default(false).notNull(),
-    requesterItems: blob("requester_items", { mode: "json" })
-      .$type<{
-        cards: { cardName: string; quantity: number }[];
-      }>()
-      .notNull(),
-    recipientItems: blob("requester_items", { mode: "json" })
-      .$type<{
-        cards: { cardName: string; quantity: number }[];
-      }>()
-      .notNull(),
-    updatedAt: integer("updated_at", { mode: "timestamp_ms" })
-      .$onUpdate(() => new Date())
-      .notNull(),
+      .references(() => card.name),
+    role: text({ enum: ["requester", "recipient"] }).notNull(),
+    quantity: integer().notNull(),
   },
-  () => [check("trade_request_not_self", sql`requester_id <> recipient_id`)],
+  (table) => [
+    primaryKey({
+      columns: [table.tradeId, table.cardName, table.role],
+      name: "trade_request_card_pk",
+    }),
+  ],
 );
 
 // auth stuff

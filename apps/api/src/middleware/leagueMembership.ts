@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { eq, and } from "drizzle-orm";
-import { leaguePlayer } from "../db/schema";
+import { leagueMember } from "../db/schema";
 import type {
   GetLeagueInput,
   GetLeagueMemberInput,
@@ -11,11 +11,11 @@ export const memberOfLeague = authGuard.concat(
   ({ context, next }, input: GetLeagueInput) => {
     const membership = context.env.db
       .select()
-      .from(leaguePlayer)
+      .from(leagueMember)
       .where(
         and(
-          eq(leaguePlayer.leagueId, input.leagueId),
-          eq(leaguePlayer.playerId, context.userId),
+          eq(leagueMember.leagueId, input.leagueId),
+          eq(leagueMember.userId, context.userId),
         ),
       )
       .get();
