@@ -42,11 +42,11 @@ function RouteComponent() {
     orpc.collection.get.queryOptions({ input: { leagueId, userId } }),
   );
 
-  const [hoveredCard, setHoveredCard] = useState<CollectionCard | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<CollectionCard | null>(null);
   const [modal, setModal] = useState<"bulk-edit" | null>(null);
 
   useEffect(() => {
-    setHoveredCard(null);
+    setHoveredRow(null);
   }, [leagueId, userId]);
 
   return (
@@ -65,13 +65,13 @@ function RouteComponent() {
               className={classes.preview}
               width={250}
               src={scryfallImgUrl(
-                hoveredCard?.data.printings.at(0)!.scryfallId ?? null,
+                hoveredRow?.card.data.printings.at(0)!.scryfallId ?? null,
               )}
             />
           </div>
           <CardTable
             cards={collection.cards}
-            setHovered={(c) => setHoveredCard(c)}
+            setHoveredRow={(c) => setHoveredRow(c)}
           />
         </div>
       </div>

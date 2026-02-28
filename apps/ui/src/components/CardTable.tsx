@@ -1,27 +1,31 @@
+import type { Card, CollectionCard } from "@commander-league/contract/schemas";
 import classes from "./CardTable.module.css";
-import type { Card, CollectionCard } from "../../../back/src/schemas/card";
 import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState, type ReactNode } from "react";
 
-type CardGroup = { groupId: string; count: number; cards: CollectionCard[] };
+type CardGroup = {
+  groupId: string;
+  count: number;
+  cardEntries: CollectionCard[];
+};
 
 export function organizeCards(
-  cards: CollectionCard[],
+  cardEntries: CollectionCard[],
   { groupOption }: { groupOption: GroupOption },
 ): CardGroup[] {
   const cardGroups: Record<string, CardGroup> = {};
 
-  for (const card of cards) {
-    const groupId = groupOption.groupId(card);
+  for (const cardEntry of cardEntries) {
+    const groupId = groupOption.groupId(cardEntry.card);
 
     if (!(groupId in cardGroups)) {
-      cardGroups[groupId] = { groupId, count: 0, cards: [] };
+      cardGroups[groupId] = { groupId, count: 0, cardEntries: [] };
     }
 
     const group = cardGroups[groupId]!;
 
-    group.cards.push(card);
+    group.cardEntries.push(cardEntry);
     group.count += 1;
   }
 
@@ -78,13 +82,13 @@ const groupOptions: GroupOption[] = [
 
 export function CardTable({
   cards,
-  setHovered,
+  setHoveredRow,
 }: {
   cards: CollectionCard[];
-  setHovered?: (c: Card) => void;
+  setHoveredRow?: (c: CollectionCard) => void;
 }) {
   const [groupMethods, setGroupMethods] = useState<GroupOption>(
-    groupOptions[0],
+    groupOptions[0]!,
   );
 
   const organizedCards = organizeCards(cards, { groupOption: groupMethods });
@@ -107,19 +111,21 @@ export function CardTable({
       </div>
       {/* Content */}
       <div className={classes.content}>
-        {organizedCards.map(({ groupId, count, cards }) => (
+        {organizedCards.map(({ groupId, count, cardEntries }) => (
           <div>
             <div className={classes.groupHeader}>
               {groupMethods.header(groupId)}
               <span className={classes.count}>{`(${count})`}</span>
             </div>
             <ul>
-              {cards.map((card) => (
+              {cardEntries.map((cardEntry) => (
                 <li
-                  key={card.name}
+                  key={cardEntry.card.name}
                   className={classes.item}
-                  onMouseEnter={setHovered ? () => setHovered(card) : undefined}
-                >{`${card.quantity} ${card.name}`}</li>
+                  onMouseEnter={
+                    setHoveredRow ? () => setHoveredRow(cardEntry) : undefined
+                  }
+                >{`${cardEntry.quantity} ${cardEntry.card.name}`}</li>
               ))}
             </ul>
           </div>

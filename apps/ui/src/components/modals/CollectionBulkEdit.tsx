@@ -16,7 +16,7 @@ type Props = {
 
 function marshalCollection(collection: Collection) {
   return collection.cards
-    .map(({ name, quantity }) => `${quantity} ${name}`)
+    .map(({ card: { name }, quantity }) => `${quantity} ${name}`)
     .join("\n");
 }
 
@@ -29,17 +29,17 @@ function unmarshalCollection(text: string) {
       const match = line.match(/^(\d+)\s+(.+)$/);
 
       if (!match) {
-        return { quantity: 0, name: "" };
+        return { quantity: 0, cardName: "" };
       }
 
       const [, quantityStr, name] = match;
 
       return {
         quantity: Number(quantityStr),
-        name: name?.trim() ?? "",
+        cardName: name?.trim() ?? "",
       };
     })
-    .filter((entry) => entry.quantity > 0 && entry.name.length > 0);
+    .filter((entry) => entry.quantity > 0 && entry.cardName.length > 0);
 }
 
 export function CollectionBulkEditModal({
