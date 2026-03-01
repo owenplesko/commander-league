@@ -1,10 +1,12 @@
-import { collectionCard } from "../db/schema";
-import { eq, and } from "drizzle-orm";
+import { card, collectionCard } from "../db/schema";
+import { eq, and, sql, isNull } from "drizzle-orm";
 import { base } from "../orpc";
 import {
   memberOfLeague,
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
+import { except } from "drizzle-orm/sqlite-core";
+import { ORPCError } from "@orpc/server";
 
 const getCollection = base.collection.get
   .use(memberOfLeague)
@@ -33,6 +35,29 @@ const setCollection = base.collection.set
         )
         .run();
 
+      const valuesSql = sql.join(
+        input.cards.map((c) => sql`(${c.cardName})`),
+        sql`,`,
+      );
+
+      const inputCardsSubquery = tx
+        .select({ cardName: sql<string>`column1`.as("cardName") })
+        .from(sql`(values ${valuesSql})`)
+        .as("input_cards");
+
+      const invalidCards = tx
+        .select({ cardName: inputCardsSubquery.cardName })
+        .from(inputCardsSubquery)
+        .leftJoin(card, eq(inputCardsSubquery.cardName, card.name))
+        .where(isNull(card.name))
+        .all();
+
+      if (invalidCards.length > 0) {
+        throw new ORPCError("BAD_REQUEST", {
+          message: `invalid cards: ${JSON.stringify(invalidCards)}`,
+        });
+      }
+
       tx.insert(collectionCard)
         .values(
           input.cards.map(({ cardName, quantity }) => ({
@@ -42,7 +67,6 @@ const setCollection = base.collection.set
             userId: input.userId,
           })),
         )
-        .onConflictDoNothing()
         .run();
     });
   });
