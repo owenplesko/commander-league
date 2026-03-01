@@ -5,6 +5,8 @@ import { orpc } from "../../lib/client";
 import { useMutation } from "@tanstack/react-query";
 import { InputTextarea } from "primereact/inputtextarea";
 import type { Collection } from "@commander-league/contract/schemas";
+import { isDefinedError } from "@orpc/client";
+import { Message } from "primereact/message";
 
 type Props = {
   collection: Collection;
@@ -51,12 +53,21 @@ export function CollectionBulkEditModal({
 }: Props) {
   const mutation = useMutation(
     orpc.collection.set.mutationOptions({
-      onSuccess: () => {
+      onSuccess: (_output, { userId, leagueId }, _err, ctx) => {
+        ctx.client.invalidateQueries({
+          queryKey: orpc.collection.get.key({
+            input: { leagueId, userId },
+          }),
+        });
         onHide();
         setCollectionText(undefined);
       },
     }),
   );
+
+  const invalidCards = isDefinedError(mutation.error)
+    ? mutation.error.data.invalidCardNames
+    : null;
 
   const [collectionText, setCollectionText] = useState<string>();
 
@@ -70,6 +81,7 @@ export function CollectionBulkEditModal({
       visible={visible}
       onHide={() => {
         onHide();
+        mutation.reset();
         setCollectionText(undefined);
       }}
       style={{ width: "40rem" }}
@@ -91,11 +103,18 @@ export function CollectionBulkEditModal({
           <label>Collection</label>
           <InputTextarea
             invalid={!!mutation.error}
-            autoResize={true}
-            rows={10}
+            autoResize={false}
+            rows={20}
+            style={{ resize: "none", overflowY: "auto" }}
             value={collectionText}
             onChange={(e) => setCollectionText(e.target.value)}
           />
+          {invalidCards && (
+            <Message
+              severity="error"
+              text={`Invalid Cards: "${invalidCards.join('", "')}"`}
+            />
+          )}
         </div>
       </div>
     </Dialog>

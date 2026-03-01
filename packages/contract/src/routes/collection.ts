@@ -3,7 +3,8 @@ import {
   CollectionSchema,
   CreateCollectionSchema,
 } from "../schemas/collection";
-import { GetLeagueMemberSchema } from "../schemas";
+import { CardSchema, GetLeagueMemberSchema } from "../schemas";
+import z from "zod";
 
 const getCollection = oc
   .route({
@@ -19,7 +20,14 @@ const setCollection = oc
     path: "/league/{leagueId}/member/{userId}/collection",
     successStatus: 204,
   })
-  .input(GetLeagueMemberSchema.extend(CreateCollectionSchema.shape));
+  .input(GetLeagueMemberSchema.extend(CreateCollectionSchema.shape))
+  .errors({
+    BAD_REQUEST: {
+      data: z.object({
+        invalidCardNames: CardSchema.shape.name.array(),
+      }),
+    },
+  });
 
 export const collectionRoutes = {
   get: getCollection,

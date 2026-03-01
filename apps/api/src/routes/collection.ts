@@ -24,7 +24,7 @@ const getCollection = base.collection.get
 
 const setCollection = base.collection.set
   .use(selfOrLeagueOwner)
-  .handler(async ({ input, context }) => {
+  .handler(async ({ input, context, errors }) => {
     context.env.db.transaction((tx) => {
       tx.delete(collectionCard)
         .where(
@@ -53,8 +53,10 @@ const setCollection = base.collection.set
         .all();
 
       if (invalidCards.length > 0) {
-        throw new ORPCError("BAD_REQUEST", {
-          message: `invalid cards: ${JSON.stringify(invalidCards)}`,
+        throw errors.BAD_REQUEST({
+          data: {
+            invalidCardNames: invalidCards.map(({ cardName }) => cardName),
+          },
         });
       }
 
