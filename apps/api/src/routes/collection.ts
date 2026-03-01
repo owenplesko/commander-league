@@ -69,6 +69,16 @@ const setCollection = base.collection.set
             userId: input.userId,
           })),
         )
+        .onConflictDoUpdate({
+          target: [
+            collectionCard.leagueId,
+            collectionCard.userId,
+            collectionCard.cardName,
+          ],
+          set: {
+            quantity: sql`${collectionCard.quantity} + excluded.quantity`,
+          },
+        })
         .run();
     });
   });
