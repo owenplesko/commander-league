@@ -100,7 +100,7 @@ export function CollectionBulkEditModal({
     >
       <div className="form">
         <div className="field">
-          <label>Collection</label>
+          <label>Cards</label>
           <InputTextarea
             invalid={!!mutation.error}
             autoResize={false}
