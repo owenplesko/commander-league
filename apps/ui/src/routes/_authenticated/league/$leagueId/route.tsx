@@ -20,6 +20,7 @@ import { ContextMenu } from "primereact/contextmenu";
 import { InviteCode } from "../../../../components/modals/InviteCode";
 import { LeagueSettings } from "../../../../components/modals/LeagueSettings";
 import { queryClient, orpc } from "../../../../lib/client";
+import { CreateTradeRequestModal } from "../../../../components/modals/CreateTradeModal";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -49,8 +50,12 @@ function RouteComponent() {
   const router = useRouter();
   const leagueMenuRef = useRef<Menu>(null);
   const memberMenuRef = useRef<ContextMenu>(null);
-  const [modal, setModal] = useState<"settings" | "invite" | null>(null);
-  const [selectedUser, setSelectedUser] = useState<LeagueMember | null>(null);
+  const [modal, setModal] = useState<"settings" | "invite" | "trade" | null>(
+    null,
+  );
+  const [selectedMember, setSelectedMember] = useState<LeagueMember | null>(
+    null,
+  );
 
   const { data: league } = useSuspenseQuery(
     orpc.league.get.queryOptions({ input: { leagueId } }),
@@ -148,14 +153,14 @@ function RouteComponent() {
     {
       label: "Kick",
       command: () => {
-        if (!selectedUser) return;
-        kickMember.mutate({ leagueId, userId: selectedUser.user.id });
+        if (!selectedMember) return;
+        kickMember.mutate({ leagueId, userId: selectedMember.user.id });
       },
     },
   ];
 
   const memberMenuItems: MenuItem[] = [
-    { label: "Trade" },
+    { label: "Trade", command: () => setModal("trade") },
     ...(membership?.role === "owner" ? adminMenuItems : []),
   ];
 
@@ -203,7 +208,7 @@ function RouteComponent() {
                 .map((member) => (
                   <li
                     onContextMenu={(e) => {
-                      setSelectedUser(member);
+                      setSelectedMember(member);
                       memberMenuRef.current?.show(e);
                     }}
                   >
@@ -240,6 +245,15 @@ function RouteComponent() {
         visible={modal === "invite"}
         onHide={() => setModal(null)}
       />
+      {selectedMember && (
+        <CreateTradeRequestModal
+          requester={user}
+          recipient={selectedMember?.user}
+          leagueId={leagueId}
+          visible={modal === "trade"}
+          onHide={() => setModal(null)}
+        />
+      )}
     </>
   );
 }

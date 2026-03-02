@@ -80,13 +80,13 @@ const groupOptions: GroupOption[] = [
   },
 ];
 
-export function CardTable({
-  cards,
-  setHoveredRow,
-}: {
+type Props = {
   cards: CollectionCard[];
-  setHoveredRow?: (c: CollectionCard) => void;
-}) {
+  onRowHover?: (c: CollectionCard) => void;
+  onRowSelect?: (c: CollectionCard) => void;
+};
+
+export function CardTable({ cards, onRowHover, onRowSelect }: Props) {
   const [groupMethods, setGroupMethods] = useState<GroupOption>(
     groupOptions[0]!,
   );
@@ -123,7 +123,10 @@ export function CardTable({
                   key={cardEntry.card.name}
                   className={classes.item}
                   onMouseEnter={
-                    setHoveredRow ? () => setHoveredRow(cardEntry) : undefined
+                    onRowHover ? () => onRowHover(cardEntry) : undefined
+                  }
+                  onClick={
+                    onRowSelect ? () => onRowSelect(cardEntry) : undefined
                   }
                 >{`${cardEntry.quantity} ${cardEntry.card.name}`}</li>
               ))}

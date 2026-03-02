@@ -2,14 +2,4 @@
   display: flex;
   place-items: center;
   gap: 0.5rem;
-  padding: 0.5rem;
-  margin: 0.5rem;
-  width: 11rem;
-  cursor: pointer;
-  position: absolute;
-  bottom: 0;
-  border-radius: var(--border-radius);
-  &:hover {
-    background-color: var(--surface-hover);
-  }
 }
