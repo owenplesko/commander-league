@@ -3,12 +3,48 @@ import classes from "./CardTable.module.css";
 import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState, type ReactNode } from "react";
+import { classNames } from "primereact/utils";
 
 type CardGroup = {
   groupId: string;
   count: number;
   cardEntries: CollectionCard[];
 };
+
+export type SelectedCard = CollectionCard & { selectedQuantity: number };
+
+type ReducerAction =
+  | {
+      type: "select";
+      entry: CollectionCard;
+    }
+  | {
+      type: "inc";
+      cardName: string;
+      delta: number;
+    }
+  | {
+      type: "unselect";
+      cardName: string;
+    };
+
+function selectedCardsReducer(
+  state: SelectedCard[],
+  action: ReducerAction,
+): SelectedCard[] {
+  switch (action.type) {
+    case "select":
+      return [...state, { ...action.entry, selectedQuantity: 1 }];
+    case "inc":
+      return state.map((e) =>
+        e.card.name === action.cardName
+          ? { ...e, selectedQuantity: e.selectedQuantity + action.delta }
+          : e,
+      );
+    case "unselect":
+      return state.filter((e) => e.card.name !== action.cardName);
+  }
+}
 
 export function organizeCards(
   cardEntries: CollectionCard[],
@@ -83,15 +119,74 @@ const groupOptions: GroupOption[] = [
 type Props = {
   cards: CollectionCard[];
   onRowHover?: (c: CollectionCard) => void;
-  onRowSelect?: (c: CollectionCard) => void;
+  onSelectionChange?: (selection: SelectedCard[]) => void;
+  selectedRows?: SelectedCard[];
 };
 
-export function CardTable({ cards, onRowHover, onRowSelect }: Props) {
+export function CardTable({
+  cards,
+  onRowHover = () => {},
+  onSelectionChange = () => {},
+  selectedRows = [],
+}: Props) {
   const [groupMethods, setGroupMethods] = useState<GroupOption>(
     groupOptions[0]!,
   );
 
   const organizedCards = organizeCards(cards, { groupOption: groupMethods });
+
+  function SelectedRow(entry: SelectedCard) {
+    return (
+      <>
+        <span style={{ marginRight: "auto" }}>
+          {`${entry.selectedQuantity}/${entry.quantity} ${entry.card.name}`}
+        </span>
+        {entry.selectedQuantity < entry.quantity ? (
+          <i
+            className="pi pi-sort-up-fill"
+            onClick={() => {
+              onSelectionChange(
+                selectedCardsReducer(selectedRows, {
+                  type: "inc",
+                  cardName: entry.card.name,
+                  delta: 1,
+                }),
+              );
+            }}
+          />
+        ) : (
+          <i className={classNames("pi pi-sort-up", classes.disabled)} />
+        )}
+        {entry.selectedQuantity > 1 ? (
+          <i
+            className="pi pi-sort-down-fill"
+            onClick={() => {
+              onSelectionChange(
+                selectedCardsReducer(selectedRows, {
+                  type: "inc",
+                  cardName: entry.card.name,
+                  delta: -1,
+                }),
+              );
+            }}
+          />
+        ) : (
+          <i className={classNames("pi pi-sort-down", classes.disabled)} />
+        )}
+        <i
+          className="pi pi-times"
+          onClick={() => {
+            onSelectionChange(
+              selectedCardsReducer(selectedRows, {
+                type: "unselect",
+                cardName: entry.card.name,
+              }),
+            );
+          }}
+        />
+      </>
+    );
+  }
 
   return (
     <div>
@@ -118,18 +213,39 @@ export function CardTable({ cards, onRowHover, onRowSelect }: Props) {
               <span className={classes.count}>{`(${count})`}</span>
             </div>
             <ul>
-              {cardEntries.map((cardEntry) => (
-                <li
-                  key={cardEntry.card.name}
-                  className={classes.item}
-                  onMouseEnter={
-                    onRowHover ? () => onRowHover(cardEntry) : undefined
-                  }
-                  onClick={
-                    onRowSelect ? () => onRowSelect(cardEntry) : undefined
-                  }
-                >{`${cardEntry.quantity} ${cardEntry.card.name}`}</li>
-              ))}
+              {cardEntries.map((cardEntry) => {
+                const selected = selectedRows?.find(
+                  (r) => r.card.name === cardEntry.card.name,
+                );
+
+                return (
+                  <li
+                    key={cardEntry.card.name}
+                    className={classNames(
+                      classes.item,
+                      selected ? classes.selected : undefined,
+                    )}
+                    onMouseEnter={
+                      onRowHover ? () => onRowHover(cardEntry) : undefined
+                    }
+                    onClick={
+                      selected
+                        ? undefined
+                        : () =>
+                            onSelectionChange(
+                              selectedCardsReducer(selectedRows, {
+                                type: "select",
+                                entry: cardEntry,
+                              }),
+                            )
+                    }
+                  >
+                    {selected
+                      ? SelectedRow(selected)
+                      : `${cardEntry.quantity} ${cardEntry.card.name}`}
+                  </li>
+                );
+              })}
             </ul>
           </div>
         ))}

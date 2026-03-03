@@ -3,11 +3,11 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { UserBadge } from "../UserBadge";
 import { useState } from "react";
-import type { Card } from "primereact/card";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useQuery } from "@tanstack/react-query";
 import { orpc } from "../../lib/client";
-import { CardTable } from "../CardTable";
+import { CardTable, type SelectedCard } from "../CardTable";
 import { scryfallImgUrl } from "../../lib/utils";
+import { TabPanel, TabView } from "primereact/tabview";
 
 type Props = {
   leagueId: number;
@@ -24,19 +24,21 @@ export function CreateTradeRequestModal({
   visible,
   onHide,
 }: Props) {
-  const { data: requesterCollection } = useSuspenseQuery(
+  const { data: requesterCollection } = useQuery(
     orpc.collection.get.queryOptions({
       input: { leagueId, userId: requester.id },
     }),
   );
-  const { data: recipientCollection } = useSuspenseQuery(
+  const { data: recipientCollection } = useQuery(
     orpc.collection.get.queryOptions({
       input: { leagueId, userId: recipient.id },
     }),
   );
 
-  const [requesterItems, setRequesterItems] = useState<CollectionCard[]>([]);
-  const [recipientItems, setRecipientItems] = useState<CollectionCard[]>([]);
+  const [requesterItems, setRequesterItems] = useState<SelectedCard[]>([]);
+  const [recipientItems, setRecipientItems] = useState<SelectedCard[]>([]);
+
+  if (!(requesterCollection && recipientCollection)) return null;
 
   return (
     <Dialog
@@ -52,35 +54,50 @@ export function CreateTradeRequestModal({
       footer={<Button label="Request" onClick={() => {}} />}
     >
       <div className="form" style={{ overflow: "hidden" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            placeItems: "center",
-          }}
-        >
-          <UserBadge user={requester} />
-          {recipient && <UserBadge user={recipient} />}
+        <div style={{ display: "flex", justifyContent: "space-between" }}>
+          <div>
+            <UserBadge user={requester} />
+            {requesterItems.map((item) => (
+              <img
+                width={120}
+                src={scryfallImgUrl(
+                  item.card.data.printings[0]?.scryfallId ?? null,
+                )}
+              />
+            ))}
+          </div>
+          <div>
+            <UserBadge user={recipient} />
+            {recipientItems.map((item) => (
+              <img
+                width={120}
+                src={scryfallImgUrl(
+                  item.card.data.printings[0]?.scryfallId ?? null,
+                )}
+              />
+            ))}
+          </div>
         </div>
-        <div style={{ display: "flex", gap: "0.5rem" }}>
-          {requesterItems.map((item) => (
-            <img
-              width={120}
-              src={scryfallImgUrl(
-                item.card.data.printings[0]?.scryfallId ?? null,
-              )}
-            />
-          ))}
-          <i className="pi pi-arrow-right-arrow-left" />
-        </div>
-        <div style={{ overflow: "auto", maxHeight: "30rem" }}>
-          <CardTable
-            cards={requesterCollection.cards}
-            onRowSelect={(cardEntry) =>
-              setRequesterItems((previous) => [...previous, cardEntry])
-            }
-          />
-        </div>
+        <TabView>
+          <TabPanel header={requester.name}>
+            <div style={{ overflow: "auto", maxHeight: "30rem" }}>
+              <CardTable
+                cards={requesterCollection.cards}
+                onSelectionChange={setRequesterItems}
+                selectedRows={requesterItems}
+              />
+            </div>
+          </TabPanel>
+          <TabPanel header={recipient.name}>
+            <div style={{ overflow: "auto", maxHeight: "30rem" }}>
+              <CardTable
+                cards={recipientCollection.cards}
+                onSelectionChange={setRecipientItems}
+                selectedRows={recipientItems}
+              />
+            </div>
+          </TabPanel>
+        </TabView>
       </div>
     </Dialog>
   );
