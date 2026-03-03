@@ -1,13 +1,14 @@
-import type { CollectionCard, User } from "@commander-league/contract/schemas";
+import type { User } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { UserBadge } from "../UserBadge";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { orpc } from "../../lib/client";
-import { CardTable, type SelectedCard } from "../CardTable";
 import { scryfallImgUrl } from "../../lib/utils";
 import { TabPanel, TabView } from "primereact/tabview";
+import type { SelectedCard } from "../cardTable/selection";
+import { CardTable } from "../cardTable/Table";
 
 type Props = {
   leagueId: number;
