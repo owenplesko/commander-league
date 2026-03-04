@@ -1,14 +1,13 @@
 import type { User } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { UserBadge } from "../UserBadge";
 import { useState } from "react";
-import { useQuery } from "@tanstack/react-query";
+import { useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "../../lib/client";
-import { scryfallImgUrl } from "../../lib/utils";
 import { TabPanel, TabView } from "primereact/tabview";
 import type { SelectedCard } from "../cardTable/selection";
 import { CardTable } from "../cardTable/Table";
+import { TradePreview } from "../TradePreview";
 
 type Props = {
   leagueId: number;
@@ -25,21 +24,19 @@ export function CreateTradeRequestModal({
   visible,
   onHide,
 }: Props) {
-  const { data: requesterCollection } = useQuery(
+  const { data: requesterCollection } = useSuspenseQuery(
     orpc.collection.get.queryOptions({
       input: { leagueId, userId: requester.id },
     }),
   );
-  const { data: recipientCollection } = useQuery(
+  const { data: recipientCollection } = useSuspenseQuery(
     orpc.collection.get.queryOptions({
       input: { leagueId, userId: recipient.id },
     }),
   );
 
-  const [requesterItems, setRequesterItems] = useState<SelectedCard[]>([]);
-  const [recipientItems, setRecipientItems] = useState<SelectedCard[]>([]);
-
-  if (!(requesterCollection && recipientCollection)) return null;
+  const [requesterCards, setRequesterCards] = useState<SelectedCard[]>([]);
+  const [recipientCards, setRecipientCards] = useState<SelectedCard[]>([]);
 
   return (
     <Dialog
@@ -54,100 +51,53 @@ export function CreateTradeRequestModal({
       modal
       footer={<Button label="Request" onClick={() => {}} />}
     >
-      <div style={{ overflow: "hidden" }}>
-        <div
-          style={{
-            display: "flex",
-            justifyContent: "space-between",
-            marginBottom: "1rem",
-          }}
-        >
-          <UserBadge user={requester} />
-          <UserBadge user={recipient} />
-        </div>
-        <div
-          style={{
-            display: "grid",
-            gridTemplateColumns: "1fr 1fr",
-            gap: "1rem",
-          }}
-        >
-          <div
-            style={{
-              border: "1px solid var(--surface-border)",
-              minWidth: 0,
-              borderRadius: "var(--border-radius)",
-              backgroundColor: "var(--surface-ground)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                gap: "0.5rem",
-                padding: "1rem",
-                height: "calc(200px + 2rem)",
-              }}
-            >
-              {requesterItems.map((item) => (
-                <img
-                  height={200}
-                  src={scryfallImgUrl(
-                    item.card.data.printings[0]?.scryfallId ?? null,
-                  )}
-                />
-              ))}
-            </div>
+      <TradePreview
+        tradeRequest={buildTradeRequest({
+          requester,
+          recipient,
+          recipientCards,
+          requesterCards,
+        })}
+      />
+      <TabView>
+        <TabPanel header={requester.name}>
+          <div style={{ overflow: "auto", maxHeight: "30rem" }}>
+            <CardTable
+              cards={requesterCollection.cards}
+              onSelectionChange={setRequesterCards}
+              selectedRows={requesterCards}
+            />
           </div>
-          <div
-            style={{
-              border: "1px solid var(--surface-border)",
-              minWidth: 0,
-              borderRadius: "var(--border-radius)",
-              backgroundColor: "var(--surface-ground)",
-              height: "calc(200px + 2rem)",
-            }}
-          >
-            <div
-              style={{
-                display: "flex",
-                overflowX: "auto",
-                gap: "0.5rem",
-                padding: "1rem",
-              }}
-            >
-              {recipientItems.map((item) => (
-                <img
-                  height={200}
-                  src={scryfallImgUrl(
-                    item.card.data.printings[0]?.scryfallId ?? null,
-                  )}
-                />
-              ))}
-            </div>
+        </TabPanel>
+        <TabPanel header={recipient.name}>
+          <div style={{ overflow: "auto", maxHeight: "30rem" }}>
+            <CardTable
+              cards={recipientCollection.cards}
+              onSelectionChange={setRecipientCards}
+              selectedRows={recipientCards}
+            />
           </div>
-        </div>
-        <TabView>
-          <TabPanel header={requester.name}>
-            <div style={{ overflow: "auto", maxHeight: "30rem" }}>
-              <CardTable
-                cards={requesterCollection.cards}
-                onSelectionChange={setRequesterItems}
-                selectedRows={requesterItems}
-              />
-            </div>
-          </TabPanel>
-          <TabPanel header={recipient.name}>
-            <div style={{ overflow: "auto", maxHeight: "30rem" }}>
-              <CardTable
-                cards={recipientCollection.cards}
-                onSelectionChange={setRecipientItems}
-                selectedRows={recipientItems}
-              />
-            </div>
-          </TabPanel>
-        </TabView>
-      </div>
+        </TabPanel>
+      </TabView>
     </Dialog>
   );
+}
+
+function buildTradeRequest({
+  requester,
+  recipient,
+  requesterCards,
+  recipientCards,
+}: {
+  requester: User;
+  recipient: User;
+  requesterCards: SelectedCard[];
+  recipientCards: SelectedCard[];
+}) {
+  return {
+    requester,
+    recipient,
+    requesterItems: { cards: requesterCards },
+    recipientItems: { cards: recipientCards },
+  };
 }

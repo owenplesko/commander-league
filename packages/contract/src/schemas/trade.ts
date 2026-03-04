@@ -3,20 +3,24 @@ import { UserSchema } from "./user";
 import { CollectionSchema } from "./collection";
 import { CardSchema } from "./card";
 
+export const TradeItemsSchema = CollectionSchema;
+
+export type TradeItems = z.infer<typeof TradeItemsSchema>;
+
 export const TradeRequestSchema = z.object({
   id: z.number(),
   requester: UserSchema,
   recipient: UserSchema,
   requesterAccept: z.boolean(),
   recipientAccept: z.boolean(),
-  requesterItems: CollectionSchema.nullable(),
-  recipientItems: CollectionSchema.nullable(),
+  requesterItems: TradeItemsSchema,
+  recipientItems: TradeItemsSchema,
   //  updatedAt: z.iso.date(),
 });
 
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
 
-export const CreateTradeRequestItemsSchema = z.object({
+const CreateTradeRequestItemsSchema = z.object({
   cards: z
     .object({ cardName: CardSchema.shape.name, quantity: z.number() })
     .array(),
@@ -27,3 +31,5 @@ export const CreateTradeRequestSchema = z.object({
   recipientItems: CreateTradeRequestItemsSchema,
   requesterItems: CreateTradeRequestItemsSchema,
 });
+
+export type CreateTradeRequestBody = z.infer<typeof CreateTradeRequestSchema>;

@@ -1,6 +1,6 @@
 import { Dialog } from "primereact/dialog";
 import { orpc } from "../../lib/client";
-import { useMutation, useQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { PrimeIcons } from "primereact/api";
 import { DataTable } from "primereact/datatable";
@@ -16,7 +16,7 @@ type Props = {
 };
 
 export function InviteCode({ leagueId, visible, onHide }: Props) {
-  const { data: inviteCodes } = useQuery(
+  const { data: inviteCodes } = useSuspenseQuery(
     orpc.league.inviteCode.list.queryOptions({
       input: { leagueId },
       enabled: visible,
@@ -34,8 +34,6 @@ export function InviteCode({ leagueId, visible, onHide }: Props) {
   const deleteMutation = useMutation(
     orpc.league.inviteCode.delete.mutationOptions(),
   );
-
-  if (!inviteCodes) return null;
 
   return (
     <Dialog

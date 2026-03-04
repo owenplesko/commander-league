@@ -9,7 +9,7 @@ import {
 import z from "zod";
 import { Avatar } from "primereact/avatar";
 import { classNames } from "primereact/utils";
-import { useRef, useState } from "react";
+import { Suspense, useRef, useState } from "react";
 import { Menu } from "primereact/menu";
 import type { MenuItem } from "primereact/menuitem";
 import { PrimeIcons } from "primereact/api";
@@ -240,20 +240,22 @@ function RouteComponent() {
         visible={modal === "settings"}
         onHide={() => setModal(null)}
       />
-      <InviteCode
-        leagueId={leagueId}
-        visible={modal === "invite"}
-        onHide={() => setModal(null)}
-      />
-      {selectedMember && (
-        <CreateTradeRequestModal
-          requester={user}
-          recipient={selectedMember?.user}
+      <Suspense>
+        <InviteCode
           leagueId={leagueId}
-          visible={modal === "trade"}
+          visible={modal === "invite"}
           onHide={() => setModal(null)}
         />
-      )}
+        {selectedMember && (
+          <CreateTradeRequestModal
+            requester={user}
+            recipient={selectedMember?.user}
+            leagueId={leagueId}
+            visible={modal === "trade"}
+            onHide={() => setModal(null)}
+          />
+        )}
+      </Suspense>
     </>
   );
 }
