@@ -16,25 +16,12 @@ function SelectedCellContents({
 }: SelectedCellContentsProps) {
   return (
     <>
-      <span style={{ marginRight: "auto" }}>
+      <span
+        className={classes["text-ellipsis"]}
+        style={{ marginRight: "auto" }}
+      >
         {`${row.selectedQuantity}/${row.quantity} ${row.card.name}`}
       </span>
-      {row.selectedQuantity < row.quantity ? (
-        <i
-          className="pi pi-sort-up-fill"
-          onClick={() => {
-            onSelectionChange(
-              selectedCardsReducer(selectedRows, {
-                type: "inc",
-                cardName: row.card.name,
-                delta: 1,
-              }),
-            );
-          }}
-        />
-      ) : (
-        <i className={classNames("pi pi-sort-up", classes.disabled)} />
-      )}
       {row.selectedQuantity > 1 ? (
         <i
           className="pi pi-sort-down-fill"
@@ -50,6 +37,22 @@ function SelectedCellContents({
         />
       ) : (
         <i className={classNames("pi pi-sort-down", classes.disabled)} />
+      )}
+      {row.selectedQuantity < row.quantity ? (
+        <i
+          className="pi pi-sort-up-fill"
+          onClick={() => {
+            onSelectionChange(
+              selectedCardsReducer(selectedRows, {
+                type: "inc",
+                cardName: row.card.name,
+                delta: 1,
+              }),
+            );
+          }}
+        />
+      ) : (
+        <i className={classNames("pi pi-sort-up", classes.disabled)} />
       )}
       <i
         className="pi pi-times"
@@ -107,7 +110,9 @@ export function Cell({
           onSelectionChange={onSelectionChange}
         />
       ) : (
-        `${row.quantity} ${row.card.name}`
+        <span className={classes["text-ellipsis"]}>
+          {`${row.quantity} ${row.card.name}`}
+        </span>
       )}
     </div>
   );

@@ -54,29 +54,77 @@ export function CreateTradeRequestModal({
       modal
       footer={<Button label="Request" onClick={() => {}} />}
     >
-      <div className="form" style={{ overflow: "hidden" }}>
-        <div style={{ display: "flex", justifyContent: "space-between" }}>
-          <div>
-            <UserBadge user={requester} />
-            {requesterItems.map((item) => (
-              <img
-                width={120}
-                src={scryfallImgUrl(
-                  item.card.data.printings[0]?.scryfallId ?? null,
-                )}
-              />
-            ))}
+      <div style={{ overflow: "hidden" }}>
+        <div
+          style={{
+            display: "flex",
+            justifyContent: "space-between",
+            marginBottom: "1rem",
+          }}
+        >
+          <UserBadge user={requester} />
+          <UserBadge user={recipient} />
+        </div>
+        <div
+          style={{
+            display: "grid",
+            gridTemplateColumns: "1fr 1fr",
+            gap: "1rem",
+          }}
+        >
+          <div
+            style={{
+              border: "1px solid var(--surface-border)",
+              minWidth: 0,
+              borderRadius: "var(--border-radius)",
+              backgroundColor: "var(--surface-ground)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                overflowX: "auto",
+                gap: "0.5rem",
+                padding: "1rem",
+                height: "calc(200px + 2rem)",
+              }}
+            >
+              {requesterItems.map((item) => (
+                <img
+                  height={200}
+                  src={scryfallImgUrl(
+                    item.card.data.printings[0]?.scryfallId ?? null,
+                  )}
+                />
+              ))}
+            </div>
           </div>
-          <div>
-            <UserBadge user={recipient} />
-            {recipientItems.map((item) => (
-              <img
-                width={120}
-                src={scryfallImgUrl(
-                  item.card.data.printings[0]?.scryfallId ?? null,
-                )}
-              />
-            ))}
+          <div
+            style={{
+              border: "1px solid var(--surface-border)",
+              minWidth: 0,
+              borderRadius: "var(--border-radius)",
+              backgroundColor: "var(--surface-ground)",
+              height: "calc(200px + 2rem)",
+            }}
+          >
+            <div
+              style={{
+                display: "flex",
+                overflowX: "auto",
+                gap: "0.5rem",
+                padding: "1rem",
+              }}
+            >
+              {recipientItems.map((item) => (
+                <img
+                  height={200}
+                  src={scryfallImgUrl(
+                    item.card.data.printings[0]?.scryfallId ?? null,
+                  )}
+                />
+              ))}
+            </div>
           </div>
         </div>
         <TabView>
