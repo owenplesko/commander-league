@@ -34,6 +34,7 @@ export const relations = defineRelations(schema, (r) => ({
       where: {
         role: "requester",
       },
+      optional: false,
     }),
     recipient: r.one.user({
       from: r.tradeRequest.recipientId,
@@ -46,6 +47,7 @@ export const relations = defineRelations(schema, (r) => ({
       where: {
         role: "recipient",
       },
+      optional: false,
     }),
   },
   tradeItems: {

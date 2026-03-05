@@ -5,8 +5,6 @@ import {
   memberOfLeague,
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
-import { except } from "drizzle-orm/sqlite-core";
-import { ORPCError } from "@orpc/server";
 
 const getCollection = base.collection.get
   .use(memberOfLeague)

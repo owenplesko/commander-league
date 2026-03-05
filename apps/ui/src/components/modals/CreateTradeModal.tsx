@@ -2,7 +2,7 @@ import type { User } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "../../lib/client";
 import { TabPanel, TabView } from "primereact/tabview";
 import type { SelectedCard } from "../cardTable/selection";
@@ -38,6 +38,30 @@ export function CreateTradeRequestModal({
   const [requesterCards, setRequesterCards] = useState<SelectedCard[]>([]);
   const [recipientCards, setRecipientCards] = useState<SelectedCard[]>([]);
 
+  const mutation = useMutation(orpc.trade.create.mutationOptions());
+
+  async function onSubmit() {
+    await mutation.mutateAsync({
+      leagueId,
+      recipientId: recipient.id,
+      requesterItems: {
+        cards: requesterCards.map((entry) => ({
+          cardName: entry.card.name,
+          quantity: entry.quantity,
+        })),
+      },
+      recipientItems: {
+        cards: recipientCards.map((entry) => ({
+          cardName: entry.card.name,
+          quantity: entry.quantity,
+        })),
+      },
+    });
+    onHide();
+    setRequesterCards([]);
+    setRecipientCards([]);
+  }
+
   return (
     <Dialog
       header="Trade Request"
@@ -49,15 +73,15 @@ export function CreateTradeRequestModal({
       draggable={false}
       resizable={false}
       modal
-      footer={<Button label="Request" onClick={() => {}} />}
+      footer={<Button label="Request" onClick={onSubmit} />}
     >
       <TradePreview
-        tradeRequest={buildTradeRequest({
+        tradeRequest={{
           requester,
           recipient,
-          recipientCards,
-          requesterCards,
-        })}
+          requesterItems: { cards: requesterCards },
+          recipientItems: { cards: recipientCards },
+        }}
       />
       <TabView>
         <TabPanel header={requester.name}>
@@ -81,23 +105,4 @@ export function CreateTradeRequestModal({
       </TabView>
     </Dialog>
   );
-}
-
-function buildTradeRequest({
-  requester,
-  recipient,
-  requesterCards,
-  recipientCards,
-}: {
-  requester: User;
-  recipient: User;
-  requesterCards: SelectedCard[];
-  recipientCards: SelectedCard[];
-}) {
-  return {
-    requester,
-    recipient,
-    requesterItems: { cards: requesterCards },
-    recipientItems: { cards: recipientCards },
-  };
 }

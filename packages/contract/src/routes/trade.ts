@@ -4,7 +4,7 @@ import { CreateTradeRequestSchema, TradeRequestSchema } from "../schemas/trade";
 import z from "zod";
 
 const listTrades = oc
-  .route({ path: "/league/{leagueId}/trade" })
+  .route({ method: "GET", path: "/league/{leagueId}/trade" })
   .input(GetLeagueSchema)
   .output(TradeRequestSchema.array());
 
