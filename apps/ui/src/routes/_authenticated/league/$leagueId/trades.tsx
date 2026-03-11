@@ -2,7 +2,10 @@ import { createFileRoute } from "@tanstack/react-router";
 import { DataView } from "primereact/dataview";
 import { orpc, queryClient } from "../../../../lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
-import type { TradeRequest } from "@commander-league/contract/schemas";
+import type {
+  TradeRequest,
+  TradeStatus,
+} from "@commander-league/contract/schemas";
 import { TradeItemsPreview } from "../../../../components/TradePreview";
 import { UserBadge } from "../../../../components/UserBadge";
 import { Button } from "primereact/button";
@@ -20,15 +23,22 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId/trades")(
   },
 );
 
-function TradeStatusTag({ accept }: { accept: boolean | undefined }) {
-  const tagProps: TagProps =
-    accept === undefined
-      ? { value: "Pending", severity: "warning", icon: PrimeIcons.ELLIPSIS_H }
-      : accept
-        ? { value: "Accepted", severity: "success", icon: PrimeIcons.CHECK }
-        : { value: "Rejected", severity: "danger", icon: PrimeIcons.TIMES };
+function TradeStatusTag({ status }: { status: TradeStatus }) {
+  const tagProps: Record<TradeStatus, TagProps> = {
+    accepted: {
+      value: "Accepted",
+      severity: "success",
+      icon: PrimeIcons.CHECK,
+    },
+    pending: {
+      value: "Pending",
+      severity: "warning",
+      icon: PrimeIcons.CLOCK,
+    },
+    rejected: { value: "Rejected", severity: "danger", icon: PrimeIcons.TIMES },
+  };
 
-  return <Tag {...tagProps} />;
+  return <Tag {...tagProps[status]} />;
 }
 
 function RouteComponent() {
@@ -43,20 +53,11 @@ function RouteComponent() {
         style={{
           display: "flex",
           flexDirection: "column",
-          padding: "1rem",
           gap: "1rem",
         }}
       >
         {trades.map((trade) => (
-          <li
-            key={trade.id}
-            style={{
-              borderRadius: "var(--border-radius)",
-              backgroundColor: "var(--surface-card)",
-              border: "1px solid var(--surface-border)",
-              padding: "1rem",
-            }}
-          >
+          <li key={trade.id} className="card">
             <div
               style={{
                 display: "flex",
@@ -66,10 +67,10 @@ function RouteComponent() {
               }}
             >
               <UserBadge user={trade.requester} />
-              <TradeStatusTag accept={trade.requesterAccept} />
+              <TradeStatusTag status={trade.requesterStatus} />
               <div style={{ flexGrow: 1 }} />
               <UserBadge user={trade.recipient} />
-              <TradeStatusTag accept={trade.recipientAccept} />
+              <TradeStatusTag status={trade.recipientStatus} />
               <Button
                 text
                 size="small"

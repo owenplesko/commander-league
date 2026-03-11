@@ -1,6 +1,11 @@
 import { oc } from "@orpc/contract";
 import { GetLeagueSchema } from "../schemas";
-import { CreateTradeRequestSchema, TradeRequestSchema } from "../schemas/trade";
+import {
+  CreateTradeRequestSchema,
+  GetTradeSchema,
+  TradeRequestSchema,
+  UpdateTradeStatusSchema,
+} from "../schemas/trade";
 import z from "zod";
 
 const listTrades = oc
@@ -13,7 +18,16 @@ const createTrade = oc
   .input(GetLeagueSchema.extend(CreateTradeRequestSchema.shape))
   .output(z.object({ tradeId: TradeRequestSchema.shape.id }));
 
+const setTradeStatus = oc
+  .route({
+    method: "POST",
+    path: "/league/{leagueId}/trade/status",
+    successStatus: 201,
+  })
+  .input(GetTradeSchema.extend(UpdateTradeStatusSchema.shape));
+
 export const tradeRoutes = {
   list: listTrades,
   create: createTrade,
+  setStatus: setTradeStatus,
 };

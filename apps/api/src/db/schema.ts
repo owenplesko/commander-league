@@ -75,6 +75,8 @@ export const inviteCode = sqliteTable("invite_code", {
   uses: integer().default(0).notNull(),
 });
 
+const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
+
 export const tradeRequest = sqliteTable("trade_request", {
   id: integer().primaryKey().notNull(),
   leagueId: integer("league_id")
@@ -83,11 +85,15 @@ export const tradeRequest = sqliteTable("trade_request", {
   requesterId: text("requester_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  requesterAccept: integer({ mode: "boolean" }).default(false).notNull(),
+  requesterStatus: text({ enum: tradeStatusValues })
+    .default("pending")
+    .notNull(),
   recipientId: text("recipient_id")
     .notNull()
     .references(() => user.id, { onDelete: "cascade" }),
-  recipientAccept: integer({ mode: "boolean" }).default(false).notNull(),
+  recipientStatus: text({ enum: tradeStatusValues })
+    .default("pending")
+    .notNull(),
   updatedAt: integer("updated_at", { mode: "timestamp_ms" })
     .$onUpdate(() => new Date())
     .notNull(),

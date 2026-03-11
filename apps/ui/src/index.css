@@ -2,7 +2,7 @@
   background-color: var(--surface-card);
   border-radius: var(--border-radius);
   border: 1px solid var(--surface-border);
-  padding: 2rem;
+  padding: 1rem;
 }
 
 .form {

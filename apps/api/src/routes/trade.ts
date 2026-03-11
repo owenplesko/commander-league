@@ -1,5 +1,6 @@
 import { tradeItemCard, tradeItems, tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
+import { tradeParticipant } from "../middleware/tradeParticipant";
 import { base } from "../orpc";
 
 const listTrades = base.trade.list
@@ -83,7 +84,35 @@ const createTrade = base.trade.create
     },
   );
 
+const setTradeStatus = base.trade.setStatus
+  .use(tradeParticipant)
+  .handler(({ input, context }) => {
+    context.env.db.transaction((tx) => {
+      const column =
+        context.tradeRole === "requester"
+          ? "requesterStatus"
+          : "recipientStatus";
+
+      const trade = tx
+        .update(tradeRequest)
+        .set({
+          [column]: input.status,
+        })
+        .returning()
+        .get();
+
+      if (
+        !(
+          trade.requesterStatus === "accepted" &&
+          trade.recipientStatus === "accepted"
+        )
+      )
+        return;
+    });
+  });
+
 export const tradeRoutes = {
   list: listTrades,
   create: createTrade,
+  setStatus: setTradeStatus,
 };
