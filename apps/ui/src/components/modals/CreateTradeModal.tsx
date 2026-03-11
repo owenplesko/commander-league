@@ -1,4 +1,4 @@
-import type { User } from "@commander-league/contract/schemas";
+import type { TradeItems, User } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useState } from "react";
@@ -7,7 +7,8 @@ import { orpc } from "../../lib/client";
 import { TabPanel, TabView } from "primereact/tabview";
 import type { SelectedCard } from "../cardTable/selection";
 import { CardTable } from "../cardTable/Table";
-import { TradePreview } from "../TradePreview";
+import { TradeItemsPreview } from "../TradePreview";
+import { UserBadge } from "../UserBadge";
 
 type Props = {
   leagueId: number;
@@ -75,13 +76,19 @@ export function CreateTradeRequestModal({
       modal
       footer={<Button label="Request" onClick={onSubmit} />}
     >
-      <TradePreview
-        tradeRequest={{
-          requester,
-          recipient,
-          requesterItems: { cards: requesterCards },
-          recipientItems: { cards: recipientCards },
+      <div
+        style={{
+          display: "flex",
+          justifyContent: "space-between",
+          marginBottom: "1rem",
         }}
+      >
+        <UserBadge user={requester} />
+        <UserBadge user={recipient} />
+      </div>
+      <TradeItemsPreview
+        requesterItems={tradeItemsAdapter(requesterCards)}
+        recipientItems={tradeItemsAdapter(recipientCards)}
       />
       <TabView>
         <TabPanel header={requester.name}>
@@ -105,4 +112,13 @@ export function CreateTradeRequestModal({
       </TabView>
     </Dialog>
   );
+}
+
+function tradeItemsAdapter(selectedCards: SelectedCard[]): TradeItems {
+  return {
+    cards: selectedCards.map(({ selectedQuantity, ...values }) => ({
+      ...values,
+      quantity: selectedQuantity,
+    })),
+  };
 }

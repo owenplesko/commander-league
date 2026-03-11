@@ -19,7 +19,6 @@ export function InviteCode({ leagueId, visible, onHide }: Props) {
   const { data: inviteCodes } = useSuspenseQuery(
     orpc.league.inviteCode.list.queryOptions({
       input: { leagueId },
-      enabled: visible,
     }),
   );
 

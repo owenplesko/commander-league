@@ -15,6 +15,7 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedLeagueIndexRouteImport } from './routes/_authenticated/league/index'
 import { Route as AuthenticatedLeagueLeagueIdRouteRouteImport } from './routes/_authenticated/league/$leagueId/route'
 import { Route as AuthenticatedLeagueLeagueIdIndexRouteImport } from './routes/_authenticated/league/$leagueId/index'
+import { Route as AuthenticatedLeagueLeagueIdTradesRouteImport } from './routes/_authenticated/league/$leagueId/trades'
 import { Route as AuthenticatedLeagueLeagueIdCollectionUserIdRouteImport } from './routes/_authenticated/league/$leagueId/collection.$userId'
 
 const LoginRoute = LoginRouteImport.update({
@@ -49,6 +50,12 @@ const AuthenticatedLeagueLeagueIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
+const AuthenticatedLeagueLeagueIdTradesRoute =
+  AuthenticatedLeagueLeagueIdTradesRouteImport.update({
+    id: '/trades',
+    path: '/trades',
+    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
+  } as any)
 const AuthenticatedLeagueLeagueIdCollectionUserIdRoute =
   AuthenticatedLeagueLeagueIdCollectionUserIdRouteImport.update({
     id: '/collection/$userId',
@@ -61,6 +68,7 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
   '/league/': typeof AuthenticatedLeagueIndexRoute
+  '/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
   '/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
 }
@@ -68,6 +76,7 @@ export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthenticatedIndexRoute
   '/league': typeof AuthenticatedLeagueIndexRoute
+  '/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdIndexRoute
   '/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
 }
@@ -78,6 +87,7 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
   '/_authenticated/league/': typeof AuthenticatedLeagueIndexRoute
+  '/_authenticated/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/_authenticated/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
   '/_authenticated/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
 }
@@ -88,6 +98,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/league/$leagueId'
     | '/league/'
+    | '/league/$leagueId/trades'
     | '/league/$leagueId/'
     | '/league/$leagueId/collection/$userId'
   fileRoutesByTo: FileRoutesByTo
@@ -95,6 +106,7 @@ export interface FileRouteTypes {
     | '/login'
     | '/'
     | '/league'
+    | '/league/$leagueId/trades'
     | '/league/$leagueId'
     | '/league/$leagueId/collection/$userId'
   id:
@@ -104,6 +116,7 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/league/$leagueId'
     | '/_authenticated/league/'
+    | '/_authenticated/league/$leagueId/trades'
     | '/_authenticated/league/$leagueId/'
     | '/_authenticated/league/$leagueId/collection/$userId'
   fileRoutesById: FileRoutesById
@@ -157,6 +170,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeagueLeagueIdIndexRouteImport
       parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
+    '/_authenticated/league/$leagueId/trades': {
+      id: '/_authenticated/league/$leagueId/trades'
+      path: '/trades'
+      fullPath: '/league/$leagueId/trades'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdTradesRouteImport
+      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
+    }
     '/_authenticated/league/$leagueId/collection/$userId': {
       id: '/_authenticated/league/$leagueId/collection/$userId'
       path: '/collection/$userId'
@@ -168,12 +188,15 @@ declare module '@tanstack/react-router' {
 }
 
 interface AuthenticatedLeagueLeagueIdRouteRouteChildren {
+  AuthenticatedLeagueLeagueIdTradesRoute: typeof AuthenticatedLeagueLeagueIdTradesRoute
   AuthenticatedLeagueLeagueIdIndexRoute: typeof AuthenticatedLeagueLeagueIdIndexRoute
   AuthenticatedLeagueLeagueIdCollectionUserIdRoute: typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
 }
 
 const AuthenticatedLeagueLeagueIdRouteRouteChildren: AuthenticatedLeagueLeagueIdRouteRouteChildren =
   {
+    AuthenticatedLeagueLeagueIdTradesRoute:
+      AuthenticatedLeagueLeagueIdTradesRoute,
     AuthenticatedLeagueLeagueIdIndexRoute:
       AuthenticatedLeagueLeagueIdIndexRoute,
     AuthenticatedLeagueLeagueIdCollectionUserIdRoute:

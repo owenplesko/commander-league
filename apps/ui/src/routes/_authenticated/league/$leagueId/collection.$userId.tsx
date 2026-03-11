@@ -51,29 +51,27 @@ function RouteComponent() {
 
   return (
     <>
-      <div className={classes.wrapper}>
-        <h1>{`${member.user.name}'s Collection`}</h1>
-        <Button
-          label="Bulk Edit"
-          onClick={() => {
-            setModal("bulk-edit");
-          }}
-        />
-        <div className={classes.layout}>
-          <div>
-            <img
-              className={classes.preview}
-              width={250}
-              src={scryfallImgUrl(
-                hoveredRow?.card.data.printings.at(0)!.scryfallId ?? null,
-              )}
-            />
-          </div>
-          <CardTable
-            cards={collection.cards}
-            onRowHover={(c) => setHoveredRow(c)}
+      <h1>{`${member.user.name}'s Collection`}</h1>
+      <Button
+        label="Bulk Edit"
+        onClick={() => {
+          setModal("bulk-edit");
+        }}
+      />
+      <div className={classes.layout}>
+        <div>
+          <img
+            className={classes.preview}
+            width={250}
+            src={scryfallImgUrl(
+              hoveredRow?.card.data.printings.at(0)!.scryfallId ?? null,
+            )}
           />
         </div>
+        <CardTable
+          cards={collection.cards}
+          onRowHover={(c) => setHoveredRow(c)}
+        />
       </div>
       <CollectionBulkEditModal
         collection={collection}

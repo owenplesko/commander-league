@@ -1,6 +1,6 @@
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
-import { PrimeReactProvider } from "primereact/api";
+import { PrimeReactProvider, type PrimeReactPTOptions } from "primereact/api";
 import { createRouter, RouterProvider } from "@tanstack/react-router";
 import "primereact/resources/themes/soho-dark/theme.css";
 import "primeicons/primeicons.css";
@@ -18,12 +18,16 @@ declare module "@tanstack/react-router" {
   }
 }
 
+const pt: PrimeReactPTOptions = {
+  dataview: { content: { style: { "background-color": "transparent" } } },
+};
+
 const rootElement = document.getElementById("root")!;
 if (!rootElement.innerHTML) {
   const root = createRoot(rootElement);
   root.render(
     <StrictMode>
-      <PrimeReactProvider>
+      <PrimeReactProvider value={{ pt }}>
         <QueryClientProvider client={queryClient}>
           <RouterProvider router={router} />
         </QueryClientProvider>

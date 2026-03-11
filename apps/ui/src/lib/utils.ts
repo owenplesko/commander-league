@@ -1,5 +1,3 @@
-export type Optional<T, K extends keyof T> = Omit<T, K> & Partial<Pick<T, K>>;
-
 export function scryfallImgUrl(scryfallId: string | null) {
   if (!scryfallId) return "https://cards.scryfall.io/back.png";
 

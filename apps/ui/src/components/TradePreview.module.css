@@ -2,20 +2,14 @@
   overflow: hidden;
 }
 
-.tradePreviewHeader {
-  display: flex;
-  justify-content: space-between;
-  margin-bottom: 1rem;
-}
-
 .tradePreviewGrid {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
   gap: 1rem;
 }
 
 .itemsPreview {
-  border: 1px solid var(--surface-border);
   border-radius: var(--border-radius);
   background-color: var(--surface-ground);
   min-width: 0;
@@ -32,4 +26,10 @@
 .itemsPreviewCard {
   height: 200px;
   flex: 0 0 auto;
+}
+
+.topRight {
+  position: absolute;
+  top: 0;
+  right: 0;
 }

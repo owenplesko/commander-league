@@ -39,4 +39,5 @@
 
 .output {
   overflow: scroll;
+  padding: 1rem;
 }

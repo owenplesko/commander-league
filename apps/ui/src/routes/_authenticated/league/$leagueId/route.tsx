@@ -192,8 +192,14 @@ function RouteComponent() {
               <li className={classNames(classes.item, classes.interactable)}>
                 Shop
               </li>
-              <li className={classNames(classes.item, classes.interactable)}>
-                Trades
+              <li>
+                <Link
+                  to="/league/$leagueId/trades"
+                  params={{ leagueId: league.id }}
+                  className={classNames(classes.item, classes.interactable)}
+                >
+                  Trades
+                </Link>
               </li>
               <li className={classNames(classes.item, classes.interactable)}>
                 Wishlist
@@ -241,11 +247,13 @@ function RouteComponent() {
         onHide={() => setModal(null)}
       />
       <Suspense>
-        <InviteCode
-          leagueId={leagueId}
-          visible={modal === "invite"}
-          onHide={() => setModal(null)}
-        />
+        {membership?.role === "owner" && (
+          <InviteCode
+            leagueId={leagueId}
+            visible={modal === "invite"}
+            onHide={() => setModal(null)}
+          />
+        )}
         {selectedMember && (
           <CreateTradeRequestModal
             requester={user}
