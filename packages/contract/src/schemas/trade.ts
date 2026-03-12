@@ -15,6 +15,7 @@ export const TradeSideSchema = z.object({
   cards: CollectionCardSchema.array(),
 });
 export type TradeSide = z.infer<typeof TradeSideSchema>;
+export type TradeItems = Omit<TradeSide, "status" | "userId" | "user">;
 
 export const TradeRequestSchema = z.object({
   id: z.number(),

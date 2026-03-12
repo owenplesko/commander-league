@@ -6,6 +6,7 @@ import {
   primaryKey,
   integer,
   index,
+  foreignKey,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import {
@@ -111,12 +112,8 @@ export const tradeSide = sqliteTable(
 export const tradeItemCard = sqliteTable(
   "trade_item_card",
   {
-    tradeId: integer()
-      .notNull()
-      .references(() => tradeSide.tradeId, { onDelete: "cascade" }),
-    userId: text()
-      .notNull()
-      .references(() => user.id),
+    tradeId: integer().notNull(),
+    userId: text().notNull(),
     cardName: text()
       .notNull()
       .references(() => card.name),
@@ -126,6 +123,10 @@ export const tradeItemCard = sqliteTable(
     primaryKey({
       columns: [table.tradeId, table.userId, table.cardName],
       name: "trade_item_card_pk",
+    }),
+    foreignKey({
+      columns: [table.tradeId, table.userId],
+      foreignColumns: [tradeSide.tradeId, tradeSide.userId],
     }),
   ],
 );

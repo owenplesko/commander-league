@@ -56,34 +56,39 @@ function RouteComponent() {
           gap: "1rem",
         }}
       >
-        {trades.map((trade) => (
-          <li key={trade.id} className="card">
-            <div
-              style={{
-                display: "flex",
-                gap: "1rem",
-                placeItems: "center",
-                marginBottom: "1rem",
-              }}
-            >
-              <UserBadge user={trade.requester} />
-              <TradeStatusTag status={trade.requesterStatus} />
-              <div style={{ flexGrow: 1 }} />
-              <UserBadge user={trade.recipient} />
-              <TradeStatusTag status={trade.recipientStatus} />
-              <Button
-                text
-                size="small"
-                severity="secondary"
-                icon={PrimeIcons.ELLIPSIS_V}
+        {trades.map((trade) => {
+          const tradeSideA = trade.sides[0]!;
+          const tradeSideB = trade.sides[1]!;
+
+          return (
+            <li key={trade.id} className="card">
+              <div
+                style={{
+                  display: "flex",
+                  gap: "1rem",
+                  placeItems: "center",
+                  marginBottom: "1rem",
+                }}
+              >
+                <UserBadge user={tradeSideA.user} />
+                <TradeStatusTag status={tradeSideA.status} />
+                <div style={{ flexGrow: 1 }} />
+                <UserBadge user={tradeSideB.user} />
+                <TradeStatusTag status={tradeSideB.status} />
+                <Button
+                  text
+                  size="small"
+                  severity="secondary"
+                  icon={PrimeIcons.ELLIPSIS_V}
+                />
+              </div>
+              <TradeItemsPreview
+                requesterItems={tradeSideA}
+                recipientItems={tradeSideB}
               />
-            </div>
-            <TradeItemsPreview
-              requesterItems={trade.requesterItems}
-              recipientItems={trade.recipientItems}
-            />
-          </li>
-        ))}
+            </li>
+          );
+        })}
       </ul>
     );
   }

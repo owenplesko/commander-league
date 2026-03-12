@@ -44,19 +44,22 @@ export function CreateTradeRequestModal({
   async function onSubmit() {
     await mutation.mutateAsync({
       leagueId,
-      recipientId: recipient.id,
-      requesterItems: {
-        cards: requesterCards.map((entry) => ({
-          cardName: entry.card.name,
-          quantity: entry.quantity,
-        })),
-      },
-      recipientItems: {
-        cards: recipientCards.map((entry) => ({
-          cardName: entry.card.name,
-          quantity: entry.quantity,
-        })),
-      },
+      sides: [
+        {
+          userId: requester.id,
+          cards: requesterCards.map((entry) => ({
+            cardName: entry.card.name,
+            quantity: entry.quantity,
+          })),
+        },
+        {
+          userId: recipient.id,
+          cards: recipientCards.map((entry) => ({
+            cardName: entry.card.name,
+            quantity: entry.quantity,
+          })),
+        },
+      ],
     });
     onHide();
     setRequesterCards([]);

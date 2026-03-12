@@ -8,7 +8,7 @@ import {
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { tradeParticipantGuard } from "../middleware/tradeParticipant";
 import { base } from "../orpc";
-import { and, count, eq, gte, lte, sql } from "drizzle-orm";
+import { and, count, eq, gte, lte, ne, sql } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 
 const listTrades = base.trade.list
@@ -133,7 +133,7 @@ const setTradeStatus = base.trade.setStatus
         .where(
           and(
             eq(tradeSide.tradeId, input.tradeId),
-            neq(tradeSide.status, "accepted"),
+            ne(tradeSide.status, "accepted"),
           ),
         )
         .get()!;
@@ -206,27 +206,3 @@ export const tradeRoutes = {
   create: createTrade,
   setStatus: setTradeStatus,
 };
-function neq(
-  status: SQLiteColumn<
-    {
-      name: string;
-      tableName: "trade_side";
-      dataType: "string enum";
-      data: "accepted" | "pending" | "rejected";
-      driverParam: string;
-      notNull: true;
-      hasDefault: true;
-      isPrimaryKey: false;
-      isAutoincrement: false;
-      hasRuntimeDefault: false;
-      enumValues: ["accepted", "pending", "rejected"];
-      baseColumn: never;
-      identity: undefined;
-      generated: undefined;
-    },
-    {}
-  >,
-  arg1: string,
-): import("drizzle-orm").SQLWrapper<unknown> | undefined {
-  throw new Error("Function not implemented.");
-}
