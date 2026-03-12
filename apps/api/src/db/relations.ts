@@ -23,37 +23,20 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   tradeRequest: {
-    requester: r.one.user({
-      from: r.tradeRequest.requesterId,
-      to: r.user.id,
-      optional: false,
-    }),
-    requesterItems: r.one.tradeItems({
+    sides: r.many.tradeSide({
       from: r.tradeRequest.id,
-      to: r.tradeItems.tradeId,
-      where: {
-        role: "requester",
-      },
-      optional: false,
-    }),
-    recipient: r.one.user({
-      from: r.tradeRequest.recipientId,
-      to: r.user.id,
-      optional: false,
-    }),
-    recipientItems: r.one.tradeItems({
-      from: r.tradeRequest.id,
-      to: r.tradeItems.tradeId,
-      where: {
-        role: "recipient",
-      },
-      optional: false,
+      to: r.tradeSide.tradeId,
     }),
   },
-  tradeItems: {
+  tradeSide: {
     cards: r.many.tradeItemCard({
-      from: r.tradeItems.id,
-      to: r.tradeItemCard.tradeItemId,
+      from: [r.tradeSide.tradeId, r.tradeSide.userId],
+      to: [r.tradeItemCard.tradeId, r.tradeItemCard.userId],
+    }),
+    user: r.one.user({
+      from: r.tradeSide.userId,
+      to: r.user.id,
+      optional: false,
     }),
   },
   tradeItemCard: {

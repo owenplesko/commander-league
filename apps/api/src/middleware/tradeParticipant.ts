@@ -1,28 +1,25 @@
 import type { GetTradeInput } from "@commander-league/contract/schemas";
 import { ORPCError } from "@orpc/server";
 import { authGuard } from "./auth";
+import { and, eq, exists } from "drizzle-orm";
+import { tradeSide } from "../db/schema";
 
-export const tradeParticipant = authGuard.concat(
+export const tradeParticipantGuard = authGuard.concat(
   async ({ context, next }, input: GetTradeInput) => {
-    const request = await context.env.db.query.tradeRequest.findFirst({
-      where: {
-        id: input.tradeId,
-        OR: [
-          {
-            requesterId: context.userId,
-          },
-          {
-            recipientId: context.userId,
-          },
-        ],
-      },
-    });
+    const present = exists(
+      context.env.db
+        .select()
+        .from(tradeSide)
+        .where(
+          and(
+            eq(tradeSide.tradeId, input.tradeId),
+            eq(tradeSide.userId, context.userId),
+          ),
+        ),
+    );
 
-    if (!request) throw new ORPCError("NOT_FOUND");
+    if (!present) throw new ORPCError("NOT_FOUND");
 
-    const role =
-      request.requesterId === context.userId ? "requester" : "recipient";
-
-    return next({ context: { tradeRole: role } });
+    return next();
   },
 );

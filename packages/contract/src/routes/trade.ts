@@ -6,7 +6,6 @@ import {
   TradeRequestSchema,
   UpdateTradeStatusSchema,
 } from "../schemas/trade";
-import z from "zod";
 
 const listTrades = oc
   .route({ method: "GET", path: "/league/{leagueId}/trade" })
@@ -16,7 +15,7 @@ const listTrades = oc
 const createTrade = oc
   .route({ method: "POST", path: "/league/{leagueId}/trade" })
   .input(GetLeagueSchema.extend(CreateTradeRequestSchema.shape))
-  .output(z.object({ tradeId: TradeRequestSchema.shape.id }));
+  .output(TradeRequestSchema);
 
 const setTradeStatus = oc
   .route({

@@ -6,7 +6,6 @@ import {
   primaryKey,
   integer,
   index,
-  unique,
 } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import {
@@ -22,13 +21,13 @@ export const card = sqliteTable("card", {
 export const collectionCard = sqliteTable(
   "collection_card",
   {
-    userId: text("user_id")
+    userId: text()
       .notNull()
       .references(() => user.id),
-    leagueId: integer("league_id")
+    leagueId: integer()
       .notNull()
       .references(() => league.id, { onDelete: "cascade" }),
-    cardName: text("card_name")
+    cardName: text()
       .notNull()
       .references(() => card.name),
     quantity: integer().notNull(),
@@ -50,13 +49,13 @@ export const league = sqliteTable("league", {
 export const leagueMember = sqliteTable(
   "league_member",
   {
-    leagueId: integer("league_id")
+    leagueId: integer()
       .notNull()
       .references(() => league.id, { onDelete: "cascade" }),
-    userId: text("user_id")
+    userId: text()
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
-    role: text("role", { enum: leagueRoleValues }).notNull(),
+      .references(() => user.id),
+    role: text({ enum: leagueRoleValues }).notNull(),
   },
   (table) => [
     primaryKey({
@@ -68,7 +67,7 @@ export const leagueMember = sqliteTable(
 
 export const inviteCode = sqliteTable("invite_code", {
   code: text().notNull().primaryKey(),
-  leagueId: integer("league_id")
+  leagueId: integer()
     .notNull()
     .references(() => league.id, { onDelete: "cascade" }),
   active: integer({ mode: "boolean" }).notNull(),
@@ -79,52 +78,53 @@ const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 
 export const tradeRequest = sqliteTable("trade_request", {
   id: integer().primaryKey().notNull(),
-  leagueId: integer("league_id")
+  leagueId: integer()
     .notNull()
     .references(() => league.id, { onDelete: "cascade" }),
-  requesterId: text("requester_id")
+  ownerId: text()
     .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  requesterStatus: text({ enum: tradeStatusValues })
-    .default("pending")
-    .notNull(),
-  recipientId: text("recipient_id")
-    .notNull()
-    .references(() => user.id, { onDelete: "cascade" }),
-  recipientStatus: text({ enum: tradeStatusValues })
-    .default("pending")
-    .notNull(),
-  updatedAt: integer("updated_at", { mode: "timestamp_ms" })
+    .references(() => user.id),
+  updatedAt: integer({ mode: "timestamp_ms" })
     .$onUpdate(() => new Date())
     .notNull(),
 });
 
-export const tradeItems = sqliteTable(
-  "trade_items",
+export const tradeSide = sqliteTable(
+  "trade_side",
   {
-    id: integer().primaryKey().notNull(),
-    tradeId: integer("trade_id")
+    tradeId: integer()
       .notNull()
-      .references(() => tradeRequest.id),
-    role: text({ enum: ["requester", "recipient"] }).notNull(),
+      .references(() => tradeRequest.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id),
+    status: text({ enum: tradeStatusValues }).default("pending").notNull(),
   },
-  (table) => [unique().on(table.tradeId, table.role)],
+  (table) => [
+    primaryKey({
+      columns: [table.tradeId, table.userId],
+      name: "trade_side_pk",
+    }),
+  ],
 );
 
 export const tradeItemCard = sqliteTable(
   "trade_item_card",
   {
-    tradeItemId: integer("trade_item_id")
+    tradeId: integer()
       .notNull()
-      .references(() => tradeItems.id),
-    cardName: text("card_name")
+      .references(() => tradeSide.tradeId, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id),
+    cardName: text()
       .notNull()
       .references(() => card.name),
     quantity: integer().notNull(),
   },
   (table) => [
     primaryKey({
-      columns: [table.tradeItemId, table.cardName],
+      columns: [table.tradeId, table.userId, table.cardName],
       name: "trade_item_card_pk",
     }),
   ],
@@ -159,7 +159,7 @@ export const session = sqliteTable(
     userAgent: text("user_agent"),
     userId: text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => user.id),
   },
   (table) => [index("session_userId_idx").on(table.userId)],
 );
@@ -172,7 +172,7 @@ export const account = sqliteTable(
     providerId: text("provider_id").notNull(),
     userId: text("user_id")
       .notNull()
-      .references(() => user.id, { onDelete: "cascade" }),
+      .references(() => user.id),
     accessToken: text("access_token"),
     refreshToken: text("refresh_token"),
     idToken: text("id_token"),
