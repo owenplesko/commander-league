@@ -118,6 +118,7 @@ function RouteComponent() {
             command: () => {
               if (menuTrade)
                 tradeStatusMutation.mutate({
+                  leagueId: leagueId,
                   tradeId: menuTrade.id,
                   status: "accepted",
                 });

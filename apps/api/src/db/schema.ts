@@ -6,11 +6,13 @@ import {
   integer,
   index,
   foreignKey,
+  check,
 } from "drizzle-orm/sqlite-core";
 import {
   leagueRoleValues,
   type CardData,
 } from "@commander-league/contract/schemas";
+import { sql } from "drizzle-orm";
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
@@ -36,6 +38,7 @@ export const collectionCard = sqliteTable(
       columns: [table.userId, table.leagueId, table.cardName],
       name: "collection_card_pk",
     }),
+    check("collection_card_quantity_check", sql`${table.quantity} > 0`),
   ],
 );
 
@@ -125,6 +128,7 @@ export const tradeItemCard = sqliteTable(
       columns: [table.tradeId, table.userId],
       foreignColumns: [tradeSide.tradeId, tradeSide.userId],
     }).onDelete("cascade"),
+    check("trade_item_card_quantity_check", sql`${table.quantity} > 0`),
   ],
 );
 

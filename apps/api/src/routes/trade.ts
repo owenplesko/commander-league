@@ -1,15 +1,10 @@
-import { SQLiteColumn } from "drizzle-orm/sqlite-core";
-import {
-  collectionCard,
-  tradeItemCard,
-  tradeSide,
-  tradeRequest,
-} from "../db/schema";
+import { tradeItemCard, tradeSide, tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { tradeParticipantGuard } from "../middleware/tradeParticipant";
 import { base } from "../orpc";
-import { and, count, eq, exists, gte, isNull, lte, ne, sql } from "drizzle-orm";
+import { and, count, eq, ne } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
+import { executeTrade } from "../procedures/trade";
 
 const listTrades = base.trade.list
   .use(memberOfLeague)
@@ -140,78 +135,7 @@ const setTradeStatus = base.trade.setStatus
 
       if (unacceptedCount > 0) return;
 
-      // trade execution:
-      const [participantA, participantB] = context.participants;
-
-      const { leagueId } = tx
-        .select({ leagueId: tradeRequest.leagueId })
-        .from(tradeRequest)
-        .where(eq(tradeRequest.id, input.tradeId))
-        .get()!;
-
-      const targets = tx.$with("targets", {
-        targetId: sql<string>`targetId`.as("targetId"),
-      }).as(sql`
-    SELECT ${participantA} AS targetId
-    UNION ALL
-    SELECT ${participantB} AS targetId
-  `);
-
-      const cardDeltaSubquery = tx
-        .with(targets)
-        .select({
-          userId: targets.targetId,
-          leagueId: sql<number>`${leagueId}`.as("leagueId"),
-          cardName: tradeItemCard.cardName,
-          quantity: sql<number>`
-            SUM(
-              CASE WHEN ${targets.targetId} = ${tradeItemCard.userId} 
-                THEN -${tradeItemCard.quantity}
-                ELSE ${tradeItemCard.quantity}
-              END
-            )`.as("quantity"),
-        })
-        .from(tradeItemCard)
-        .crossJoin(targets)
-        .where(eq(tradeItemCard.tradeId, input.tradeId))
-        .groupBy(targets.targetId, tradeItemCard.cardName);
-      const cardDeltaCTE = cardDeltaSubquery.as("card_delta");
-
-      // apply card delta
-      tx.insert(collectionCard)
-        .select(cardDeltaSubquery)
-        .onConflictDoUpdate({
-          target: [
-            collectionCard.userId,
-            collectionCard.leagueId,
-            collectionCard.cardName,
-          ],
-          set: {
-            quantity: sql`${collectionCard.quantity} + EXCLUDED.quantity`,
-          },
-        })
-        .run();
-
-      // remove 0 quantity collection cards affected by trade
-      tx.delete(collectionCard)
-        .where(
-          exists(
-            tx
-              .select()
-              .from(cardDeltaCTE)
-              .where(
-                and(
-                  eq(collectionCard.userId, cardDeltaCTE.userId),
-                  eq(collectionCard.cardName, cardDeltaCTE.cardName),
-                  eq(collectionCard.quantity, 0),
-                ),
-              ),
-          ),
-        )
-        .run();
-
-      // clean up trade request
-      tx.delete(tradeRequest).where(eq(tradeRequest.id, input.tradeId)).run();
+      executeTrade(tx, { tradeId: input.tradeId, leagueId: input.leagueId });
     });
   });
 
