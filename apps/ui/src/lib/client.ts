@@ -48,6 +48,7 @@ export const orpc = createTanstackQueryUtils(client, {
           },
         },
       },
+
       inviteCode: {
         create: {
           mutationOptions: {
@@ -78,6 +79,48 @@ export const orpc = createTanstackQueryUtils(client, {
                 }),
               });
             },
+          },
+        },
+      },
+    },
+
+    collection: {
+      set: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, ctx) {
+            ctx.client.invalidateQueries({
+              queryKey: orpc.collection.get.key({
+                input: {
+                  leagueId: variables.leagueId,
+                  userId: variables.userId,
+                },
+              }),
+            });
+          },
+        },
+      },
+    },
+
+    trade: {
+      create: {
+        mutationOptions: {
+          onSuccess(_data, variables, _onMutateResult, ctx) {
+            ctx.client.invalidateQueries({
+              queryKey: orpc.trade.list.key({
+                input: { leagueId: variables.leagueId },
+              }),
+            });
+          },
+        },
+      },
+      setStatus: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, ctx) {
+            ctx.client.invalidateQueries({
+              queryKey: orpc.trade.list.key({
+                input: { leagueId: variables.leagueId },
+              }),
+            });
           },
         },
       },
