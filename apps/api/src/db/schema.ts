@@ -85,9 +85,6 @@ export const tradeRequest = sqliteTable("trade_request", {
   ownerId: text()
     .notNull()
     .references(() => user.id),
-  updatedAt: integer({ mode: "timestamp_ms" })
-    .$onUpdate(() => new Date())
-    .notNull(),
 });
 
 export const tradeSide = sqliteTable(
@@ -129,6 +126,38 @@ export const tradeItemCard = sqliteTable(
       foreignColumns: [tradeSide.tradeId, tradeSide.userId],
     }).onDelete("cascade"),
     check("trade_item_card_quantity_check", sql`${table.quantity} > 0`),
+  ],
+);
+
+export const deck = sqliteTable("deck", {
+  id: integer().primaryKey().notNull(),
+  leagueId: integer()
+    .notNull()
+    .references(() => league.id, { onDelete: "cascade" }),
+  userId: text()
+    .notNull()
+    .references(() => user.id),
+  name: text().notNull(),
+  displayCardName: text().references(() => card.name),
+});
+
+export const deckCard = sqliteTable(
+  "deck_card",
+  {
+    deckId: integer()
+      .notNull()
+      .references(() => deck.id),
+    cardName: text()
+      .notNull()
+      .references(() => card.name),
+    quantity: integer().notNull(),
+  },
+  (table) => [
+    primaryKey({
+      columns: [table.deckId, table.cardName],
+      name: "deck_card_pk",
+    }),
+    check("deck_card_quantity_check", sql`${table.quantity} > 0`),
   ],
 );
 
