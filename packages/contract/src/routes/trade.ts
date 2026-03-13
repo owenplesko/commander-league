@@ -20,7 +20,7 @@ const createTrade = oc
 const setTradeStatus = oc
   .route({
     method: "POST",
-    path: "/league/{leagueId}/trade/status",
+    path: "/trade/{tradeId}/status",
     successStatus: 201,
   })
   .input(GetTradeSchema.extend(UpdateTradeStatusSchema.shape));

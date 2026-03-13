@@ -1,6 +1,5 @@
 import {
   sqliteTable,
-  check,
   text,
   blob,
   primaryKey,
@@ -8,7 +7,6 @@ import {
   index,
   foreignKey,
 } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
 import {
   leagueRoleValues,
   type CardData,
@@ -38,7 +36,6 @@ export const collectionCard = sqliteTable(
       columns: [table.userId, table.leagueId, table.cardName],
       name: "collection_card_pk",
     }),
-    check("collection_card_quantity_check", sql`quantity > 0`),
   ],
 );
 
@@ -127,7 +124,7 @@ export const tradeItemCard = sqliteTable(
     foreignKey({
       columns: [table.tradeId, table.userId],
       foreignColumns: [tradeSide.tradeId, tradeSide.userId],
-    }),
+    }).onDelete("cascade"),
   ],
 );
 

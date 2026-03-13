@@ -8,7 +8,7 @@ import {
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { tradeParticipantGuard } from "../middleware/tradeParticipant";
 import { base } from "../orpc";
-import { and, count, eq, gte, lte, ne, sql } from "drizzle-orm";
+import { and, count, eq, exists, gte, isNull, lte, ne, sql } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 
 const listTrades = base.trade.list
@@ -140,61 +140,75 @@ const setTradeStatus = base.trade.setStatus
 
       if (unacceptedCount > 0) return;
 
-      // trade cards guard clause for trade execution
-      const { missingCardCount } = tx
-        .select({ missingCardCount: count() })
+      // trade execution:
+      const [participantA, participantB] = context.participants;
+
+      const { leagueId } = tx
+        .select({ leagueId: tradeRequest.leagueId })
         .from(tradeRequest)
-        .innerJoin(tradeSide, eq(tradeRequest.id, tradeSide.tradeId))
-        .innerJoin(
-          tradeItemCard,
-          and(
-            eq(tradeItemCard.tradeId, tradeSide.tradeId),
-            eq(tradeItemCard.userId, tradeSide.userId),
-          ),
-        )
-        .leftJoin(
-          collectionCard,
-          and(
-            eq(collectionCard.leagueId, tradeRequest.leagueId),
-            eq(collectionCard.userId, tradeItemCard.userId),
-            eq(collectionCard.cardName, tradeItemCard.cardName),
-            gte(collectionCard.quantity, tradeItemCard.quantity),
-          ),
-        )
+        .where(eq(tradeRequest.id, input.tradeId))
         .get()!;
 
-      if (missingCardCount > 0)
-        throw new ORPCError("CONFLICT", {
-          message:
-            "one or more participants do not have all required trade items",
-        });
+      const targets = tx.$with("targets", {
+        targetId: sql<string>`targetId`.as("targetId"),
+      }).as(sql`
+    SELECT ${participantA} AS targetId
+    UNION ALL
+    SELECT ${participantB} AS targetId
+  `);
 
-      // execute trade
-
-      // remove trade cards from collections
-      const tradeCards = tx
-        .select()
-        .from(tradeRequest)
-        .innerJoin(tradeItemCard, eq(tradeItemCard.tradeId, tradeRequest.id))
-        .where(eq(tradeRequest.id, input.tradeId))
-        .as("trade_cards");
-
-      tx.update(collectionCard)
-        .set({
-          quantity: sql`${collectionCard.quantity} - ${tradeCards.trade_item_card.quantity}`,
+      const cardDeltaSubquery = tx
+        .with(targets)
+        .select({
+          userId: targets.targetId,
+          leagueId: sql<number>`${leagueId}`.as("leagueId"),
+          cardName: tradeItemCard.cardName,
+          quantity: sql<number>`
+            SUM(
+              CASE WHEN ${targets.targetId} = ${tradeItemCard.userId} 
+                THEN -${tradeItemCard.quantity}
+                ELSE ${tradeItemCard.quantity}
+              END
+            )`.as("quantity"),
         })
-        .from(tradeCards)
+        .from(tradeItemCard)
+        .crossJoin(targets)
+        .where(eq(tradeItemCard.tradeId, input.tradeId))
+        .groupBy(targets.targetId, tradeItemCard.cardName);
+      const cardDeltaCTE = cardDeltaSubquery.as("card_delta");
+
+      // apply card delta
+      tx.insert(collectionCard)
+        .select(cardDeltaSubquery)
+        .onConflictDoUpdate({
+          target: [
+            collectionCard.userId,
+            collectionCard.leagueId,
+            collectionCard.cardName,
+          ],
+          set: {
+            quantity: sql`${collectionCard.quantity} + EXCLUDED.quantity`,
+          },
+        })
+        .run();
+
+      // remove 0 quantity collection cards affected by trade
+      tx.delete(collectionCard)
         .where(
-          and(
-            eq(collectionCard.leagueId, tradeCards.trade_request.leagueId),
-            eq(collectionCard.userId, tradeCards.trade_item_card.userId),
-            eq(collectionCard.cardName, tradeCards.trade_item_card.cardName),
+          exists(
+            tx
+              .select()
+              .from(cardDeltaCTE)
+              .where(
+                and(
+                  eq(collectionCard.userId, cardDeltaCTE.userId),
+                  eq(collectionCard.cardName, cardDeltaCTE.cardName),
+                  eq(collectionCard.quantity, 0),
+                ),
+              ),
           ),
         )
         .run();
-
-      // clean up collection cards with quantity 0
-      tx.delete(collectionCard).where(lte(collectionCard.quantity, 0)).run();
 
       // clean up trade request
       tx.delete(tradeRequest).where(eq(tradeRequest.id, input.tradeId)).run();

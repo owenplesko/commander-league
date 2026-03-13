@@ -1,7 +1,7 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DataView } from "primereact/dataview";
 import { orpc, queryClient } from "../../../../lib/client";
-import { useSuspenseQuery } from "@tanstack/react-query";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type {
   TradeRequest,
   TradeStatus,
@@ -11,6 +11,8 @@ import { UserBadge } from "../../../../components/UserBadge";
 import { Button } from "primereact/button";
 import { PrimeIcons } from "primereact/api";
 import { Tag, type TagProps } from "primereact/tag";
+import { Menu } from "primereact/menu";
+import { useRef, useState } from "react";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId/trades")(
   {
@@ -46,6 +48,12 @@ function RouteComponent() {
   const { data: trades } = useSuspenseQuery(
     orpc.trade.list.queryOptions({ input: { leagueId } }),
   );
+  const tradeStatusMutation = useMutation(
+    orpc.trade.setStatus.mutationOptions(),
+  );
+
+  const menuRef = useRef<Menu>(null);
+  const [menuTrade, setMenuTrade] = useState<TradeRequest | null>(null);
 
   function tradeTemplate(trades: TradeRequest[]) {
     return (
@@ -80,6 +88,10 @@ function RouteComponent() {
                   size="small"
                   severity="secondary"
                   icon={PrimeIcons.ELLIPSIS_V}
+                  onClick={(e) => {
+                    setMenuTrade(trade);
+                    menuRef.current?.toggle(e);
+                  }}
                 />
               </div>
               <TradeItemsPreview
@@ -97,6 +109,22 @@ function RouteComponent() {
     <>
       <h1>Trades</h1>
       <DataView value={trades} listTemplate={tradeTemplate} />
+      <Menu
+        popup
+        ref={menuRef}
+        model={[
+          {
+            label: "Accept",
+            command: () => {
+              if (menuTrade)
+                tradeStatusMutation.mutate({
+                  tradeId: menuTrade.id,
+                  status: "accepted",
+                });
+            },
+          },
+        ]}
+      />
     </>
   );
 }

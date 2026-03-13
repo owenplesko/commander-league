@@ -25,7 +25,7 @@ export const TradeRequestSchema = z.object({
 });
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
 
-export const GetTradeSchema = GetLeagueSchema.extend({
+export const GetTradeSchema = z.object({
   tradeId: z.coerce.number<number>(),
 });
 export type GetTradeInput = z.infer<typeof GetTradeSchema>;
