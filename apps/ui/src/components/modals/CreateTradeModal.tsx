@@ -49,14 +49,14 @@ export function CreateTradeRequestModal({
           userId: requester.id,
           cards: requesterCards.map((entry) => ({
             cardName: entry.card.name,
-            quantity: entry.quantity,
+            quantity: entry.selectedQuantity,
           })),
         },
         {
           userId: recipient.id,
           cards: recipientCards.map((entry) => ({
             cardName: entry.card.name,
-            quantity: entry.quantity,
+            quantity: entry.selectedQuantity,
           })),
         },
       ],
