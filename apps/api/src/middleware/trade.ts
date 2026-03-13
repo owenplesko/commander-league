@@ -2,7 +2,7 @@ import type { GetTradeInput } from "@commander-league/contract/schemas";
 import { ORPCError } from "@orpc/server";
 import { authGuard } from "./auth";
 import { eq } from "drizzle-orm";
-import { tradeSide } from "../db/schema";
+import { tradeRequest, tradeSide } from "../db/schema";
 
 export const tradeParticipantGuard = authGuard.concat(
   async ({ context, next }, input: GetTradeInput) => {
@@ -19,5 +19,21 @@ export const tradeParticipantGuard = authGuard.concat(
       throw new ORPCError("NOT_FOUND");
 
     return next({ context: { participants } });
+  },
+);
+
+export const tradeOwner = authGuard.concat(
+  async ({ context, next }, input: GetTradeInput) => {
+    const res = context.env.db
+      .select()
+      .from(tradeRequest)
+      .where(eq(tradeRequest.id, input.tradeId))
+      .get();
+
+    if (!res) throw new ORPCError("NOT_FOUND");
+
+    if (res.ownerId !== context.userId) throw new ORPCError("UNAUTHORIZED");
+
+    return next();
   },
 );

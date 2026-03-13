@@ -12,7 +12,8 @@ import { Button } from "primereact/button";
 import { PrimeIcons } from "primereact/api";
 import { Tag, type TagProps } from "primereact/tag";
 import { Menu } from "primereact/menu";
-import { useRef, useState } from "react";
+import { useMemo, useRef, useState } from "react";
+import type { MenuItem } from "primereact/menuitem";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId/trades")(
   {
@@ -45,12 +46,12 @@ function TradeStatusTag({ status }: { status: TradeStatus }) {
 
 function RouteComponent() {
   const { leagueId } = Route.useParams();
+  const { user } = Route.useRouteContext();
   const { data: trades } = useSuspenseQuery(
     orpc.trade.list.queryOptions({ input: { leagueId } }),
   );
-  const tradeStatusMutation = useMutation(
-    orpc.trade.setStatus.mutationOptions(),
-  );
+  const statusMutation = useMutation(orpc.trade.setStatus.mutationOptions());
+  const deleteMutation = useMutation(orpc.trade.delete.mutationOptions());
 
   const menuRef = useRef<Menu>(null);
   const [menuTrade, setMenuTrade] = useState<TradeRequest | null>(null);
@@ -105,27 +106,56 @@ function RouteComponent() {
     );
   }
 
+  const menuItems = useMemo(() => {
+    if (!menuTrade) return [];
+
+    const userSide = menuTrade.sides.find((t) => t.user.id === user.id);
+    if (!userSide) return [];
+
+    let model: MenuItem[] = [];
+    if (userSide.status !== "accepted")
+      model.push({
+        label: "Accept",
+        command: () => {
+          statusMutation.mutate({
+            leagueId: leagueId,
+            tradeId: menuTrade.id,
+            status: "accepted",
+          });
+        },
+      });
+
+    if (userSide.status !== "rejected")
+      model.push({
+        label: "Reject",
+        command: () => {
+          statusMutation.mutate({
+            leagueId: leagueId,
+            tradeId: menuTrade.id,
+            status: "rejected",
+          });
+        },
+      });
+
+    if (menuTrade.ownerId === user.id)
+      model.push({
+        label: "Delete",
+        command: () => {
+          deleteMutation.mutate({
+            leagueId: leagueId,
+            tradeId: menuTrade.id,
+          });
+        },
+      });
+
+    return model;
+  }, [menuTrade, user]);
+
   return (
     <>
       <h1>Trades</h1>
       <DataView value={trades} listTemplate={tradeTemplate} />
-      <Menu
-        popup
-        ref={menuRef}
-        model={[
-          {
-            label: "Accept",
-            command: () => {
-              if (menuTrade)
-                tradeStatusMutation.mutate({
-                  leagueId: leagueId,
-                  tradeId: menuTrade.id,
-                  status: "accepted",
-                });
-            },
-          },
-        ]}
-      />
+      <Menu popup ref={menuRef} model={menuItems} />
     </>
   );
 }

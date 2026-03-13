@@ -124,6 +124,17 @@ export const orpc = createTanstackQueryUtils(client, {
           },
         },
       },
+      delete: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, ctx) {
+            ctx.client.invalidateQueries({
+              queryKey: orpc.trade.list.key({
+                input: { leagueId: variables.leagueId },
+              }),
+            });
+          },
+        },
+      },
     },
   },
 });

@@ -1,6 +1,6 @@
 import { tradeItemCard, tradeSide, tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
-import { tradeParticipantGuard } from "../middleware/tradeParticipant";
+import { tradeOwner, tradeParticipantGuard } from "../middleware/trade";
 import { base } from "../orpc";
 import { and, count, eq, ne } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
@@ -139,8 +139,17 @@ const setTradeStatus = base.trade.setStatus
     });
   });
 
+const deleteTrade = base.trade.delete
+  .use(tradeOwner)
+  .handler(async ({ input, context }) => {
+    await context.env.db
+      .delete(tradeRequest)
+      .where(eq(tradeRequest.id, input.tradeId));
+  });
+
 export const tradeRoutes = {
   list: listTrades,
   create: createTrade,
   setStatus: setTradeStatus,
+  delete: deleteTrade,
 };

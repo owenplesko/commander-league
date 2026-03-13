@@ -25,8 +25,17 @@ const setTradeStatus = oc
   })
   .input(GetTradeSchema.extend(UpdateTradeStatusSchema.shape));
 
+const deleteTrade = oc
+  .route({
+    method: "DELETE",
+    path: "/league/{leagueId}/trade/{tradeId}",
+    successStatus: 201,
+  })
+  .input(GetTradeSchema);
+
 export const tradeRoutes = {
   list: listTrades,
   create: createTrade,
   setStatus: setTradeStatus,
+  delete: deleteTrade,
 };
