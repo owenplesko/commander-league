@@ -189,8 +189,14 @@ function RouteComponent() {
                   Collection
                 </Link>
               </li>
-              <li className={classNames(classes.item, classes.interactable)}>
-                Shop
+              <li>
+                <Link
+                  to="/league/$leagueId/decks/$userId"
+                  params={{ leagueId: league.id, userId: user.id }}
+                  className={classNames(classes.item, classes.interactable)}
+                >
+                  Decks
+                </Link>
               </li>
               <li>
                 <Link
@@ -200,9 +206,6 @@ function RouteComponent() {
                 >
                   Trades
                 </Link>
-              </li>
-              <li className={classNames(classes.item, classes.interactable)}>
-                Wishlist
               </li>
             </ul>
           </nav>
