@@ -1,30 +1,30 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { DataView } from "primereact/dataview";
-import { orpc, queryClient } from "../../../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type {
   TradeRequest,
   TradeStatus,
 } from "@commander-league/contract/schemas";
-import { TradeItemsPreview } from "../../../../components/TradePreview";
-import { UserBadge } from "../../../../components/UserBadge";
 import { Button } from "primereact/button";
 import { PrimeIcons } from "primereact/api";
 import { Tag, type TagProps } from "primereact/tag";
 import { Menu } from "primereact/menu";
 import { useMemo, useRef, useState } from "react";
 import type { MenuItem } from "primereact/menuitem";
+import { TradeItemsPreview } from "../../../../../../components/TradePreview";
+import { UserBadge } from "../../../../../../components/UserBadge";
+import { queryClient, orpc } from "../../../../../../lib/client";
 
-export const Route = createFileRoute("/_authenticated/league/$leagueId/trades")(
-  {
-    component: RouteComponent,
-    loader: async ({ params }) => {
-      await queryClient.ensureQueryData(
-        orpc.trade.list.queryOptions({ input: { leagueId: params.leagueId } }),
-      );
-    },
+export const Route = createFileRoute(
+  "/_authenticated/league/$leagueId/user/$userId/trades",
+)({
+  component: RouteComponent,
+  loader: async ({ params }) => {
+    await queryClient.ensureQueryData(
+      orpc.trade.list.queryOptions({ input: { leagueId: params.leagueId } }),
+    );
   },
-);
+});
 
 function TradeStatusTag({ status }: { status: TradeStatus }) {
   const tagProps: Record<TradeStatus, TagProps> = {

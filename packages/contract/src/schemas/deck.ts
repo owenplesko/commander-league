@@ -8,6 +8,7 @@ export const DeckListEntrySchema = z.object({
   leagueId: LeagueSchema.shape.id,
   userId: UserSchema.shape.id,
   displayCardName: CardSchema.shape.name.nullable(),
+  name: z.string(),
 });
 export type DeckListEntry = z.infer<typeof DeckListEntrySchema>;
 

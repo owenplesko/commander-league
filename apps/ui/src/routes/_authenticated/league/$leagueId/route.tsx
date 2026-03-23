@@ -182,7 +182,7 @@ function RouteComponent() {
             <ul>
               <li>
                 <Link
-                  to="/league/$leagueId/collection/$userId"
+                  to="/league/$leagueId/user/$userId/collection"
                   params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
@@ -191,7 +191,7 @@ function RouteComponent() {
               </li>
               <li>
                 <Link
-                  to="/league/$leagueId/decks/$userId"
+                  to="/league/$leagueId/user/$userId/decks"
                   params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
@@ -200,8 +200,8 @@ function RouteComponent() {
               </li>
               <li>
                 <Link
-                  to="/league/$leagueId/trades"
-                  params={{ leagueId: league.id }}
+                  to="/league/$leagueId/user/$userId/trades"
+                  params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
                   Trades
@@ -222,7 +222,7 @@ function RouteComponent() {
                     }}
                   >
                     <Link
-                      to="/league/$leagueId/collection/$userId"
+                      to="/league/$leagueId/user/$userId/collection"
                       params={{ leagueId: league.id, userId: member.user.id }}
                       className={classNames(classes.item, classes.interactable)}
                     >
