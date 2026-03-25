@@ -1,6 +1,7 @@
 import { oc } from "@orpc/contract";
 import { GetLeagueMemberSchema, GetLeagueSchema } from "../schemas";
 import {
+  CreateDeckBodySchema,
   DeckListEntrySchema,
   DeckSchema,
   GetDeckSchema,
@@ -17,7 +18,7 @@ const createDeck = oc
     path: "/league/{leagueId}/deck",
     successStatus: 201,
   })
-  .input(GetLeagueSchema)
+  .input(GetLeagueSchema.extend(CreateDeckBodySchema.shape))
   .output(DeckSchema);
 
 const getDeck = oc

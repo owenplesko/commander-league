@@ -28,6 +28,6 @@ export const GetDeckSchema = GetLeagueSchema.extend({
 
 export const CreateDeckBodySchema = z.object({
   name: z.string(),
-  displayCardName: z.string().nullish(),
-  cards: CreateCardQuantitySchema.array(),
+  displayCardName: z.string(),
+  cards: CreateCardQuantitySchema.array().nullish(),
 });
