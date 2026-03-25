@@ -1,12 +1,10 @@
 import z from "zod";
-import { LeagueSchema } from "./league";
 import { UserSchema } from "./user";
 import { CardSchema } from "./card";
+import { GetLeagueSchema } from "./league";
 
 export const DeckListEntrySchema = z.object({
   id: z.number(),
-  leagueId: LeagueSchema.shape.id,
-  userId: UserSchema.shape.id,
   displayCardName: CardSchema.shape.name.nullable(),
   name: z.string(),
 });
@@ -20,6 +18,13 @@ export const DeckCardSchema = z.object({
 export type DeckCard = z.infer<typeof DeckCardSchema>;
 
 export const DeckSchema = DeckListEntrySchema.extend({
+  id: z.number(),
+  name: z.string(),
+  owner: UserSchema,
   cards: DeckCardSchema.array(),
 });
 export type Deck = z.infer<typeof DeckSchema>;
+
+export const GetDeckSchema = GetLeagueSchema.extend({
+  deckId: z.coerce.number<number>(),
+});
