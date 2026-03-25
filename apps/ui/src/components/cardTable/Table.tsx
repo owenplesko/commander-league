@@ -1,15 +1,15 @@
-import type { CollectionCard } from "@commander-league/contract/schemas";
 import classes from "./table.module.css";
 import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState } from "react";
 import { type GroupOption, groupOptions, organizeCards } from "./grouping";
-import { type SelectedCard, selectedCardsReducer } from "./selection";
+import { type SelectedCard } from "./selection";
 import { Cell } from "./Cell";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type Props = {
-  cards: CollectionCard[];
-  onRowHover?: (c: CollectionCard) => void;
+  cards: CardQuantity[];
+  onRowHover?: (c: CardQuantity) => void;
   onSelectionChange?: (selection: SelectedCard[]) => void;
   selectedRows?: SelectedCard[];
 };

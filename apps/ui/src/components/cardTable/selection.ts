@@ -1,11 +1,11 @@
-import type { CollectionCard } from "@commander-league/contract/schemas";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
-export type SelectedCard = CollectionCard & { selectedQuantity: number };
+export type SelectedCard = CardQuantity & { selectedQuantity: number };
 
 type ReducerAction =
   | {
       type: "select";
-      entry: CollectionCard;
+      entry: CardQuantity;
     }
   | {
       type: "inc";

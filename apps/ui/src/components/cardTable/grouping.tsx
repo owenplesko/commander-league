@@ -1,14 +1,14 @@
-import type { Card, CollectionCard } from "@commander-league/contract/schemas";
+import type { Card, CardQuantity } from "@commander-league/contract/schemas";
 import type { ReactNode } from "react";
 
 type CardGroup = {
   groupId: string;
   count: number;
-  cardEntries: CollectionCard[];
+  cardEntries: CardQuantity[];
 };
 
 export function organizeCards(
-  cardEntries: CollectionCard[],
+  cardEntries: CardQuantity[],
   { groupOption }: { groupOption: GroupOption },
 ): CardGroup[] {
   const cardGroups: Record<string, CardGroup> = {};

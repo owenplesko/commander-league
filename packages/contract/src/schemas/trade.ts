@@ -1,8 +1,7 @@
 import z from "zod";
 import { UserSchema } from "./user";
-import { CollectionCardSchema } from "./collection";
 import { GetLeagueSchema } from "./league";
-import { CardSchema } from "./card";
+import { CardQuantitySchema, CreateCardQuantitySchema } from "./card";
 
 const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 
@@ -12,7 +11,7 @@ export type TradeStatus = z.infer<typeof TradeStatusSchema>;
 export const TradeSideSchema = z.object({
   user: UserSchema,
   status: TradeStatusSchema,
-  cards: CollectionCardSchema.array(),
+  cards: CardQuantitySchema.array(),
 });
 export type TradeSide = z.infer<typeof TradeSideSchema>;
 export type TradeItems = Omit<TradeSide, "status" | "userId" | "user">;
@@ -34,12 +33,7 @@ export const CreateTradeRequestSchema = z.object({
   sides: z
     .object({
       userId: UserSchema.shape.id,
-      cards: z
-        .object({
-          cardName: CardSchema.shape.name,
-          quantity: z.number().positive(),
-        })
-        .array(),
+      cards: CreateCardQuantitySchema.array(),
     })
     .array()
     .length(2, "must have exactly two sides"),

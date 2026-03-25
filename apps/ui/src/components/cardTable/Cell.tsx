@@ -1,7 +1,7 @@
 import classes from "./table.module.css";
 import { classNames } from "primereact/utils";
 import { selectedCardsReducer, type SelectedCard } from "./selection";
-import type { CollectionCard } from "@commander-league/contract/schemas";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type SelectedCellContentsProps = {
   row: SelectedCard;
@@ -70,10 +70,10 @@ function SelectedCellContents({
 }
 
 type CellProps = {
-  row: CollectionCard;
+  row: CardQuantity;
   selectedRows: SelectedCard[];
   onSelectionChange: (selection: SelectedCard[]) => void;
-  onRowHover: (c: CollectionCard) => void;
+  onRowHover: (c: CardQuantity) => void;
 };
 
 export function Cell({

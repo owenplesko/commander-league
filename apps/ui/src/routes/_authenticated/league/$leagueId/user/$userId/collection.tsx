@@ -1,13 +1,13 @@
 import classes from "./collection.module.css";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import type { CollectionCard } from "@commander-league/contract/schemas";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { CardTable } from "../../../../../../components/cardTable/Table";
 import { CollectionBulkEditModal } from "../../../../../../components/modals/CollectionBulkEdit";
 import { queryClient, orpc } from "../../../../../../lib/client";
 import { scryfallImgUrl } from "../../../../../../lib/utils";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/collection",
@@ -42,7 +42,7 @@ function RouteComponent() {
     orpc.collection.get.queryOptions({ input: { leagueId, userId } }),
   );
 
-  const [hoveredRow, setHoveredRow] = useState<CollectionCard | null>(null);
+  const [hoveredRow, setHoveredRow] = useState<CardQuantity | null>(null);
   const [modal, setModal] = useState<"bulk-edit" | null>(null);
 
   useEffect(() => {
