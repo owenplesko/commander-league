@@ -147,6 +147,20 @@ export const orpc = createTanstackQueryUtils(client, {
           },
         },
       },
+      update: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, context) {
+            context.client.invalidateQueries({
+              queryKey: orpc.deck.list.key(),
+            });
+            context.client.invalidateQueries({
+              queryKey: orpc.deck.get.key({
+                input: { deckId: variables.deckId },
+              }),
+            });
+          },
+        },
+      },
     },
   },
 });

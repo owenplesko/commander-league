@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { orpc } from "../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CardTable } from "../cardTable/Table";
-import type { SelectedCard } from "../cardTable/selection";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type Props = {
   deckId: number;
@@ -15,10 +15,10 @@ type Props = {
   onHide: () => void;
 };
 
-export function NewDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
+export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
   const [name, setName] = useState<string>("");
 
-  const mutation = useMutation(orpc.deck.create.mutationOptions());
+  const mutation = useMutation(orpc.deck.update.mutationOptions());
 
   const { data: collection } = useSuspenseQuery(
     orpc.collection.get.queryOptions({
@@ -31,10 +31,11 @@ export function NewDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
     }),
   );
 
-  const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
+  const [selectedCards, setSelectedCards] = useState<CardQuantity[]>([]);
 
   useEffect(() => {
     if (visible) {
+      setName(deck.name);
       setSelectedCards(deck.cards);
     }
   }, [visible]);
@@ -50,13 +51,12 @@ export function NewDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
       modal
       footer={
         <Button
-          label="Create"
+          label="Save"
           onClick={() => {
             mutation.mutate(
               {
-                leagueId,
+                deckId,
                 name,
-                displayCardName: null,
                 cards: selectedCards.map(({ quantity, card }) => ({
                   quantity,
                   cardName: card.name,

@@ -4,6 +4,8 @@ import { CardTable } from "../../../../../../../components/cardTable/Table";
 import { orpc, queryClient } from "../../../../../../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
+import { EditDeck } from "../../../../../../../components/modals/EditDeckModal";
+import { useState } from "react";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
@@ -19,27 +21,37 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const router = useRouter();
-  const { deckId } = Route.useParams();
+  const { deckId, userId, leagueId } = Route.useParams();
   const { data: deck } = useSuspenseQuery(
     orpc.deck.get.queryOptions({ input: { deckId } }),
   );
   const deleteMutation = useMutation(orpc.deck.delete.mutationOptions());
+  const [modal, setModal] = useState<"edit" | null>(null);
 
   return (
-    <div>
-      <h1>{deck.name}</h1>
-      <Button label="Edit" />
-      <Button
-        label="Delete"
-        onClick={async () => {
-          await deleteMutation.mutateAsync({ deckId });
-          router.navigate({
-            from: Route.fullPath,
-            to: "/league/$leagueId/user/$userId/decks",
-          });
-        }}
+    <>
+      <div>
+        <h1>{deck.name}</h1>
+        <Button label="Edit" onClick={() => setModal("edit")} />
+        <Button
+          label="Delete"
+          onClick={async () => {
+            await deleteMutation.mutateAsync({ deckId });
+            router.navigate({
+              from: Route.fullPath,
+              to: "/league/$leagueId/user/$userId/decks",
+            });
+          }}
+        />
+        <CardTable cards={deck.cards} />
+      </div>
+      <EditDeck
+        deckId={deckId}
+        userId={userId}
+        leagueId={leagueId}
+        visible={modal === "edit"}
+        onHide={() => setModal(null)}
       />
-      <CardTable cards={deck.cards} />
-    </div>
+    </>
   );
 }
