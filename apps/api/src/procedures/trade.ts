@@ -1,4 +1,4 @@
-import { eq, and, exists, sql, ne, inArray } from "drizzle-orm";
+import { eq, and, sql, inArray } from "drizzle-orm";
 import type { TX } from "../db";
 import {
   tradeSide,

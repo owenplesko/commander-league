@@ -5,6 +5,7 @@ import {
   DeckListEntrySchema,
   DeckSchema,
   GetDeckSchema,
+  UpdateDeckBodySchema,
 } from "../schemas/deck";
 
 const listDecks = oc
@@ -15,26 +16,26 @@ const listDecks = oc
 const createDeck = oc
   .route({
     method: "POST",
-    path: "/league/{leagueId}/deck",
+    path: "/deck",
     successStatus: 201,
   })
   .input(GetLeagueSchema.extend(CreateDeckBodySchema.shape))
   .output(DeckSchema);
 
 const getDeck = oc
-  .route({ method: "GET", path: "/league/{leagueId}/deck/{deckId}" })
+  .route({ method: "GET", path: "/deck/{deckId}" })
   .input(GetDeckSchema)
   .output(DeckSchema);
 
 const updateDeck = oc
-  .route({ method: "PUT", path: "/league/{leagueId}/deck/{deckId}" })
-  .input(GetDeckSchema)
+  .route({ method: "PUT", path: "/deck/{deckId}" })
+  .input(GetDeckSchema.extend(UpdateDeckBodySchema.shape))
   .output(DeckSchema);
 
 const deleteDeck = oc
   .route({
     method: "DELETE",
-    path: "/league/{leagueId}/deck/{deckId}",
+    path: "/deck/{deckId}",
     successStatus: 204,
   })
   .input(GetDeckSchema);
