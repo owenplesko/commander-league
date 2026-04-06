@@ -136,6 +136,7 @@ export const orpc = createTanstackQueryUtils(client, {
         },
       },
     },
+
     deck: {
       create: {
         mutationOptions: {

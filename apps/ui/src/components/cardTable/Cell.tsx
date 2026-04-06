@@ -1,17 +1,19 @@
 import classes from "./table.module.css";
 import { classNames } from "primereact/utils";
-import { selectedCardsReducer, type SelectedCard } from "./selection";
+import { selectedCardsReducer } from "./selection";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type SelectedCellContentsProps = {
-  row: SelectedCard;
-  selectedRows: SelectedCard[];
-  onSelectionChange: (selection: SelectedCard[]) => void;
+  row: CardQuantity;
+  selectedRows: CardQuantity[];
+  selectedQuantity: number;
+  onSelectionChange: (selection: CardQuantity[]) => void;
 };
 
 function SelectedCellContents({
   row,
   selectedRows,
+  selectedQuantity,
   onSelectionChange,
 }: SelectedCellContentsProps) {
   return (
@@ -20,9 +22,9 @@ function SelectedCellContents({
         className={classes["text-ellipsis"]}
         style={{ marginRight: "auto" }}
       >
-        {`${row.selectedQuantity}/${row.quantity} ${row.card.name}`}
+        {`${selectedQuantity}/${row.quantity} ${row.card.name}`}
       </span>
-      {row.selectedQuantity > 1 ? (
+      {selectedQuantity > 1 ? (
         <i
           className="pi pi-sort-down-fill"
           onClick={() => {
@@ -38,7 +40,7 @@ function SelectedCellContents({
       ) : (
         <i className={classNames("pi pi-sort-down", classes.disabled)} />
       )}
-      {row.selectedQuantity < row.quantity ? (
+      {selectedQuantity < row.quantity ? (
         <i
           className="pi pi-sort-up-fill"
           onClick={() => {
@@ -71,8 +73,8 @@ function SelectedCellContents({
 
 type CellProps = {
   row: CardQuantity;
-  selectedRows: SelectedCard[];
-  onSelectionChange: (selection: SelectedCard[]) => void;
+  selectedRows: CardQuantity[];
+  onSelectionChange: (selection: CardQuantity[]) => void;
   onRowHover: (c: CardQuantity) => void;
 };
 
@@ -105,8 +107,9 @@ export function Cell({
     >
       {selected ? (
         <SelectedCellContents
-          row={selected}
+          row={row}
           selectedRows={selectedRows}
+          selectedQuantity={selected.quantity}
           onSelectionChange={onSelectionChange}
         />
       ) : (

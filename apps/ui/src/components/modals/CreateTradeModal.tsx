@@ -1,11 +1,10 @@
-import type { TradeItems, User } from "@commander-league/contract/schemas";
+import type { CardQuantity, User } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "../../lib/client";
 import { TabPanel, TabView } from "primereact/tabview";
-import type { SelectedCard } from "../cardTable/selection";
 import { CardTable } from "../cardTable/Table";
 import { TradeItemsPreview } from "../TradePreview";
 import { UserBadge } from "../UserBadge";
@@ -36,8 +35,8 @@ export function CreateTradeRequestModal({
     }),
   );
 
-  const [requesterCards, setRequesterCards] = useState<SelectedCard[]>([]);
-  const [recipientCards, setRecipientCards] = useState<SelectedCard[]>([]);
+  const [requesterCards, setRequesterCards] = useState<CardQuantity[]>([]);
+  const [recipientCards, setRecipientCards] = useState<CardQuantity[]>([]);
 
   const mutation = useMutation(orpc.trade.create.mutationOptions());
 
@@ -49,14 +48,14 @@ export function CreateTradeRequestModal({
           userId: requester.id,
           cards: requesterCards.map((entry) => ({
             cardName: entry.card.name,
-            quantity: entry.selectedQuantity,
+            quantity: entry.quantity,
           })),
         },
         {
           userId: recipient.id,
           cards: recipientCards.map((entry) => ({
             cardName: entry.card.name,
-            quantity: entry.selectedQuantity,
+            quantity: entry.quantity,
           })),
         },
       ],
@@ -65,6 +64,13 @@ export function CreateTradeRequestModal({
     setRequesterCards([]);
     setRecipientCards([]);
   }
+
+  useEffect(() => {
+    if (visible) {
+      setRequesterCards([]);
+      setRecipientCards([]);
+    }
+  }, [visible]);
 
   return (
     <Dialog
@@ -90,8 +96,8 @@ export function CreateTradeRequestModal({
         <UserBadge user={recipient} />
       </div>
       <TradeItemsPreview
-        requesterItems={tradeItemsAdapter(requesterCards)}
-        recipientItems={tradeItemsAdapter(recipientCards)}
+        requesterItems={{ cards: requesterCards }}
+        recipientItems={{ cards: recipientCards }}
       />
       <TabView>
         <TabPanel header={requester.name}>
@@ -115,13 +121,4 @@ export function CreateTradeRequestModal({
       </TabView>
     </Dialog>
   );
-}
-
-function tradeItemsAdapter(selectedCards: SelectedCard[]): TradeItems {
-  return {
-    cards: selectedCards.map(({ selectedQuantity, ...values }) => ({
-      ...values,
-      quantity: selectedQuantity,
-    })),
-  };
 }

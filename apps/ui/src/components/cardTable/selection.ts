@@ -1,7 +1,5 @@
 import type { CardQuantity } from "@commander-league/contract/schemas";
 
-export type SelectedCard = CardQuantity & { selectedQuantity: number };
-
 type ReducerAction =
   | {
       type: "select";
@@ -18,16 +16,16 @@ type ReducerAction =
     };
 
 export function selectedCardsReducer(
-  state: SelectedCard[],
+  state: CardQuantity[],
   action: ReducerAction,
-): SelectedCard[] {
+): CardQuantity[] {
   switch (action.type) {
     case "select":
-      return [...state, { ...action.entry, selectedQuantity: 1 }];
+      return [...state, { ...action.entry, quantity: 1 }];
     case "inc":
       return state.map((e) =>
         e.card.name === action.cardName
-          ? { ...e, selectedQuantity: e.selectedQuantity + action.delta }
+          ? { ...e, quantity: e.quantity + action.delta }
           : e,
       );
     case "unselect":

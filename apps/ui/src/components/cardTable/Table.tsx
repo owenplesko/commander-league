@@ -3,15 +3,14 @@ import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState } from "react";
 import { type GroupOption, groupOptions, organizeCards } from "./grouping";
-import { type SelectedCard } from "./selection";
 import { Cell } from "./Cell";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type Props = {
   cards: CardQuantity[];
   onRowHover?: (c: CardQuantity) => void;
-  onSelectionChange?: (selection: SelectedCard[]) => void;
-  selectedRows?: SelectedCard[];
+  onSelectionChange?: (selection: CardQuantity[]) => void;
+  selectedRows?: CardQuantity[];
 };
 
 export function CardTable({

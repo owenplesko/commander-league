@@ -1,20 +1,21 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { orpc } from "../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { CardTable } from "../cardTable/Table";
-import type { CardQuantity } from "@commander-league/contract/schemas";
+import type { SelectedCard } from "../cardTable/selection";
 
 type Props = {
+  deckId: number;
   userId: string;
   leagueId: number;
   visible: boolean;
   onHide: () => void;
 };
 
-export function NewDeck({ userId, leagueId, visible, onHide }: Props) {
+export function NewDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
   const [name, setName] = useState<string>("");
 
   const mutation = useMutation(orpc.deck.create.mutationOptions());
@@ -24,12 +25,23 @@ export function NewDeck({ userId, leagueId, visible, onHide }: Props) {
       input: { leagueId, userId },
     }),
   );
+  const { data: deck } = useSuspenseQuery(
+    orpc.deck.get.queryOptions({
+      input: { deckId },
+    }),
+  );
 
-  const [selectedCards, setSelectedCards] = useState<CardQuantity[]>([]);
+  const [selectedCards, setSelectedCards] = useState<SelectedCard[]>([]);
+
+  useEffect(() => {
+    if (visible) {
+      setSelectedCards(deck.cards);
+    }
+  }, [visible]);
 
   return (
     <Dialog
-      header="New Deck"
+      header="Edit Deck"
       visible={visible}
       onHide={onHide}
       style={{ width: "100%", maxWidth: "1600px", margin: "4rem" }}

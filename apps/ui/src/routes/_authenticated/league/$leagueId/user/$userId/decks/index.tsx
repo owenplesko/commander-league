@@ -46,6 +46,7 @@ function RouteComponent() {
         ))}
       </div>
       <NewDeck
+        userId={userId}
         leagueId={leagueId}
         visible={modal === "create"}
         onHide={() => setModal(null)}
