@@ -146,7 +146,7 @@ export const deckCard = sqliteTable(
   {
     deckId: integer()
       .notNull()
-      .references(() => deck.id),
+      .references(() => deck.id, { onDelete: "cascade" }),
     cardName: text()
       .notNull()
       .references(() => card.name),
