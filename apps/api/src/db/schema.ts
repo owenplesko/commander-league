@@ -19,15 +19,16 @@ export const card = sqliteTable("card", {
   data: blob({ mode: "json" }).$type<CardData>().notNull(),
 });
 
+export const collection = sqliteTable("collection", {
+  id: integer().primaryKey().notNull(),
+});
+
 export const collectionCard = sqliteTable(
   "collection_card",
   {
-    userId: text()
+    collectionId: integer()
       .notNull()
-      .references(() => user.id),
-    leagueId: integer()
-      .notNull()
-      .references(() => league.id, { onDelete: "cascade" }),
+      .references(() => collection.id, { onDelete: "cascade" }),
     cardName: text()
       .notNull()
       .references(() => card.name),
@@ -35,7 +36,7 @@ export const collectionCard = sqliteTable(
   },
   (table) => [
     primaryKey({
-      columns: [table.userId, table.leagueId, table.cardName],
+      columns: [table.collectionId, table.cardName],
       name: "collection_card_pk",
     }),
     check("collection_card_quantity_check", sql`${table.quantity} > 0`),
@@ -57,6 +58,9 @@ export const leagueMember = sqliteTable(
       .notNull()
       .references(() => user.id),
     role: text({ enum: leagueRoleValues }).notNull(),
+    collectionId: integer()
+      .notNull()
+      .references(() => collection.id, { onDelete: "cascade" }),
   },
   (table) => [
     primaryKey({
@@ -97,6 +101,9 @@ export const tradeSide = sqliteTable(
       .notNull()
       .references(() => user.id),
     status: text({ enum: tradeStatusValues }).default("pending").notNull(),
+    collectionId: integer()
+      .notNull()
+      .references(() => collection.id, { onDelete: "cascade" }),
   },
   (table) => [
     primaryKey({
@@ -106,58 +113,27 @@ export const tradeSide = sqliteTable(
   ],
 );
 
-export const tradeItemCard = sqliteTable(
-  "trade_item_card",
+export const deck = sqliteTable(
+  "deck",
   {
-    tradeId: integer().notNull(),
-    userId: text().notNull(),
-    cardName: text()
+    id: integer().primaryKey().notNull(),
+    leagueId: integer()
       .notNull()
-      .references(() => card.name),
-    quantity: integer().notNull(),
+      .references(() => league.id, { onDelete: "cascade" }),
+    userId: text()
+      .notNull()
+      .references(() => user.id),
+    name: text().notNull(),
+    displayCardName: text().references(() => card.name),
+    collectionId: integer()
+      .notNull()
+      .references(() => collection.id, { onDelete: "cascade" }),
   },
   (table) => [
-    primaryKey({
-      columns: [table.tradeId, table.userId, table.cardName],
-      name: "trade_item_card_pk",
-    }),
     foreignKey({
-      columns: [table.tradeId, table.userId],
-      foreignColumns: [tradeSide.tradeId, tradeSide.userId],
+      columns: [table.leagueId, table.userId],
+      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
     }).onDelete("cascade"),
-    check("trade_item_card_quantity_check", sql`${table.quantity} > 0`),
-  ],
-);
-
-export const deck = sqliteTable("deck", {
-  id: integer().primaryKey().notNull(),
-  leagueId: integer()
-    .notNull()
-    .references(() => league.id, { onDelete: "cascade" }),
-  userId: text()
-    .notNull()
-    .references(() => user.id),
-  name: text().notNull(),
-  displayCardName: text().references(() => card.name),
-});
-
-export const deckCard = sqliteTable(
-  "deck_card",
-  {
-    deckId: integer()
-      .notNull()
-      .references(() => deck.id, { onDelete: "cascade" }),
-    cardName: text()
-      .notNull()
-      .references(() => card.name),
-    quantity: integer().notNull(),
-  },
-  (table) => [
-    primaryKey({
-      columns: [table.deckId, table.cardName],
-      name: "deck_card_pk",
-    }),
-    check("deck_card_quantity_check", sql`${table.quantity} > 0`),
   ],
 );
 
