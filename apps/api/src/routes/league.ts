@@ -11,6 +11,7 @@ import {
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
 import { authGuard } from "../middleware/auth";
+import { createLeagueMember } from "../procedures/leagueMember";
 
 // TODO: add a search param for userId instead of getting from auth
 const listLeague = base.league.list
@@ -44,13 +45,11 @@ const createLeague = base.league.create
     const newLeague = context.env.db.transaction((tx) => {
       const newLeague = tx.insert(league).values(input).returning().get();
 
-      tx.insert(leagueMember)
-        .values({
-          leagueId: newLeague.id,
-          userId: context.userId,
-          role: "owner",
-        })
-        .run();
+      createLeagueMember(tx, {
+        leagueId: newLeague.id,
+        userId: context.userId,
+        role: "owner",
+      });
 
       return newLeague;
     });
@@ -76,13 +75,11 @@ const joinLeague = base.league.join
 
       if (!leagueRes) throw new ORPCError("NOT_FOUND");
 
-      tx.insert(leagueMember)
-        .values({
-          leagueId: leagueRes.league.id,
-          userId: context.userId,
-          role: "player",
-        })
-        .run();
+      createLeagueMember(tx, {
+        leagueId: leagueRes.league.id,
+        userId: context.userId,
+        role: "player",
+      }).run();
 
       tx.update(inviteCode)
         .set({ uses: leagueRes.invite_code.uses + 1 })

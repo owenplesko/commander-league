@@ -60,7 +60,7 @@ export const leagueMember = sqliteTable(
     role: text({ enum: leagueRoleValues }).notNull(),
     collectionId: integer()
       .notNull()
-      .references(() => collection.id, { onDelete: "cascade" }),
+      .references(() => collection.id),
   },
   (table) => [
     primaryKey({
@@ -103,7 +103,7 @@ export const tradeSide = sqliteTable(
     status: text({ enum: tradeStatusValues }).default("pending").notNull(),
     collectionId: integer()
       .notNull()
-      .references(() => collection.id, { onDelete: "cascade" }),
+      .references(() => collection.id),
   },
   (table) => [
     primaryKey({
@@ -127,7 +127,7 @@ export const deck = sqliteTable(
     displayCardName: text().references(() => card.name),
     collectionId: integer()
       .notNull()
-      .references(() => collection.id, { onDelete: "cascade" }),
+      .references(() => collection.id),
   },
   (table) => [
     foreignKey({
