@@ -79,7 +79,7 @@ const joinLeague = base.league.join
         leagueId: leagueRes.league.id,
         userId: context.userId,
         role: "player",
-      }).run();
+      });
 
       tx.update(inviteCode)
         .set({ uses: leagueRes.invite_code.uses + 1 })

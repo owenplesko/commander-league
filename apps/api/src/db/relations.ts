@@ -2,6 +2,12 @@ import { defineRelations } from "drizzle-orm/relations";
 import * as schema from "./schema";
 
 export const relations = defineRelations(schema, (r) => ({
+  collection: {
+    cardQuantities: r.many.collectionCard({
+      from: r.collection.id,
+      to: r.collectionCard.collectionId,
+    }),
+  },
   collectionCard: {
     card: r.one.card({
       from: r.collectionCard.cardName,
@@ -21,6 +27,11 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.user.id,
       optional: false,
     }),
+    collection: r.one.collection({
+      from: r.leagueMember.collectionId,
+      to: r.collection.id,
+      optional: false,
+    }),
   },
   tradeRequest: {
     sides: r.many.tradeSide({
@@ -29,9 +40,10 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   tradeSide: {
-    cards: r.many.tradeItemCard({
-      from: [r.tradeSide.tradeId, r.tradeSide.userId],
-      to: [r.tradeItemCard.tradeId, r.tradeItemCard.userId],
+    collection: r.one.collection({
+      from: r.tradeSide.collectionId,
+      to: r.collection.id,
+      optional: false,
     }),
     user: r.one.user({
       from: r.tradeSide.userId,
@@ -39,21 +51,11 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
-  tradeItemCard: {
-    card: r.one.card({
-      from: r.tradeItemCard.cardName,
-      to: r.card.name,
-      optional: false,
-    }),
-  },
   deck: {
     owner: r.one.user({ from: r.deck.userId, to: r.user.id, optional: false }),
-    cards: r.many.deckCard({ from: r.deck.id, to: r.deckCard.deckId }),
-  },
-  deckCard: {
-    card: r.one.card({
-      from: r.deckCard.cardName,
-      to: r.card.name,
+    collection: r.one.collection({
+      from: r.deck.collectionId,
+      to: r.collection.id,
       optional: false,
     }),
   },
