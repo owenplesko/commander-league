@@ -1,10 +1,7 @@
 import z from "zod";
 import { UserSchema } from "./user";
-import {
-  CardQuantitySchema,
-  CardSchema,
-  CreateCardQuantitySchema,
-} from "./card";
+import { CardSchema } from "./card";
+import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
 
 export const DeckListEntrySchema = z.object({
   id: z.number(),
@@ -17,7 +14,7 @@ export const DeckSchema = DeckListEntrySchema.extend({
   id: z.number(),
   name: z.string(),
   owner: UserSchema,
-  cards: CardQuantitySchema.array(),
+  cardQuantities: CardQuantitySchema.array(),
 });
 export type Deck = z.infer<typeof DeckSchema>;
 
@@ -30,7 +27,7 @@ export const CreateDeckBodySchema = z.object({
   leagueId: z.number(),
   name: z.string(),
   displayCardName: z.string().nullable(),
-  cards: CreateCardQuantitySchema.array().nullish(),
+  cardQuantites: CreateCardQuantitySchema.array().nullish(),
 });
 
 export const UpdateDeckBodySchema = CreateDeckBodySchema.partial();

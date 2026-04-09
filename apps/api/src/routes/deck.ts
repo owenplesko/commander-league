@@ -1,5 +1,5 @@
 import { and, eq } from "drizzle-orm";
-import { deck, deckCard } from "../db/schema";
+import { deck } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { base } from "../orpc";
 import { ORPCError } from "@orpc/server";
@@ -21,7 +21,7 @@ const getDeck = base.deck.get
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.deck.findFirst({
       where: { id: input.deckId },
-      with: { owner: true, cards: { with: { card: true } } },
+      with: { owner: true, collection: { with: { card: true } } },
     });
 
     if (!res) throw new ORPCError("NOT_FOUND");

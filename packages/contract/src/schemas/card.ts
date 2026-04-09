@@ -22,14 +22,3 @@ export const CardSchema = z.object({
   data: CardDataSchema,
 });
 export type Card = z.infer<typeof CardSchema>;
-
-export const CreateCardQuantitySchema = z.object({
-  quantity: z.number(),
-  cardName: z.string(),
-});
-
-export const CardQuantitySchema = z.object({
-  quantity: z.number(),
-  card: CardSchema,
-});
-export type CardQuantity = z.infer<typeof CardQuantitySchema>;

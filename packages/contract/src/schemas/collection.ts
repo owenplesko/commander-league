@@ -1,12 +1,24 @@
 import z from "zod";
-import { CardQuantitySchema, CreateCardQuantitySchema } from "./card";
+import { CardSchema } from "./card";
+
+export const CardQuantitySchema = z.object({
+  quantity: z.number(),
+  card: CardSchema,
+});
+export type CardEntry = z.infer<typeof CardQuantitySchema>;
 
 export const CollectionSchema = z.object({
-  cards: CardQuantitySchema.array(),
+  cardQuantities: CardQuantitySchema.array(),
 });
 
 export type Collection = z.infer<typeof CollectionSchema>;
 
+export const CreateCardQuantitySchema = z.object({
+  quantity: z.number(),
+  cardName: z.string(),
+});
+export type CreateCardQuantity = z.infer<typeof CreateCardQuantitySchema>;
+
 export const CreateCollectionBodySchema = z.object({
-  cards: CreateCardQuantitySchema.array(),
+  cardQuantites: CreateCardQuantitySchema.array(),
 });

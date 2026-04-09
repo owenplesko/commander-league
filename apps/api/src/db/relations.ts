@@ -40,23 +40,21 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   tradeSide: {
-    collection: r.one.collection({
-      from: r.tradeSide.collectionId,
-      to: r.collection.id,
-      optional: false,
-    }),
     user: r.one.user({
       from: r.tradeSide.userId,
       to: r.user.id,
       optional: false,
     }),
+    cardEntries: r.many.collectionCard({
+      from: r.tradeSide.collectionId,
+      to: r.collectionCard.collectionId,
+    }),
   },
   deck: {
     owner: r.one.user({ from: r.deck.userId, to: r.user.id, optional: false }),
-    collection: r.one.collection({
+    cardEntries: r.many.collectionCard({
       from: r.deck.collectionId,
-      to: r.collection.id,
-      optional: false,
+      to: r.collectionCard.collectionId,
     }),
   },
 }));

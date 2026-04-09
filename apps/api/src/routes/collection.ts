@@ -11,6 +11,7 @@ const getCollection = base.collection.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leagueMember.findFirst({
+      columns: {},
       where: {
         leagueId: input.leagueId,
         userId: input.userId,
@@ -22,7 +23,7 @@ const getCollection = base.collection.get
 
     if (!res) throw new ORPCError("NOT_FOUND");
 
-    return { cards: res.collection.cardQuantities };
+    return res.collection;
   });
 
 const setCollection = base.collection.set
@@ -46,7 +47,7 @@ const setCollection = base.collection.set
         .run();
 
       const valuesSql = sql.join(
-        input.cards.map((c) => sql`(${c.cardName})`),
+        input.cardQuantites.map((c) => sql`(${c.cardName})`),
         sql`,`,
       );
 
@@ -72,7 +73,7 @@ const setCollection = base.collection.set
 
       tx.insert(collectionCard)
         .values(
-          input.cards.map(({ cardName, quantity }) => ({
+          input.cardQuantites.map(({ cardName, quantity }) => ({
             cardName,
             quantity,
             collectionId,
