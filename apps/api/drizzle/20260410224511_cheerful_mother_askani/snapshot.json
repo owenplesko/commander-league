@@ -1,9 +1,9 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "98073032-afda-48fb-bdc2-a2ed9567cbf6",
+  "id": "65b79148-09d2-4a34-a3b4-cd9e5f839f9a",
   "prevIds": [
-    "d24c6f43-ca95-4096-879f-de8c9315a2c5"
+    "00000000-0000-0000-0000-000000000000"
   ],
   "ddl": [
     {
@@ -15,15 +15,15 @@
       "entityType": "tables"
     },
     {
+      "name": "collection",
+      "entityType": "tables"
+    },
+    {
       "name": "collection_card",
       "entityType": "tables"
     },
     {
       "name": "deck",
-      "entityType": "tables"
-    },
-    {
-      "name": "deck_card",
       "entityType": "tables"
     },
     {
@@ -40,10 +40,6 @@
     },
     {
       "name": "session",
-      "entityType": "tables"
-    },
-    {
-      "name": "trade_item_card",
       "entityType": "tables"
     },
     {
@@ -213,14 +209,14 @@
       "table": "card"
     },
     {
-      "type": "text",
-      "notNull": true,
+      "type": "integer",
+      "notNull": false,
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "user_id",
+      "name": "id",
       "entityType": "columns",
-      "table": "collection_card"
+      "table": "collection"
     },
     {
       "type": "integer",
@@ -228,7 +224,7 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "league_id",
+      "name": "collection_id",
       "entityType": "columns",
       "table": "collection_card"
     },
@@ -308,29 +304,9 @@
       "autoincrement": false,
       "default": null,
       "generated": null,
-      "name": "deck_id",
+      "name": "collection_id",
       "entityType": "columns",
-      "table": "deck_card"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "card_name",
-      "entityType": "columns",
-      "table": "deck_card"
-    },
-    {
-      "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "quantity",
-      "entityType": "columns",
-      "table": "deck_card"
+      "table": "deck"
     },
     {
       "type": "text",
@@ -423,6 +399,16 @@
       "table": "league_member"
     },
     {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "collection_id",
+      "entityType": "columns",
+      "table": "league_member"
+    },
+    {
       "type": "text",
       "notNull": false,
       "autoincrement": false,
@@ -504,46 +490,6 @@
     },
     {
       "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "trade_id",
-      "entityType": "columns",
-      "table": "trade_item_card"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "user_id",
-      "entityType": "columns",
-      "table": "trade_item_card"
-    },
-    {
-      "type": "text",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "card_name",
-      "entityType": "columns",
-      "table": "trade_item_card"
-    },
-    {
-      "type": "integer",
-      "notNull": true,
-      "autoincrement": false,
-      "default": null,
-      "generated": null,
-      "name": "quantity",
-      "entityType": "columns",
-      "table": "trade_item_card"
-    },
-    {
-      "type": "integer",
       "notNull": false,
       "autoincrement": false,
       "default": null,
@@ -599,6 +545,16 @@
       "default": "'pending'",
       "generated": null,
       "name": "status",
+      "entityType": "columns",
+      "table": "trade_side"
+    },
+    {
+      "type": "integer",
+      "notNull": true,
+      "autoincrement": false,
+      "default": null,
+      "generated": null,
+      "name": "collection_id",
       "entityType": "columns",
       "table": "trade_side"
     },
@@ -749,31 +705,16 @@
     },
     {
       "columns": [
-        "user_id"
+        "collection_id"
       ],
-      "tableTo": "user",
-      "columnsTo": [
-        "id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "nameExplicit": false,
-      "name": "collection_card_user_id_user_id_fk",
-      "entityType": "fks",
-      "table": "collection_card"
-    },
-    {
-      "columns": [
-        "league_id"
-      ],
-      "tableTo": "league",
+      "tableTo": "collection",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "collection_card_league_id_league_id_fk",
+      "name": "fk_collection_card_collection_id_collection_id_fk",
       "entityType": "fks",
       "table": "collection_card"
     },
@@ -788,7 +729,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "collection_card_card_name_card_name_fk",
+      "name": "fk_collection_card_card_name_card_name_fk",
       "entityType": "fks",
       "table": "collection_card"
     },
@@ -839,33 +780,35 @@
     },
     {
       "columns": [
-        "deck_id"
+        "collection_id"
       ],
-      "tableTo": "deck",
+      "tableTo": "collection",
       "columnsTo": [
         "id"
       ],
       "onUpdate": "NO ACTION",
       "onDelete": "NO ACTION",
       "nameExplicit": false,
-      "name": "fk_deck_card_deck_id_deck_id_fk",
+      "name": "fk_deck_collection_id_collection_id_fk",
       "entityType": "fks",
-      "table": "deck_card"
+      "table": "deck"
     },
     {
       "columns": [
-        "card_name"
+        "league_id",
+        "user_id"
       ],
-      "tableTo": "card",
+      "tableTo": "league_member",
       "columnsTo": [
-        "name"
+        "league_id",
+        "user_id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "fk_deck_card_card_name_card_name_fk",
+      "name": "fk_deck_league_id_user_id_league_member_league_id_user_id_fk",
       "entityType": "fks",
-      "table": "deck_card"
+      "table": "deck"
     },
     {
       "columns": [
@@ -878,7 +821,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "invite_code_league_id_league_id_fk",
+      "name": "fk_invite_code_league_id_league_id_fk",
       "entityType": "fks",
       "table": "invite_code"
     },
@@ -893,7 +836,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "league_member_league_id_league_id_fk",
+      "name": "fk_league_member_league_id_league_id_fk",
       "entityType": "fks",
       "table": "league_member"
     },
@@ -914,6 +857,21 @@
     },
     {
       "columns": [
+        "collection_id"
+      ],
+      "tableTo": "collection",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_league_member_collection_id_collection_id_fk",
+      "entityType": "fks",
+      "table": "league_member"
+    },
+    {
+      "columns": [
         "user_id"
       ],
       "tableTo": "user",
@@ -929,38 +887,6 @@
     },
     {
       "columns": [
-        "card_name"
-      ],
-      "tableTo": "card",
-      "columnsTo": [
-        "name"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
-      "nameExplicit": false,
-      "name": "fk_trade_item_card_card_name_card_name_fk",
-      "entityType": "fks",
-      "table": "trade_item_card"
-    },
-    {
-      "columns": [
-        "trade_id",
-        "user_id"
-      ],
-      "tableTo": "trade_side",
-      "columnsTo": [
-        "trade_id",
-        "user_id"
-      ],
-      "onUpdate": "NO ACTION",
-      "onDelete": "CASCADE",
-      "nameExplicit": false,
-      "name": "fk_trade_item_card_trade_id_user_id_trade_side_trade_id_user_id_fk",
-      "entityType": "fks",
-      "table": "trade_item_card"
-    },
-    {
-      "columns": [
         "league_id"
       ],
       "tableTo": "league",
@@ -970,7 +896,7 @@
       "onUpdate": "NO ACTION",
       "onDelete": "CASCADE",
       "nameExplicit": false,
-      "name": "trade_request_league_id_league_id_fk",
+      "name": "fk_trade_request_league_id_league_id_fk",
       "entityType": "fks",
       "table": "trade_request"
     },
@@ -1021,24 +947,28 @@
     },
     {
       "columns": [
-        "user_id",
-        "league_id",
+        "collection_id"
+      ],
+      "tableTo": "collection",
+      "columnsTo": [
+        "id"
+      ],
+      "onUpdate": "NO ACTION",
+      "onDelete": "NO ACTION",
+      "nameExplicit": false,
+      "name": "fk_trade_side_collection_id_collection_id_fk",
+      "entityType": "fks",
+      "table": "trade_side"
+    },
+    {
+      "columns": [
+        "collection_id",
         "card_name"
       ],
       "nameExplicit": true,
       "name": "collection_card_pk",
       "entityType": "pks",
       "table": "collection_card"
-    },
-    {
-      "columns": [
-        "deck_id",
-        "card_name"
-      ],
-      "nameExplicit": true,
-      "name": "deck_card_pk",
-      "entityType": "pks",
-      "table": "deck_card"
     },
     {
       "columns": [
@@ -1049,17 +979,6 @@
       "name": "league_member_pk",
       "entityType": "pks",
       "table": "league_member"
-    },
-    {
-      "columns": [
-        "trade_id",
-        "user_id",
-        "card_name"
-      ],
-      "nameExplicit": true,
-      "name": "trade_item_card_pk",
-      "entityType": "pks",
-      "table": "trade_item_card"
     },
     {
       "columns": [
@@ -1087,6 +1006,15 @@
       "nameExplicit": false,
       "name": "card_pk",
       "table": "card",
+      "entityType": "pks"
+    },
+    {
+      "columns": [
+        "id"
+      ],
+      "nameExplicit": false,
+      "name": "collection_pk",
+      "table": "collection",
       "entityType": "pks"
     },
     {
@@ -1217,18 +1145,6 @@
       "name": "collection_card_quantity_check",
       "entityType": "checks",
       "table": "collection_card"
-    },
-    {
-      "value": "\"quantity\" > 0",
-      "name": "deck_card_quantity_check",
-      "entityType": "checks",
-      "table": "deck_card"
-    },
-    {
-      "value": "\"quantity\" > 0",
-      "name": "trade_item_card_quantity_check",
-      "entityType": "checks",
-      "table": "trade_item_card"
     }
   ],
   "renames": []
