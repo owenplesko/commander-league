@@ -1,107 +1,65 @@
-import { eq, and, sql, inArray } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import type { TX } from "../db";
+import { tradeSide, tradeRequest } from "../db/schema";
 import {
-  tradeSide,
-  tradeItemCard,
-  collectionCard,
-  tradeRequest,
-} from "../db/schema";
+  applyCollectionDeltas,
+  deleteCollection,
+  getCollection,
+} from "./collection";
+import { ORPCError } from "@orpc/server";
 
 export function executeTrade(
   tx: TX,
   {
     tradeId,
-    leagueId,
   }: {
     tradeId: number;
     leagueId: number;
   },
 ) {
-  const targets = tx
-    .select({ targetId: tradeSide.userId })
+  const [sideA, sideB] = tx
+    .select()
     .from(tradeSide)
     .where(eq(tradeSide.tradeId, tradeId))
-    .as("targets");
-
-  // compute deltas
-  const cardDelta = tx
-    .with(targets)
-    .select({
-      targetUserId: targets.targetId,
-      leagueId: sql<number>`${leagueId}`.as("leagueId"),
-      cardName: tradeItemCard.cardName,
-      deltaQuantity: sql<number>`
-            SUM(
-              CASE WHEN ${targets.targetId} = ${tradeItemCard.userId} 
-                THEN -${tradeItemCard.quantity}
-                ELSE ${tradeItemCard.quantity}
-              END
-            )`.as("quantity"),
-    })
-    .from(tradeItemCard)
-    .crossJoin(targets)
-    .where(eq(tradeItemCard.tradeId, tradeId))
-    .groupBy(targets.targetId, tradeItemCard.cardName)
-    .as("card_delta");
-
-  // compute target quantites
-  const cardTargetQuantities = tx
-    .select({
-      targetUserId: cardDelta.targetUserId,
-      leagueId: cardDelta.leagueId,
-      cardName: cardDelta.cardName,
-      targetQuantity:
-        sql<number>`COALESCE(${collectionCard.quantity}, 0) + ${cardDelta.deltaQuantity}`.as(
-          "targetQuantity",
-        ),
-    })
-    .from(cardDelta)
-    .leftJoin(
-      collectionCard,
-      and(
-        eq(collectionCard.userId, cardDelta.targetUserId),
-        eq(collectionCard.leagueId, cardDelta.leagueId),
-        eq(collectionCard.cardName, cardDelta.cardName),
-      ),
-    )
     .all();
 
-  // apply deletes
-  const toDelete = cardTargetQuantities.filter((r) => r.targetQuantity === 0);
-  tx.delete(collectionCard)
-    .where(
-      inArray(
-        sql`(${collectionCard.userId}, ${collectionCard.leagueId}, ${collectionCard.cardName})`,
-        toDelete.map(
-          (r) => sql`(${r.targetUserId}, ${r.leagueId}, ${r.cardName})`,
-        ),
-      ),
-    )
-    .run();
+  if (!sideA || !sideB) throw new ORPCError("INTERNAL_SERVER_ERROR");
 
-  // apply upserts
-  const toUpsert = cardTargetQuantities.filter((r) => r.targetQuantity !== 0);
-  tx.insert(collectionCard)
-    .values(
-      toUpsert.map((r) => ({
-        userId: r.targetUserId,
-        leagueId: r.leagueId,
-        cardName: r.cardName,
-        quantity: r.targetQuantity,
-      })),
-    )
-    .onConflictDoUpdate({
-      target: [
-        collectionCard.userId,
-        collectionCard.leagueId,
-        collectionCard.cardName,
-      ],
-      set: {
-        quantity: sql`excluded.quantity`,
-      },
-    })
-    .run();
+  const A = getCollection(tx, { collectionId: sideA.collectionId });
+  const B = getCollection(tx, { collectionId: sideB.collectionId });
+
+  if (!A || !B) throw new ORPCError("INTERNAL_SERVER_ERROR");
+
+  const Amap = new Map(
+    A.cardQuantities.map(({ cardName, quantity }) => [cardName, quantity]),
+  );
+  const Bmap = new Map(
+    B.cardQuantities.map(({ cardName, quantity }) => [cardName, quantity]),
+  );
+
+  const uniqueCards = new Set([...Amap.keys(), ...Bmap.keys()]);
+
+  // compute deltas
+  const deltasA = Array.from(uniqueCards.values()).map((cardName) => ({
+    cardName,
+    quantity: (Bmap.get(cardName) ?? 0) - (Amap.get(cardName) ?? 0),
+  }));
+  const deltasB = deltasA.map(({ cardName, quantity }) => ({
+    cardName,
+    quantity: -quantity,
+  }));
+
+  applyCollectionDeltas(tx, {
+    collectionId: sideA.collectionId,
+    cardDeltas: deltasA,
+  });
+  applyCollectionDeltas(tx, {
+    collectionId: sideB.collectionId,
+    cardDeltas: deltasB,
+  });
 
   // clean up trade request
   tx.delete(tradeRequest).where(eq(tradeRequest.id, tradeId)).run();
+  deleteCollection(tx, { collectionId: sideA.collectionId });
+  deleteCollection(tx, { collectionId: sideB.collectionId });
 }

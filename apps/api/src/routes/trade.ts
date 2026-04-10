@@ -1,10 +1,11 @@
-import { tradeItemCard, tradeSide, tradeRequest } from "../db/schema";
+import { tradeSide, tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { tradeOwner, tradeParticipantGuard } from "../middleware/trade";
 import { base } from "../orpc";
 import { and, count, eq, ne } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 import { executeTrade } from "../procedures/trade";
+import { createCollection, setCollection } from "../procedures/collection";
 
 const listTrades = base.trade.list
   .use(memberOfLeague)
@@ -33,7 +34,7 @@ const listTrades = base.trade.list
           with: {
             sides: {
               with: {
-                cards: {
+                cardQuantities: {
                   with: { card: true },
                 },
                 user: true,
@@ -61,23 +62,17 @@ const createTrade = base.trade.create
         .get();
 
       // insert trade sides
-      tx.insert(tradeSide)
-        .values(sides.map(({ userId }) => ({ userId, tradeId })))
-        .run();
-
-      // insert trade cards
-      tx.insert(tradeItemCard)
-        .values(
-          sides.flatMap(({ userId, cards }) =>
-            cards.map(({ cardName, quantity }) => ({
-              tradeId,
-              userId,
-              cardName,
-              quantity,
-            })),
-          ),
-        )
-        .run();
+      for (const side of sides) {
+        const { collectionId } = createCollection(tx);
+        setCollection(tx, { collectionId, cardQuantities: side.cardQuantites });
+        tx.insert(tradeSide)
+          .values({
+            userId: side.userId,
+            tradeId,
+            collectionId,
+          })
+          .run();
+      }
 
       // retrieve trade response
       const trade = tx.query.tradeRequest
@@ -88,7 +83,7 @@ const createTrade = base.trade.create
           with: {
             sides: {
               with: {
-                cards: {
+                cardQuantities: {
                   with: { card: true },
                 },
                 user: true,

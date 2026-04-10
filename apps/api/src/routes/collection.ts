@@ -1,4 +1,4 @@
-import { card, collectionCard } from "../db/schema";
+import { card } from "../db/schema";
 import { eq, sql, isNull } from "drizzle-orm";
 import { base } from "../orpc";
 import {
@@ -6,6 +6,7 @@ import {
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
 import { ORPCError } from "@orpc/server";
+import { setCollection as setCollectionProcedure } from "../procedures/collection";
 
 const getCollection = base.collection.get
   .use(memberOfLeague)
@@ -42,10 +43,6 @@ const setCollection = base.collection.set
       if (!res) throw new ORPCError("NOT_FOUND");
       const { collectionId } = res;
 
-      tx.delete(collectionCard)
-        .where(eq(collectionCard.collectionId, collectionId))
-        .run();
-
       const valuesSql = sql.join(
         input.cardQuantites.map((c) => sql`(${c.cardName})`),
         sql`,`,
@@ -71,21 +68,10 @@ const setCollection = base.collection.set
         });
       }
 
-      tx.insert(collectionCard)
-        .values(
-          input.cardQuantites.map(({ cardName, quantity }) => ({
-            cardName,
-            quantity,
-            collectionId,
-          })),
-        )
-        .onConflictDoUpdate({
-          target: [collectionCard.collectionId, collectionCard.cardName],
-          set: {
-            quantity: sql`${collectionCard.quantity} + excluded.quantity`,
-          },
-        })
-        .run();
+      setCollectionProcedure(tx, {
+        collectionId,
+        cardQuantities: input.cardQuantites,
+      });
     });
   });
 

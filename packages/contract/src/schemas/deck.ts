@@ -26,8 +26,7 @@ export type GetDeckInput = z.infer<typeof GetDeckSchema>;
 export const CreateDeckBodySchema = z.object({
   leagueId: z.number(),
   name: z.string(),
-  displayCardName: z.string().nullable(),
-  cardQuantites: CreateCardQuantitySchema.array().nullish(),
+  cardQuantities: CreateCardQuantitySchema.array(),
 });
 
 export const UpdateDeckBodySchema = CreateDeckBodySchema.partial();

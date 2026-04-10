@@ -5,6 +5,11 @@ import { base } from "../orpc";
 import { ORPCError } from "@orpc/server";
 import { deckOwner, deckVisibile } from "../middleware/deck";
 import { authGuard } from "../middleware/auth";
+import {
+  createCollection,
+  deleteCollection,
+  setCollection,
+} from "../procedures/collection";
 
 const listDecks = base.deck.list
   .use(memberOfLeague)
@@ -21,7 +26,7 @@ const getDeck = base.deck.get
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.deck.findFirst({
       where: { id: input.deckId },
-      with: { owner: true, collection: { with: { card: true } } },
+      with: { owner: true, cardQuantities: { with: { card: true } } },
     });
 
     if (!res) throw new ORPCError("NOT_FOUND");
@@ -33,29 +38,27 @@ const createDeck = base.deck.create
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const deckId = context.env.db.transaction((tx) => {
+      const { collectionId } = createCollection(tx);
+
+      setCollection(tx, { collectionId, cardQuantities: input.cardQuantities });
+
       const { deckId } = tx
         .insert(deck)
         .values({
           userId: context.userId,
           leagueId: input.leagueId,
           name: input.name,
-          displayCardName: input.displayCardName,
+          collectionId,
         })
         .returning({ deckId: deck.id })
         .get();
-
-      if (input.cards && input.cards.length > 0) {
-        tx.insert(deckCard)
-          .values(input.cards.map((entry) => ({ deckId, ...entry })))
-          .run();
-      }
 
       return deckId;
     });
 
     const res = await context.env.db.query.deck.findFirst({
       where: { id: deckId },
-      with: { owner: true, cards: { with: { card: true } } },
+      with: { owner: true, cardQuantities: { with: { card: true } } },
     });
 
     if (!res) throw new ORPCError("INTERNAL_SERVER_ERROR");
@@ -68,18 +71,18 @@ const updateDeck = base.deck.update
   .use(deckOwner)
   .handler(async ({ input, context }) => {
     context.env.db.transaction((tx) => {
-      // validate deck in league
-      const existing = context.env.db
+      const res = context.env.db
         .select()
         .from(deck)
         .where(eq(deck.id, input.deckId))
         .get();
 
-      if (!existing) throw new ORPCError("NOT_FOUND");
+      if (!res) throw new ORPCError("NOT_FOUND");
+
+      const { collectionId } = res;
 
       const updates = {
         name: input.name,
-        displayCardName: input.displayCardName,
       };
       if (Object.keys(updates).length !== 0) {
         context.env.db
@@ -89,22 +92,16 @@ const updateDeck = base.deck.update
           .run();
       }
 
-      if (input.cards && input.cards.length > 0) {
-        tx.delete(deckCard)
-          .where(and(eq(deckCard.deckId, input.deckId)))
-          .run();
-
-        tx.insert(deckCard)
-          .values(
-            input.cards.map((entry) => ({ deckId: input.deckId, ...entry })),
-          )
-          .run();
-      }
+      if (input.cardQuantities)
+        setCollection(tx, {
+          collectionId,
+          cardQuantities: input.cardQuantities,
+        });
     });
 
     const res = await context.env.db.query.deck.findFirst({
       where: { id: input.deckId },
-      with: { owner: true, cards: { with: { card: true } } },
+      with: { owner: true, cardQuantities: { with: { card: true } } },
     });
 
     if (!res) throw new ORPCError("INTERNAL_SERVER_ERROR");
@@ -115,8 +112,22 @@ const updateDeck = base.deck.update
 const deleteDeck = base.deck.delete
   .use(authGuard)
   .use(deckOwner)
-  .handler(async ({ input, context }) => {
-    await context.env.db.delete(deck).where(eq(deck.id, input.deckId));
+  .handler(({ input, context }) => {
+    context.env.db.transaction((tx) => {
+      const res = context.env.db
+        .select()
+        .from(deck)
+        .where(eq(deck.id, input.deckId))
+        .get();
+
+      if (!res) throw new ORPCError("NOT_FOUND");
+
+      const { collectionId } = res;
+
+      deleteCollection(tx, { collectionId });
+
+      tx.delete(deck).where(eq(deck.id, input.deckId));
+    });
   });
 
 export const deckRoutes = {

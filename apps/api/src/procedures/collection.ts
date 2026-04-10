@@ -5,8 +5,27 @@ import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 
 export function createCollection(tx: TX) {
-  const id = tx.insert(collection).values({}).returning().get();
+  const { id } = tx.insert(collection).values({}).returning().get();
   return { collectionId: id };
+}
+
+export function getCollection(
+  tx: TX,
+  { collectionId }: { collectionId: number },
+) {
+  return tx.query.collection
+    .findFirst({
+      where: { id: collectionId },
+      with: { cardQuantities: true },
+    })
+    .sync();
+}
+
+export function deleteCollection(
+  tx: TX,
+  { collectionId }: { collectionId: number },
+) {
+  tx.delete(collection).where(eq(collection.id, collectionId)).run();
 }
 
 export function setCollection(

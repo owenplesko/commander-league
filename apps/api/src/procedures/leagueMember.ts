@@ -1,16 +1,13 @@
 import type { LeagueRole } from "@commander-league/contract/schemas";
 import type { TX } from "../db";
-import { collection, leagueMember } from "../db/schema";
+import { leagueMember } from "../db/schema";
+import { createCollection } from "./collection";
 
 export function createLeagueMember(
   tx: TX,
   params: { leagueId: number; userId: string; role: LeagueRole },
 ) {
-  const { id: collectionId } = tx
-    .insert(collection)
-    .values({})
-    .returning()
-    .get();
+  const { collectionId } = createCollection(tx);
 
   tx.insert(leagueMember)
     .values({ collectionId, ...params })
