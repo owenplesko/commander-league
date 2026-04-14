@@ -69,7 +69,7 @@ function RouteComponent() {
           />
         </div>
         <CardTable
-          cards={collection.cards}
+          cards={collection.cardQuantities}
           onRowHover={(c) => setHoveredRow(c)}
         />
       </div>

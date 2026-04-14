@@ -36,7 +36,7 @@ export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
   useEffect(() => {
     if (visible) {
       setName(deck.name);
-      setSelectedCards(deck.cards);
+      setSelectedCards(deck.cardQuantities);
     }
   }, [visible]);
 
@@ -57,7 +57,7 @@ export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
               {
                 deckId,
                 name,
-                cards: selectedCards.map(({ quantity, card }) => ({
+                cardQuantities: selectedCards.map(({ quantity, card }) => ({
                   quantity,
                   cardName: card.name,
                 })),
@@ -80,7 +80,7 @@ export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
 
         <div style={{ overflow: "auto", maxHeight: "30rem" }}>
           <CardTable
-            cards={collection.cards}
+            cards={collection.cardQuantities}
             onSelectionChange={setSelectedCards}
             selectedRows={selectedCards}
           />

@@ -8,11 +8,11 @@ type Props = {
   recipientItems: TradeItems;
 };
 
-function ItemsPreview({ items: { cards } }: { items: TradeItems }) {
+function ItemsPreview({ items: { cardQuantities } }: { items: TradeItems }) {
   return (
     <div className={classes.itemsPreview}>
       <div className={classes.itemsPreviewScroller}>
-        {cards.map((item) => (
+        {cardQuantities.map((item) => (
           <div style={{ position: "relative" }}>
             <img
               className={classes.itemsPreviewCard}

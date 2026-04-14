@@ -43,7 +43,7 @@ function RouteComponent() {
             });
           }}
         />
-        <CardTable cards={deck.cards} />
+        <CardTable cards={deck.cardQuantities} />
       </div>
       <EditDeck
         deckId={deckId}

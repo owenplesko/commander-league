@@ -81,34 +81,36 @@ export const inviteCode = sqliteTable("invite_code", {
 
 const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 
-export const tradeRequest = sqliteTable("trade_request", {
-  id: integer().primaryKey().notNull(),
-  leagueId: integer()
-    .notNull()
-    .references(() => league.id, { onDelete: "cascade" }),
-  ownerId: text()
-    .notNull()
-    .references(() => user.id),
-});
-
-export const tradeSide = sqliteTable(
-  "trade_side",
+export const tradeRequest = sqliteTable(
+  "trade_request",
   {
-    tradeId: integer()
+    id: integer().primaryKey().notNull(),
+    leagueId: integer().notNull(),
+    requesterId: text().notNull(),
+    requesterStatus: text({ enum: tradeStatusValues })
+      .default("pending")
+      .notNull(),
+    requesterCollectionId: integer()
       .notNull()
-      .references(() => tradeRequest.id, { onDelete: "cascade" }),
-    userId: text()
-      .notNull()
-      .references(() => user.id),
-    status: text({ enum: tradeStatusValues }).default("pending").notNull(),
-    collectionId: integer()
+      .references(() => collection.id),
+    recipientId: text().notNull(),
+    recipientStatus: text({ enum: tradeStatusValues })
+      .default("pending")
+      .notNull(),
+    recipientCollectionId: integer()
       .notNull()
       .references(() => collection.id),
   },
   (table) => [
-    primaryKey({
-      columns: [table.tradeId, table.userId],
-      name: "trade_side_pk",
+    foreignKey({
+      columns: [table.leagueId, table.requesterId],
+      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
+      name: "requester_fkey",
+    }),
+    foreignKey({
+      columns: [table.leagueId, table.recipientId],
+      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
+      name: "recipient_fkey",
     }),
   ],
 );

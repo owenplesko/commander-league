@@ -4,9 +4,20 @@ import { collection, collectionCard } from "../db/schema";
 import { and, eq, gt, inArray, sql } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core";
 
-export function createCollection(tx: TX) {
-  const { id } = tx.insert(collection).values({}).returning().get();
-  return { collectionId: id };
+export function createCollection(
+  tx: TX,
+  params?: { cardQuantities?: CreateCardQuantity[] },
+) {
+  const { collectionId } = tx
+    .insert(collection)
+    .values({})
+    .returning({ collectionId: collection.id })
+    .get();
+
+  if (params?.cardQuantities)
+    setCollection(tx, { collectionId, cardQuantities: params.cardQuantities });
+
+  return { collectionId };
 }
 
 export function getCollection(
@@ -35,6 +46,8 @@ export function setCollection(
     cardQuantities,
   }: { collectionId: number; cardQuantities: CreateCardQuantity[] },
 ) {
+  if (cardQuantities.length === 0) return;
+
   tx.delete(collectionCard)
     .where(eq(collectionCard.collectionId, collectionId))
     .run();
@@ -77,14 +90,16 @@ export function applyCollectionDeltas(
     )
     .map((cd) => cd.cardName);
 
-  tx.delete(collectionCard)
-    .where(
-      and(
-        eq(collectionCard.collectionId, collectionId),
-        inArray(collectionCard.cardName, deletions),
-      ),
-    )
-    .run();
+  if (deletions.length > 0) {
+    tx.delete(collectionCard)
+      .where(
+        and(
+          eq(collectionCard.collectionId, collectionId),
+          inArray(collectionCard.cardName, deletions),
+        ),
+      )
+      .all();
+  }
 
   const upserts = cardDeltas
     .filter((cd) => (quantityMap.get(cd.cardName) ?? 0) + cd.quantity !== 0)
@@ -94,13 +109,15 @@ export function applyCollectionDeltas(
       quantity: (quantityMap.get(cd.cardName) ?? 0) + cd.quantity,
     }));
 
-  tx.insert(collectionCard)
-    .values(upserts)
-    .onConflictDoUpdate({
-      target: [collectionCard.collectionId, collectionCard.cardName],
-      set: { quantity: sql`exluded.quantity` },
-    })
-    .run();
+  if (upserts.length > 0) {
+    tx.insert(collectionCard)
+      .values(upserts)
+      .onConflictDoUpdate({
+        target: [collectionCard.collectionId, collectionCard.cardName],
+        set: { quantity: sql`excluded.quantity` },
+      })
+      .all();
+  }
 }
 
 export function getMissingCards(

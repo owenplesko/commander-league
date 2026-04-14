@@ -1,11 +1,17 @@
-import { tradeSide, tradeRequest } from "../db/schema";
+import { tradeRequest } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
-import { tradeOwner, tradeParticipantGuard } from "../middleware/trade";
+import {
+  tradeParticipantGuard,
+  tradeRequesterGuard,
+} from "../middleware/trade";
 import { base } from "../orpc";
-import { and, count, eq, ne } from "drizzle-orm";
+import { and, eq, or } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
-import { executeTrade } from "../procedures/trade";
-import { createCollection, setCollection } from "../procedures/collection";
+import {
+  executeTrade,
+  deleteTrade as deleteTradeProcedure,
+} from "../procedures/trade";
+import { createCollection } from "../procedures/collection";
 
 const listTrades = base.trade.list
   .use(memberOfLeague)
@@ -13,13 +19,15 @@ const listTrades = base.trade.list
     const trades = context.env.db.transaction((tx) => {
       // get relevant trade ids
       const tradeIds = tx
-        .select({ id: tradeSide.tradeId })
-        .from(tradeSide)
-        .innerJoin(tradeRequest, eq(tradeRequest.id, tradeSide.tradeId))
+        .select({ id: tradeRequest.id })
+        .from(tradeRequest)
         .where(
           and(
             eq(tradeRequest.leagueId, input.leagueId),
-            eq(tradeSide.userId, context.userId),
+            or(
+              eq(tradeRequest.requesterId, context.userId),
+              eq(tradeRequest.recipientId, context.userId),
+            ),
           ),
         )
         .all()
@@ -32,13 +40,13 @@ const listTrades = base.trade.list
             id: { in: tradeIds },
           },
           with: {
-            sides: {
-              with: {
-                cardQuantities: {
-                  with: { card: true },
-                },
-                user: true,
-              },
+            requester: true,
+            requesterCardQuantities: {
+              with: { card: true },
+            },
+            recipient: true,
+            recipientCardQuantities: {
+              with: { card: true },
             },
           },
         })
@@ -52,94 +60,99 @@ const listTrades = base.trade.list
 
 const createTrade = base.trade.create
   .use(memberOfLeague)
-  .handler(({ input: { leagueId, sides }, context }) => {
-    const trade = context.env.db.transaction((tx) => {
-      // insert trade request
-      const { tradeId } = tx
-        .insert(tradeRequest)
-        .values({ leagueId, ownerId: context.userId })
-        .returning({ tradeId: tradeRequest.id })
-        .get();
+  .handler(
+    ({
+      input: {
+        leagueId,
+        recipientId,
+        offerCardQuantities,
+        recipientCardQuantities,
+      },
+      context,
+    }) => {
+      const trade = context.env.db.transaction((tx) => {
+        const { collectionId: requesterCollectionId } = createCollection(tx, {
+          cardQuantities: offerCardQuantities,
+        });
+        const { collectionId: recipientCollectionId } = createCollection(tx, {
+          cardQuantities: recipientCardQuantities,
+        });
 
-      // insert trade sides
-      for (const side of sides) {
-        const { collectionId } = createCollection(tx);
-        setCollection(tx, { collectionId, cardQuantities: side.cardQuantites });
-        tx.insert(tradeSide)
+        // insert trade request
+        const { tradeId } = tx
+          .insert(tradeRequest)
           .values({
-            userId: side.userId,
-            tradeId,
-            collectionId,
+            leagueId,
+            requesterId: context.userId,
+            requesterCollectionId,
+            recipientId,
+            recipientCollectionId,
           })
-          .run();
-      }
+          .returning({ tradeId: tradeRequest.id })
+          .get();
 
-      // retrieve trade response
-      const trade = tx.query.tradeRequest
-        .findFirst({
-          where: {
-            id: tradeId,
-          },
-          with: {
-            sides: {
-              with: {
-                cardQuantities: {
-                  with: { card: true },
-                },
-                user: true,
+        // retrieve trade response
+        const trade = tx.query.tradeRequest
+          .findFirst({
+            where: {
+              id: tradeId,
+            },
+            with: {
+              requester: true,
+              requesterCardQuantities: {
+                with: { card: true },
+              },
+              recipient: true,
+              recipientCardQuantities: {
+                with: { card: true },
               },
             },
-          },
-        })
-        .sync();
+          })
+          .sync();
+
+        return trade;
+      });
+
+      if (!trade) throw new ORPCError("CONFLICT");
 
       return trade;
-    });
-
-    if (!trade) throw new ORPCError("CONFLICT");
-
-    return trade;
-  });
+    },
+  );
 
 const setTradeStatus = base.trade.setStatus
   .use(tradeParticipantGuard)
   .handler(({ input, context }) => {
     context.env.db.transaction((tx) => {
       // update trade status
-      tx.update(tradeSide)
-        .set({ status: input.status })
-        .where(
-          and(
-            eq(tradeSide.tradeId, input.tradeId),
-            eq(tradeSide.userId, context.userId),
-          ),
+      tx.update(tradeRequest)
+        .set(
+          context.tradeRole === "requester"
+            ? { requesterStatus: input.status }
+            : { recipientStatus: input.status },
         )
+        .where(eq(tradeRequest.id, input.tradeId))
         .run();
 
-      // trade status guard clause for trade execution
-      const { unacceptedCount } = tx
-        .select({ unacceptedCount: count() })
-        .from(tradeSide)
-        .where(
-          and(
-            eq(tradeSide.tradeId, input.tradeId),
-            ne(tradeSide.status, "accepted"),
-          ),
-        )
-        .get()!;
+      const trade = tx.query.tradeRequest
+        .findFirst({
+          where: { id: input.tradeId },
+        })
+        .sync()!;
 
-      if (unacceptedCount > 0) return;
-
-      executeTrade(tx, { tradeId: input.tradeId, leagueId: input.leagueId });
+      if (
+        trade.requesterStatus === "accepted" &&
+        trade.recipientStatus === "accepted"
+      )
+        executeTrade(tx, { tradeId: input.tradeId, leagueId: input.leagueId });
     });
   });
 
 const deleteTrade = base.trade.delete
-  .use(tradeOwner)
+  .use(tradeRequesterGuard)
   .handler(async ({ input, context }) => {
-    await context.env.db
-      .delete(tradeRequest)
-      .where(eq(tradeRequest.id, input.tradeId));
+    context.env.db.transaction((tx) => {
+      deleteTradeProcedure(tx, { tradeId: input.tradeId });
+    });
   });
 
 export const tradeRoutes = {

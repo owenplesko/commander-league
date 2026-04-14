@@ -46,14 +46,14 @@ export function CreateTradeRequestModal({
       sides: [
         {
           userId: requester.id,
-          cards: requesterCards.map((entry) => ({
+          cardQuantites: requesterCards.map((entry) => ({
             cardName: entry.card.name,
             quantity: entry.quantity,
           })),
         },
         {
           userId: recipient.id,
-          cards: recipientCards.map((entry) => ({
+          cardQuantites: recipientCards.map((entry) => ({
             cardName: entry.card.name,
             quantity: entry.quantity,
           })),
@@ -96,14 +96,14 @@ export function CreateTradeRequestModal({
         <UserBadge user={recipient} />
       </div>
       <TradeItemsPreview
-        requesterItems={{ cards: requesterCards }}
-        recipientItems={{ cards: recipientCards }}
+        requesterItems={{ cardQuantities: requesterCards }}
+        recipientItems={{ cardQuantities: recipientCards }}
       />
       <TabView>
         <TabPanel header={requester.name}>
           <div style={{ overflow: "auto", maxHeight: "30rem" }}>
             <CardTable
-              cards={requesterCollection.cards}
+              cards={requesterCollection.cardQuantities}
               onSelectionChange={setRequesterCards}
               selectedRows={requesterCards}
             />
@@ -112,7 +112,7 @@ export function CreateTradeRequestModal({
         <TabPanel header={recipient.name}>
           <div style={{ overflow: "auto", maxHeight: "30rem" }}>
             <CardTable
-              cards={recipientCollection.cards}
+              cards={recipientCollection.cardQuantities}
               onSelectionChange={setRecipientCards}
               selectedRows={recipientCards}
             />

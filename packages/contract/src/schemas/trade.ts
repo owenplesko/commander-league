@@ -8,19 +8,14 @@ const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 export const TradeStatusSchema = z.enum(tradeStatusValues);
 export type TradeStatus = z.infer<typeof TradeStatusSchema>;
 
-export const TradeSideSchema = z.object({
-  user: UserSchema,
-  status: TradeStatusSchema,
-  cardQuantities: CardQuantitySchema.array(),
-});
-export type TradeSide = z.infer<typeof TradeSideSchema>;
-export type TradeItems = Omit<TradeSide, "status" | "userId" | "user">;
-
 export const TradeRequestSchema = z.object({
   id: z.number(),
-  ownerId: UserSchema.shape.id,
-  sides: TradeSideSchema.array(),
-  //  updatedAt: z.iso.date(),
+  requester: UserSchema,
+  requesterStatus: TradeStatusSchema,
+  requesterCardQuantities: CardQuantitySchema.array(),
+  recipient: UserSchema,
+  recipientStatus: TradeStatusSchema,
+  recipientCardQuantities: CardQuantitySchema.array(),
 });
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
 
@@ -30,13 +25,9 @@ export const GetTradeSchema = GetLeagueSchema.extend({
 export type GetTradeInput = z.infer<typeof GetTradeSchema>;
 
 export const CreateTradeRequestSchema = z.object({
-  sides: z
-    .object({
-      userId: UserSchema.shape.id,
-      cardQuantites: CreateCardQuantitySchema.array(),
-    })
-    .array()
-    .length(2, "must have exactly two sides"),
+  offerCardQuantities: CreateCardQuantitySchema.array(),
+  recipientId: UserSchema.shape.id,
+  recipientCardQuantities: CreateCardQuantitySchema.array(),
 });
 export type CreateTradeRequestBody = z.infer<typeof CreateTradeRequestSchema>;
 

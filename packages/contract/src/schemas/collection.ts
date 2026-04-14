@@ -5,7 +5,7 @@ export const CardQuantitySchema = z.object({
   quantity: z.number(),
   card: CardSchema,
 });
-export type CardEntry = z.infer<typeof CardQuantitySchema>;
+export type CardQuantity = z.infer<typeof CardQuantitySchema>;
 
 export const CollectionSchema = z.object({
   cardQuantities: CardQuantitySchema.array(),

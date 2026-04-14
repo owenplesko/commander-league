@@ -34,20 +34,33 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   tradeRequest: {
-    sides: r.many.tradeSide({
-      from: r.tradeRequest.id,
-      to: r.tradeSide.tradeId,
-    }),
-  },
-  tradeSide: {
-    user: r.one.user({
-      from: r.tradeSide.userId,
+    requester: r.one.user({
+      from: r.tradeRequest.requesterId,
       to: r.user.id,
       optional: false,
     }),
-    cardQuantities: r.many.collectionCard({
-      from: r.tradeSide.collectionId,
+    requesterCardQuantities: r.many.collectionCard({
+      from: r.tradeRequest.requesterCollectionId,
       to: r.collectionCard.collectionId,
+    }),
+    requesterLeagueMembership: r.one.leagueMember({
+      from: [r.tradeRequest.leagueId, r.tradeRequest.requesterId],
+      to: [r.leagueMember.leagueId, r.leagueMember.userId],
+      optional: false,
+    }),
+    recipient: r.one.user({
+      from: r.tradeRequest.recipientId,
+      to: r.user.id,
+      optional: false,
+    }),
+    recipientCardQuantities: r.many.collectionCard({
+      from: r.tradeRequest.recipientCollectionId,
+      to: r.collectionCard.collectionId,
+    }),
+    recipientLeagueMembership: r.one.leagueMember({
+      from: [r.tradeRequest.leagueId, r.tradeRequest.recipientId],
+      to: [r.leagueMember.leagueId, r.leagueMember.userId],
+      optional: false,
     }),
   },
   deck: {

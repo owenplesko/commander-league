@@ -1,11 +1,7 @@
 import { eq } from "drizzle-orm";
 import type { TX } from "../db";
-import { tradeSide, tradeRequest } from "../db/schema";
-import {
-  applyCollectionDeltas,
-  deleteCollection,
-  getCollection,
-} from "./collection";
+import { tradeRequest } from "../db/schema";
+import { applyCollectionDeltas, deleteCollection } from "./collection";
 import { ORPCError } from "@orpc/server";
 
 export function executeTrade(
@@ -17,49 +13,76 @@ export function executeTrade(
     leagueId: number;
   },
 ) {
-  const [sideA, sideB] = tx
-    .select()
-    .from(tradeSide)
-    .where(eq(tradeSide.tradeId, tradeId))
-    .all();
+  const trade = tx.query.tradeRequest
+    .findFirst({
+      where: { id: tradeId },
+      with: {
+        requesterCardQuantities: true,
+        requesterLeagueMembership: true,
+        recipientCardQuantities: true,
+        recipientLeagueMembership: true,
+      },
+    })
+    .sync();
 
-  if (!sideA || !sideB) throw new ORPCError("INTERNAL_SERVER_ERROR");
+  if (!trade) throw new ORPCError("INTERNAL_SERVER_ERROR");
 
-  const A = getCollection(tx, { collectionId: sideA.collectionId });
-  const B = getCollection(tx, { collectionId: sideB.collectionId });
-
-  if (!A || !B) throw new ORPCError("INTERNAL_SERVER_ERROR");
-
-  const Amap = new Map(
-    A.cardQuantities.map(({ cardName, quantity }) => [cardName, quantity]),
+  const requesterMap = new Map(
+    trade.requesterCardQuantities.map(({ cardName, quantity }) => [
+      cardName,
+      quantity,
+    ]),
   );
-  const Bmap = new Map(
-    B.cardQuantities.map(({ cardName, quantity }) => [cardName, quantity]),
+
+  const recipientMap = new Map(
+    trade.recipientCardQuantities.map(({ cardName, quantity }) => [
+      cardName,
+      quantity,
+    ]),
   );
 
-  const uniqueCards = new Set([...Amap.keys(), ...Bmap.keys()]);
+  const uniqueCards = new Set([...requesterMap.keys(), ...recipientMap.keys()]);
 
   // compute deltas
-  const deltasA = Array.from(uniqueCards.values()).map((cardName) => ({
+  const requesterDeltas = Array.from(uniqueCards.values()).map((cardName) => ({
     cardName,
-    quantity: (Bmap.get(cardName) ?? 0) - (Amap.get(cardName) ?? 0),
+    quantity:
+      (recipientMap.get(cardName) ?? 0) - (requesterMap.get(cardName) ?? 0),
   }));
-  const deltasB = deltasA.map(({ cardName, quantity }) => ({
+  const recipientDeltas = requesterDeltas.map(({ cardName, quantity }) => ({
     cardName,
     quantity: -quantity,
   }));
 
   applyCollectionDeltas(tx, {
-    collectionId: sideA.collectionId,
-    cardDeltas: deltasA,
+    collectionId: trade.requesterLeagueMembership.collectionId,
+    cardDeltas: requesterDeltas,
   });
   applyCollectionDeltas(tx, {
-    collectionId: sideB.collectionId,
-    cardDeltas: deltasB,
+    collectionId: trade.recipientLeagueMembership.collectionId,
+    cardDeltas: recipientDeltas,
   });
 
   // clean up trade request
+  deleteTrade(tx, { tradeId });
+}
+
+export function deleteTrade(tx: TX, { tradeId }: { tradeId: number }) {
+  const trade = tx.query.tradeRequest
+    .findFirst({
+      where: { id: tradeId },
+      with: {
+        requesterCardQuantities: true,
+        requesterLeagueMembership: true,
+        recipientCardQuantities: true,
+        recipientLeagueMembership: true,
+      },
+    })
+    .sync();
+
+  if (!trade) throw new ORPCError("INTERNAL_SERVER_ERROR");
+
   tx.delete(tradeRequest).where(eq(tradeRequest.id, tradeId)).run();
-  deleteCollection(tx, { collectionId: sideA.collectionId });
-  deleteCollection(tx, { collectionId: sideB.collectionId });
+  deleteCollection(tx, { collectionId: trade.requesterCollectionId });
+  deleteCollection(tx, { collectionId: trade.recipientCollectionId });
 }

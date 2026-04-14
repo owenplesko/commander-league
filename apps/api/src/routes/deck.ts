@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import { deck } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
 import { base } from "../orpc";
@@ -40,7 +40,11 @@ const createDeck = base.deck.create
     const deckId = context.env.db.transaction((tx) => {
       const { collectionId } = createCollection(tx);
 
-      setCollection(tx, { collectionId, cardQuantities: input.cardQuantities });
+      if (input.cardQuantities.length > 0)
+        setCollection(tx, {
+          collectionId,
+          cardQuantities: input.cardQuantities,
+        });
 
       const { deckId } = tx
         .insert(deck)

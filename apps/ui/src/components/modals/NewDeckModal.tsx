@@ -44,8 +44,7 @@ export function NewDeck({ userId, leagueId, visible, onHide }: Props) {
               {
                 leagueId,
                 name,
-                displayCardName: null,
-                cards: selectedCards.map(({ quantity, card }) => ({
+                cardQuantities: selectedCards.map(({ quantity, card }) => ({
                   quantity,
                   cardName: card.name,
                 })),
@@ -68,7 +67,7 @@ export function NewDeck({ userId, leagueId, visible, onHide }: Props) {
 
         <div style={{ overflow: "auto", maxHeight: "30rem" }}>
           <CardTable
-            cards={collection.cards}
+            cards={collection.cardQuantities}
             onSelectionChange={setSelectedCards}
             selectedRows={selectedCards}
           />
