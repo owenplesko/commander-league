@@ -1,27 +1,32 @@
 import classes from "./TradePreview.module.css";
-import type { TradeItems } from "@commander-league/contract/schemas";
 import { scryfallImgUrl } from "../lib/utils";
 import { Badge } from "primereact/badge";
+import {
+  CardQuantitySchema,
+  type CardQuantity,
+} from "@commander-league/contract/schemas";
 
 type Props = {
-  requesterItems: TradeItems;
-  recipientItems: TradeItems;
+  requesterCardQuantities: CardQuantity[];
+  recipientCardQuantities: CardQuantity[];
 };
 
-function ItemsPreview({ items: { cardQuantities } }: { items: TradeItems }) {
+function CardQuantityPreview({
+  cardQuantities,
+}: {
+  cardQuantities: CardQuantity[];
+}) {
   return (
     <div className={classes.itemsPreview}>
       <div className={classes.itemsPreviewScroller}>
-        {cardQuantities.map((item) => (
+        {cardQuantities.map(({ card, quantity }) => (
           <div style={{ position: "relative" }}>
             <img
               className={classes.itemsPreviewCard}
-              src={scryfallImgUrl(
-                item.card.data.printings[0]?.scryfallId ?? null,
-              )}
+              src={scryfallImgUrl(card.data.printings[0]?.scryfallId ?? null)}
             />
-            {item.quantity > 1 && (
-              <Badge className={classes.topRight} value={item.quantity} />
+            {quantity > 1 && (
+              <Badge className={classes.topRight} value={quantity} />
             )}
           </div>
         ))}
@@ -30,13 +35,16 @@ function ItemsPreview({ items: { cardQuantities } }: { items: TradeItems }) {
   );
 }
 
-export function TradeItemsPreview({ recipientItems, requesterItems }: Props) {
+export function TradeItemsPreview({
+  recipientCardQuantities: recipientItems,
+  requesterCardQuantities: requesterItems,
+}: Props) {
   return (
     <div className={classes.tradePreview}>
       <div className={classes.tradePreviewGrid}>
-        <ItemsPreview items={requesterItems} />
+        <CardQuantityPreview cardQuantities={requesterItems} />
         <i className="pi pi-arrow-right-arrow-left" />
-        <ItemsPreview items={recipientItems} />
+        <CardQuantityPreview cardQuantities={recipientItems} />
       </div>
     </div>
   );

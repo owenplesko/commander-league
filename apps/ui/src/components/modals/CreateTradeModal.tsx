@@ -43,22 +43,15 @@ export function CreateTradeRequestModal({
   async function onSubmit() {
     await mutation.mutateAsync({
       leagueId,
-      sides: [
-        {
-          userId: requester.id,
-          cardQuantites: requesterCards.map((entry) => ({
-            cardName: entry.card.name,
-            quantity: entry.quantity,
-          })),
-        },
-        {
-          userId: recipient.id,
-          cardQuantites: recipientCards.map((entry) => ({
-            cardName: entry.card.name,
-            quantity: entry.quantity,
-          })),
-        },
-      ],
+      offerCardQuantities: requesterCards.map((entry) => ({
+        cardName: entry.card.name,
+        quantity: entry.quantity,
+      })),
+      recipientId: recipient.id,
+      recipientCardQuantities: recipientCards.map((entry) => ({
+        cardName: entry.card.name,
+        quantity: entry.quantity,
+      })),
     });
     onHide();
     setRequesterCards([]);
@@ -96,8 +89,8 @@ export function CreateTradeRequestModal({
         <UserBadge user={recipient} />
       </div>
       <TradeItemsPreview
-        requesterItems={{ cardQuantities: requesterCards }}
-        recipientItems={{ cardQuantities: recipientCards }}
+        requesterCardQuantities={requesterCards}
+        recipientCardQuantities={recipientCards}
       />
       <TabView>
         <TabPanel header={requester.name}>

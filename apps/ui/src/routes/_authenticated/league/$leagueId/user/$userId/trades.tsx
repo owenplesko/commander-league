@@ -14,6 +14,7 @@ import type { MenuItem } from "primereact/menuitem";
 import { TradeItemsPreview } from "../../../../../../components/TradePreview";
 import { UserBadge } from "../../../../../../components/UserBadge";
 import { queryClient, orpc } from "../../../../../../lib/client";
+import { tr } from "zod/v4/locales";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/trades",
@@ -66,9 +67,6 @@ function RouteComponent() {
         }}
       >
         {trades.map((trade) => {
-          const tradeSideA = trade.sides[0]!;
-          const tradeSideB = trade.sides[1]!;
-
           return (
             <li key={trade.id} className="card">
               <div
@@ -79,11 +77,11 @@ function RouteComponent() {
                   marginBottom: "1rem",
                 }}
               >
-                <UserBadge user={tradeSideA.user} />
-                <TradeStatusTag status={tradeSideA.status} />
+                <UserBadge user={trade.requester} />
+                <TradeStatusTag status={trade.requesterStatus} />
                 <div style={{ flexGrow: 1 }} />
-                <UserBadge user={tradeSideB.user} />
-                <TradeStatusTag status={tradeSideB.status} />
+                <UserBadge user={trade.recipient} />
+                <TradeStatusTag status={trade.recipientStatus} />
                 <Button
                   text
                   size="small"
@@ -96,8 +94,8 @@ function RouteComponent() {
                 />
               </div>
               <TradeItemsPreview
-                requesterItems={tradeSideA}
-                recipientItems={tradeSideB}
+                requesterCardQuantities={trade.requesterCardQuantities}
+                recipientCardQuantities={trade.recipientCardQuantities}
               />
             </li>
           );
@@ -109,11 +107,21 @@ function RouteComponent() {
   const menuItems = useMemo(() => {
     if (!menuTrade) return [];
 
-    const userSide = menuTrade.sides.find((t) => t.user.id === user.id);
-    if (!userSide) return [];
+    const tradeRole =
+      menuTrade.requester.id === user.id
+        ? "requester"
+        : menuTrade.recipient.id
+          ? "recipient"
+          : null;
+    if (!tradeRole) return [];
+
+    const status =
+      tradeRole === "requester"
+        ? menuTrade.requesterStatus
+        : menuTrade.recipientStatus;
 
     let model: MenuItem[] = [];
-    if (userSide.status !== "accepted")
+    if (status !== "accepted")
       model.push({
         label: "Accept",
         command: () => {
@@ -125,7 +133,7 @@ function RouteComponent() {
         },
       });
 
-    if (userSide.status !== "rejected")
+    if (status !== "rejected")
       model.push({
         label: "Reject",
         command: () => {
@@ -137,7 +145,7 @@ function RouteComponent() {
         },
       });
 
-    if (menuTrade.ownerId === user.id)
+    if (tradeRole === "requester")
       model.push({
         label: "Delete",
         command: () => {
