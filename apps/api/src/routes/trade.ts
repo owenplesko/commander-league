@@ -10,10 +10,10 @@ import { ORPCError } from "@orpc/server";
 import {
   executeTrade,
   deleteTrade as deleteTradeProcedure,
-} from "../procedures/trade";
-import { createCollection } from "../procedures/collection";
+} from "../services/trade";
+import { createCollection } from "../services/collection";
 
-const listTrades = base.trade.list
+const listTradesController = base.trade.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const trades = context.env.db.transaction((tx) => {
@@ -58,7 +58,7 @@ const listTrades = base.trade.list
     return trades;
   });
 
-const createTrade = base.trade.create
+const createTradeController = base.trade.create
   .use(memberOfLeague)
   .handler(
     ({
@@ -119,7 +119,7 @@ const createTrade = base.trade.create
     },
   );
 
-const setTradeStatus = base.trade.setStatus
+const setTradeStatusController = base.trade.setStatus
   .use(tradeParticipantGuard)
   .handler(({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -147,7 +147,7 @@ const setTradeStatus = base.trade.setStatus
     });
   });
 
-const deleteTrade = base.trade.delete
+const deleteTradeController = base.trade.delete
   .use(tradeRequesterGuard)
   .handler(async ({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -156,8 +156,8 @@ const deleteTrade = base.trade.delete
   });
 
 export const tradeRoutes = {
-  list: listTrades,
-  create: createTrade,
-  setStatus: setTradeStatus,
-  delete: deleteTrade,
+  list: listTradesController,
+  create: createTradeController,
+  setStatus: setTradeStatusController,
+  delete: deleteTradeController,
 };

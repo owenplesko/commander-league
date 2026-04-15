@@ -6,9 +6,9 @@ import {
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
 import { ORPCError } from "@orpc/server";
-import { setCollection as setCollectionProcedure } from "../procedures/collection";
+import { setCollection } from "../services/collection";
 
-const getCollection = base.collection.get
+const getCollectionController = base.collection.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leagueMember.findFirst({
@@ -27,7 +27,7 @@ const getCollection = base.collection.get
     return res.collection;
   });
 
-const setCollection = base.collection.set
+const setCollectionController = base.collection.set
   .use(selfOrLeagueOwner)
   .handler(async ({ input, context, errors }) => {
     context.env.db.transaction((tx) => {
@@ -68,7 +68,7 @@ const setCollection = base.collection.set
         });
       }
 
-      setCollectionProcedure(tx, {
+      setCollection(tx, {
         collectionId,
         cardQuantities: input.cardQuantites,
       });
@@ -76,6 +76,6 @@ const setCollection = base.collection.set
   });
 
 export const collectionRoutes = {
-  get: getCollection,
-  set: setCollection,
+  get: getCollectionController,
+  set: setCollectionController,
 };

@@ -9,9 +9,9 @@ import {
   createCollection,
   deleteCollection,
   setCollection,
-} from "../procedures/collection";
+} from "../services/collection";
 
-const listDecks = base.deck.list
+const listDecksController = base.deck.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.deck.findMany({
@@ -20,7 +20,7 @@ const listDecks = base.deck.list
     return res;
   });
 
-const getDeck = base.deck.get
+const getDeckController = base.deck.get
   .use(authGuard)
   .use(deckVisibile)
   .handler(async ({ input, context }) => {
@@ -34,7 +34,7 @@ const getDeck = base.deck.get
     return res;
   });
 
-const createDeck = base.deck.create
+const createDeckController = base.deck.create
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const deckId = context.env.db.transaction((tx) => {
@@ -70,7 +70,7 @@ const createDeck = base.deck.create
     return res;
   });
 
-const updateDeck = base.deck.update
+const updateDeckController = base.deck.update
   .use(authGuard)
   .use(deckOwner)
   .handler(async ({ input, context }) => {
@@ -113,7 +113,7 @@ const updateDeck = base.deck.update
     return res;
   });
 
-const deleteDeck = base.deck.delete
+const deleteDeckController = base.deck.delete
   .use(authGuard)
   .use(deckOwner)
   .handler(({ input, context }) => {
@@ -135,9 +135,9 @@ const deleteDeck = base.deck.delete
   });
 
 export const deckRoutes = {
-  list: listDecks,
-  get: getDeck,
-  create: createDeck,
-  update: updateDeck,
-  delete: deleteDeck,
+  list: listDecksController,
+  get: getDeckController,
+  create: createDeckController,
+  update: updateDeckController,
+  delete: deleteDeckController,
 };
