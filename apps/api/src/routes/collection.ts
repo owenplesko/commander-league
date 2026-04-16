@@ -1,5 +1,3 @@
-import { card } from "../db/schema";
-import { eq, sql, isNull } from "drizzle-orm";
 import { base } from "../orpc";
 import {
   memberOfLeague,
@@ -7,6 +5,9 @@ import {
 } from "../middleware/leagueMembership";
 import { ORPCError } from "@orpc/server";
 import { setCollection } from "../services/collection";
+import { getLeagueMemberCollectionId } from "../services/leagueMember";
+import db from "../db";
+import { getInvalidCardNames } from "../services/card";
 
 const getCollectionController = base.collection.get
   .use(memberOfLeague)
@@ -29,46 +30,27 @@ const getCollectionController = base.collection.get
 
 const setCollectionController = base.collection.set
   .use(selfOrLeagueOwner)
-  .handler(async ({ input, context, errors }) => {
-    context.env.db.transaction((tx) => {
-      const res = tx.query.leagueMember
-        .findFirst({
-          columns: { collectionId: true },
-          where: {
-            userId: input.userId,
-            leagueId: input.leagueId,
-          },
-        })
-        .sync();
-      if (!res) throw new ORPCError("NOT_FOUND");
-      const { collectionId } = res;
+  .handler(async ({ input, errors }) => {
+    const invalidCardNames = getInvalidCardNames({
+      cardNames: input.cardQuantites.map(({ cardName }) => cardName),
+    });
+    if (invalidCardNames.length > 0) {
+      throw errors.BAD_REQUEST({
+        data: {
+          invalidCardNames,
+        },
+      });
+    }
 
-      const valuesSql = sql.join(
-        input.cardQuantites.map((c) => sql`(${c.cardName})`),
-        sql`,`,
-      );
+    db.transaction((tx) => {
+      const collectionId = getLeagueMemberCollectionId({
+        userId: input.userId,
+        leagueId: input.leagueId,
+        qc: tx,
+      });
+      if (!collectionId) throw new ORPCError("NOT_FOUND");
 
-      const inputCardsSubquery = tx
-        .select({ cardName: sql<string>`column1`.as("cardName") })
-        .from(sql`(values ${valuesSql})`)
-        .as("input_cards");
-
-      const invalidCards = tx
-        .select({ cardName: inputCardsSubquery.cardName })
-        .from(inputCardsSubquery)
-        .leftJoin(card, eq(inputCardsSubquery.cardName, card.name))
-        .where(isNull(card.name))
-        .all();
-
-      if (invalidCards.length > 0) {
-        throw errors.BAD_REQUEST({
-          data: {
-            invalidCardNames: invalidCards.map(({ cardName }) => cardName),
-          },
-        });
-      }
-
-      setCollection(tx, {
+      setCollection({
         collectionId,
         cardQuantities: input.cardQuantites,
       });
