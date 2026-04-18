@@ -122,7 +122,7 @@ export function getMissingCards({
 }: {
   requiredCollectionId: number;
   availableCollectionId: number;
-  qc?: QueryClient;
+  qc: QueryClient;
 }) {
   const required = alias(collectionCard, "required");
   const available = alias(collectionCard, "available");

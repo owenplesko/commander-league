@@ -45,10 +45,11 @@ const createLeagueController = base.league.create
     const newLeague = context.env.db.transaction((tx) => {
       const newLeague = tx.insert(league).values(input).returning().get();
 
-      createLeagueMember(tx, {
+      createLeagueMember({
         leagueId: newLeague.id,
         userId: context.userId,
         role: "owner",
+        qc: tx,
       });
 
       return newLeague;
@@ -75,10 +76,11 @@ const joinLeagueController = base.league.join
 
       if (!leagueRes) throw new ORPCError("NOT_FOUND");
 
-      createLeagueMember(tx, {
+      createLeagueMember({
         leagueId: leagueRes.league.id,
         userId: context.userId,
         role: "player",
+        qc: tx,
       });
 
       tx.update(inviteCode)

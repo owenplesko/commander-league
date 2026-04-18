@@ -11,7 +11,7 @@ import {
   executeTrade,
   deleteTrade as deleteTradeProcedure,
 } from "../services/trade";
-import { createCollection } from "../services/collection";
+import { createCollection, setCollection } from "../services/collection";
 
 const listTradesController = base.trade.list
   .use(memberOfLeague)
@@ -71,10 +71,19 @@ const createTradeController = base.trade.create
       context,
     }) => {
       const trade = context.env.db.transaction((tx) => {
-        const { collectionId: requesterCollectionId } = createCollection(tx, {
+        const { collectionId: requesterCollectionId } = createCollection({
+          qc: tx,
+        });
+        setCollection({
+          collectionId: requesterCollectionId,
           cardQuantities: offerCardQuantities,
         });
-        const { collectionId: recipientCollectionId } = createCollection(tx, {
+
+        const { collectionId: recipientCollectionId } = createCollection({
+          qc: tx,
+        });
+        setCollection({
+          collectionId: recipientCollectionId,
           cardQuantities: recipientCardQuantities,
         });
 
@@ -143,16 +152,18 @@ const setTradeStatusController = base.trade.setStatus
         trade.requesterStatus === "accepted" &&
         trade.recipientStatus === "accepted"
       )
-        executeTrade(tx, { tradeId: input.tradeId, leagueId: input.leagueId });
+        executeTrade({
+          tradeId: input.tradeId,
+          leagueId: input.leagueId,
+          qc: tx,
+        });
     });
   });
 
 const deleteTradeController = base.trade.delete
   .use(tradeRequesterGuard)
-  .handler(async ({ input, context }) => {
-    context.env.db.transaction((tx) => {
-      deleteTradeProcedure(tx, { tradeId: input.tradeId });
-    });
+  .handler(async ({ input }) => {
+    deleteTradeProcedure({ tradeId: input.tradeId });
   });
 
 export const tradeRoutes = {
