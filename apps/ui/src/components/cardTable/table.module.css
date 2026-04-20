@@ -31,9 +31,16 @@
   display: flex;
   gap: 0.25rem;
   font-weight: 500;
-  margin-bottom: 0.5rem;
-  .count {
-    margin-left: auto;
+  background-color: var(--surface-c);
+  padding: 0.5rem;
+  border-radius: var(--border-radius);
+  cursor: pointer;
+}
+
+.listSeparator {
+  padding: 0.25rem 0;
+  &:not(:first-child) {
+    border-top: 1px solid var(--surface-border);
   }
 }
 
@@ -43,15 +50,12 @@
   gap: 0.25rem;
   cursor: pointer;
   padding: 0.5rem;
-  border: 1px solid transparent;
-  border-top-color: var(--surface-border);
+  border-radius: var(--border-radius);
   &:hover {
     background-color: var(--surface-hover);
   }
   &.selected {
     cursor: default;
-    border-color: var(--primary-color);
-    border-radius: var(--border-radius);
     background-color: var(--highlight-bg);
     color: var(--highlight-text-color);
   }

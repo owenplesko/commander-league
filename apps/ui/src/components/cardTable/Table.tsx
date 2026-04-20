@@ -11,6 +11,7 @@ import {
 import { Cell } from "./Cell";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 import { HoverCard } from "../HoverCard";
+import { PrimeIcons } from "primereact/api";
 
 type Props = {
   cards: CardQuantity[];
@@ -69,7 +70,11 @@ export function CardTable({
             <div>
               <div className={classes.groupHeader}>
                 {groupMethods.header(groupId)}
-                <span className={classes.count}>{`(${count})`}</span>
+                <span>{`(${count})`}</span>
+                <i
+                  style={{ marginLeft: "auto" }}
+                  className={PrimeIcons.CHEVRON_UP}
+                />
               </div>
               <ul>
                 {cardEntries.map((cardEntry) => (
@@ -77,6 +82,7 @@ export function CardTable({
                     key={cardEntry.card.name}
                     onMouseEnter={() => setHoverRow(cardEntry)}
                     onMouseLeave={() => setHoverRow(null)}
+                    className={classes.listSeparator}
                   >
                     <Cell
                       row={cardEntry}
