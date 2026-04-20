@@ -42,36 +42,22 @@ function RouteComponent() {
     orpc.collection.get.queryOptions({ input: { leagueId, userId } }),
   );
 
-  const [hoveredRow, setHoveredRow] = useState<CardQuantity | null>(null);
   const [modal, setModal] = useState<"bulk-edit" | null>(null);
-
-  useEffect(() => {
-    setHoveredRow(null);
-  }, [leagueId, userId]);
 
   return (
     <>
       <h1>{`${member.user.name}'s Collection`}</h1>
       <Button
+        style={{ marginRight: "auto" }}
         label="Bulk Edit"
         onClick={() => {
           setModal("bulk-edit");
         }}
       />
       <div className={classes.layout}>
-        <div>
-          <img
-            className={classes.preview}
-            width={250}
-            src={scryfallImgUrl(
-              hoveredRow?.card.data.printings.at(0)!.scryfallId ?? null,
-            )}
-          />
+        <div className="card">
+          <CardTable cards={collection.cardQuantities} />
         </div>
-        <CardTable
-          cards={collection.cardQuantities}
-          onRowHover={(c) => setHoveredRow(c)}
-        />
       </div>
       <CollectionBulkEditModal
         collection={collection}

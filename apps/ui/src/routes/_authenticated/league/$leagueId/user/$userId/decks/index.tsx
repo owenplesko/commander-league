@@ -30,7 +30,11 @@ function RouteComponent() {
 
   return (
     <>
-      <Button label="New" onClick={() => setModal("create")} />
+      <Button
+        style={{ marginRight: "auto" }}
+        label="New"
+        onClick={() => setModal("create")}
+      />
       <div className={classes.deckGrid}>
         {decks.map((deck) => (
           <Card

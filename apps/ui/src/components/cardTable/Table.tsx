@@ -5,6 +5,7 @@ import { useState } from "react";
 import { type GroupOption, groupOptions, organizeCards } from "./grouping";
 import { Cell } from "./Cell";
 import type { CardQuantity } from "@commander-league/contract/schemas";
+import { HoverCard } from "../HoverCard";
 
 type Props = {
   cards: CardQuantity[];
@@ -15,10 +16,10 @@ type Props = {
 
 export function CardTable({
   cards,
-  onRowHover = () => {},
   onSelectionChange = () => {},
   selectedRows = [],
 }: Props) {
+  const [hoverRow, setHoverRow] = useState<CardQuantity | null>(null);
   const [groupMethods, setGroupMethods] = useState<GroupOption>(
     groupOptions[0]!,
   );
@@ -26,44 +27,50 @@ export function CardTable({
   const organizedCards = organizeCards(cards, { groupOption: groupMethods });
 
   return (
-    <div>
-      {/* Header */}
-      <div className={classes.header}>
-        <FloatLabel>
-          <Dropdown
-            options={groupOptions}
-            value={groupMethods}
-            onChange={(e) => setGroupMethods(e.value)}
-            optionLabel="label"
-            optionValue="methods"
-            useOptionAsValue={true}
-          />
-          <label>Group</label>
-        </FloatLabel>
-      </div>
-      {/* Content */}
-      <div className={classes.content}>
-        {organizedCards.map(({ groupId, count, cardEntries }) => (
-          <div>
-            <div className={classes.groupHeader}>
-              {groupMethods.header(groupId)}
-              <span className={classes.count}>{`(${count})`}</span>
+    <>
+      <div>
+        {/* Header */}
+        <div className={classes.header}>
+          <FloatLabel>
+            <Dropdown
+              options={groupOptions}
+              value={groupMethods}
+              onChange={(e) => setGroupMethods(e.value)}
+              optionLabel="label"
+              optionValue="methods"
+              useOptionAsValue={true}
+            />
+            <label>Group</label>
+          </FloatLabel>
+        </div>
+        {/* Content */}
+        <div className={classes.content}>
+          {organizedCards.map(({ groupId, count, cardEntries }) => (
+            <div>
+              <div className={classes.groupHeader}>
+                {groupMethods.header(groupId)}
+                <span className={classes.count}>{`(${count})`}</span>
+              </div>
+              <ul>
+                {cardEntries.map((cardEntry) => (
+                  <li
+                    key={cardEntry.card.name}
+                    onMouseEnter={() => setHoverRow(cardEntry)}
+                    onMouseLeave={() => setHoverRow(null)}
+                  >
+                    <Cell
+                      row={cardEntry}
+                      onSelectionChange={onSelectionChange}
+                      selectedRows={selectedRows}
+                    />
+                  </li>
+                ))}
+              </ul>
             </div>
-            <ul>
-              {cardEntries.map((cardEntry) => (
-                <li key={cardEntry.card.name}>
-                  <Cell
-                    row={cardEntry}
-                    onSelectionChange={onSelectionChange}
-                    selectedRows={selectedRows}
-                    onRowHover={onRowHover}
-                  />
-                </li>
-              ))}
-            </ul>
-          </div>
-        ))}
+          ))}
+        </div>
       </div>
-    </div>
+      <HoverCard card={hoverRow?.card} />
+    </>
   );
 }

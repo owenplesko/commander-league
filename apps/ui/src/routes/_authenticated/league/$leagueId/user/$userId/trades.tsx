@@ -14,7 +14,6 @@ import type { MenuItem } from "primereact/menuitem";
 import { TradeItemsPreview } from "../../../../../../components/TradePreview";
 import { UserBadge } from "../../../../../../components/UserBadge";
 import { queryClient, orpc } from "../../../../../../lib/client";
-import { tr } from "zod/v4/locales";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/trades",

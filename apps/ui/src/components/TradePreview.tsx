@@ -1,10 +1,7 @@
 import classes from "./TradePreview.module.css";
 import { scryfallImgUrl } from "../lib/utils";
 import { Badge } from "primereact/badge";
-import {
-  CardQuantitySchema,
-  type CardQuantity,
-} from "@commander-league/contract/schemas";
+import { type CardQuantity } from "@commander-league/contract/schemas";
 
 type Props = {
   requesterCardQuantities: CardQuantity[];

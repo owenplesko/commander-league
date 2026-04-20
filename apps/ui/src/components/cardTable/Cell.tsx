@@ -75,15 +75,9 @@ type CellProps = {
   row: CardQuantity;
   selectedRows: CardQuantity[];
   onSelectionChange: (selection: CardQuantity[]) => void;
-  onRowHover: (c: CardQuantity) => void;
 };
 
-export function Cell({
-  row,
-  selectedRows,
-  onSelectionChange,
-  onRowHover,
-}: CellProps) {
+export function Cell({ row, selectedRows, onSelectionChange }: CellProps) {
   const selected = selectedRows?.find((r) => r.card.name === row.card.name);
 
   return (
@@ -92,7 +86,6 @@ export function Cell({
         classes.item,
         selected ? classes.selected : undefined,
       )}
-      onMouseEnter={onRowHover ? () => onRowHover(row) : undefined}
       onClick={
         selected
           ? undefined
