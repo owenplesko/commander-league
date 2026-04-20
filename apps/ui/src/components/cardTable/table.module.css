@@ -37,6 +37,18 @@
   cursor: pointer;
 }
 
+.groupContent {
+  display: grid;
+  grid-template-rows: 1fr;
+  transition: grid-template-rows 0.2s ease;
+}
+.groupContent.collapsed {
+  grid-template-rows: 0fr;
+}
+.groupContent > ul {
+  overflow: hidden;
+}
+
 .listSeparator {
   padding: 0.25rem 0;
   &:not(:first-child) {

@@ -36,6 +36,17 @@ export function CardTable({
     sortOption,
   });
 
+  const [collapsedGroups, setCollapsedGroups] = useState<Set<string>>(
+    new Set(),
+  );
+
+  function toggleGroup(groupId: string) {
+    setCollapsedGroups((prev) => {
+      const next = new Set(prev);
+      next.has(groupId) ? next.delete(groupId) : next.add(groupId);
+      return next;
+    });
+  }
   return (
     <>
       <div>
@@ -66,34 +77,45 @@ export function CardTable({
         </div>
         {/* Content */}
         <div className={classes.content}>
-          {organizedCards.map(({ groupId, count, cardEntries }) => (
-            <div>
-              <div className={classes.groupHeader}>
-                {groupMethods.header(groupId)}
-                <span>{`(${count})`}</span>
-                <i
-                  style={{ marginLeft: "auto" }}
-                  className={PrimeIcons.CHEVRON_UP}
-                />
+          {organizedCards.map(({ groupId, count, cardEntries }) => {
+            const collapsed = collapsedGroups.has(groupId);
+            return (
+              <div onClick={() => toggleGroup(groupId)}>
+                <div className={classes.groupHeader}>
+                  {groupMethods.header(groupId)}
+                  <span>{`(${count})`}</span>
+                  <i
+                    style={{ marginLeft: "auto" }}
+                    className={
+                      collapsed
+                        ? PrimeIcons.CHEVRON_DOWN
+                        : PrimeIcons.CHEVRON_UP
+                    }
+                  />
+                </div>
+                <div
+                  className={`${classes.groupContent} ${collapsed ? classes.collapsed : ""}`}
+                >
+                  <ul>
+                    {cardEntries.map((cardEntry) => (
+                      <li
+                        key={cardEntry.card.name}
+                        onMouseEnter={() => setHoverRow(cardEntry)}
+                        onMouseLeave={() => setHoverRow(null)}
+                        className={classes.listSeparator}
+                      >
+                        <Cell
+                          row={cardEntry}
+                          onSelectionChange={onSelectionChange}
+                          selectedRows={selectedRows}
+                        />
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-              <ul>
-                {cardEntries.map((cardEntry) => (
-                  <li
-                    key={cardEntry.card.name}
-                    onMouseEnter={() => setHoverRow(cardEntry)}
-                    onMouseLeave={() => setHoverRow(null)}
-                    className={classes.listSeparator}
-                  >
-                    <Cell
-                      row={cardEntry}
-                      onSelectionChange={onSelectionChange}
-                      selectedRows={selectedRows}
-                    />
-                  </li>
-                ))}
-              </ul>
-            </div>
-          ))}
+            );
+          })}
         </div>
       </div>
       <HoverCard card={hoverRow?.card} />
