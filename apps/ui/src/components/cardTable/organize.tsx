@@ -1,7 +1,7 @@
 import type { Card, CardQuantity } from "@commander-league/contract/schemas";
 import type { ReactNode } from "react";
 
-type CardGroup = {
+export type CardGroup = {
   groupId: string;
   count: number;
   cardEntries: CardQuantity[];

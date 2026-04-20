@@ -10,3 +10,17 @@ export function scryfallImgUrl(scryfallId: string | null) {
   const image: string = `https://cards.scryfall.io/${fileType}/${fileFace}/${dir1}/${dir2}/${fileName}.${fileFormat}`;
   return image;
 }
+
+/*
+ returns index of smallest number in arr
+ **/
+export function minIndex(arr: number[]) {
+  if (arr.length === 0) throw Error("cannot get min index of empty array");
+
+  let minIndex = 0;
+  for (const [i, n] of arr.entries()) {
+    if (n < arr[minIndex]!) minIndex = i;
+  }
+
+  return minIndex;
+}
