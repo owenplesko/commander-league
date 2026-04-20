@@ -2,7 +2,12 @@ import classes from "./table.module.css";
 import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import { useState } from "react";
-import { type GroupOption, groupOptions, organizeCards } from "./grouping";
+import {
+  type GroupOption,
+  groupOptions,
+  organizeCards,
+  sortOptions,
+} from "./organize";
 import { Cell } from "./Cell";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 import { HoverCard } from "../HoverCard";
@@ -23,8 +28,12 @@ export function CardTable({
   const [groupMethods, setGroupMethods] = useState<GroupOption>(
     groupOptions[0]!,
   );
+  const [sortOption, setSortOption] = useState(sortOptions[0]!);
 
-  const organizedCards = organizeCards(cards, { groupOption: groupMethods });
+  const organizedCards = organizeCards(cards, {
+    groupOption: groupMethods,
+    sortOption,
+  });
 
   return (
     <>
@@ -37,10 +46,21 @@ export function CardTable({
               value={groupMethods}
               onChange={(e) => setGroupMethods(e.value)}
               optionLabel="label"
-              optionValue="methods"
+              variant="filled"
               useOptionAsValue={true}
             />
-            <label>Group</label>
+            <label>Group by:</label>
+          </FloatLabel>
+          <FloatLabel>
+            <Dropdown
+              options={sortOptions}
+              value={sortOption}
+              onChange={(e) => setSortOption(e.value)}
+              optionLabel="label"
+              variant="filled"
+              useOptionAsValue={true}
+            />
+            <label>Sort by:</label>
           </FloatLabel>
         </div>
         {/* Content */}

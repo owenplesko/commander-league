@@ -9,11 +9,14 @@ type CardGroup = {
 
 export function organizeCards(
   cardEntries: CardQuantity[],
-  { groupOption }: { groupOption: GroupOption },
+  {
+    groupOption,
+    sortOption,
+  }: { groupOption: GroupOption; sortOption: SortOption },
 ): CardGroup[] {
   const cardGroups: Record<string, CardGroup> = {};
 
-  for (const cardEntry of cardEntries) {
+  for (const cardEntry of cardEntries.sort(sortOption.compare)) {
     const groupId = groupOption.groupId(cardEntry.card);
 
     if (!(groupId in cardGroups)) {
@@ -75,4 +78,17 @@ export const groupOptions: GroupOption[] = [
       return subTypes.join(" ") || "N/A";
     },
   },
-];
+] as const;
+
+export type SortOption = {
+  label: string;
+  compare: (a: CardQuantity, b: CardQuantity) => number;
+};
+
+export const sortOptions: SortOption[] = [
+  { label: "Name", compare: (a, b) => (a.card.name > b.card.name ? 1 : -1) },
+  {
+    label: "Mana",
+    compare: (a, b) => a.card.data.manaValue - b.card.data.manaValue,
+  },
+] as const;
