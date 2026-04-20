@@ -30,8 +30,8 @@ function RouteComponent() {
 
   return (
     <>
+      <h1>{deck.name}</h1>
       <div>
-        <h1>{deck.name}</h1>
         <Button label="Edit" onClick={() => setModal("edit")} />
         <Button
           label="Delete"
@@ -43,6 +43,8 @@ function RouteComponent() {
             });
           }}
         />
+      </div>
+      <div className="card">
         <CardTable cards={deck.cardQuantities} />
       </div>
       <EditDeck
