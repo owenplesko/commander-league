@@ -22,6 +22,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const { leagueId, userId } = Route.useParams();
+  const { leagueMembership } = Route.useRouteContext();
   const { data: decks } = useSuspenseQuery(
     orpc.deck.list.queryOptions({ input: { leagueId, userId } }),
   );
@@ -50,8 +51,8 @@ function RouteComponent() {
         ))}
       </div>
       <NewDeck
-        userId={userId}
         leagueId={leagueId}
+        leagueMember={leagueMembership}
         visible={modal === "create"}
         onHide={() => setModal(null)}
       />

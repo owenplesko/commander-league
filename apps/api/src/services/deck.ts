@@ -3,17 +3,21 @@ import type { QueryClient } from "../db";
 import db from "../db";
 import { withTransaction } from "../db/helper";
 import { deck } from "../db/schema";
-import { createCollection, deleteCollection } from "./collection";
+import { createCollection } from "./collection";
 
 export function createDeck({
   userId,
   leagueId,
   name,
+  commanderCardName,
+  partnerCardName,
   qc = db,
 }: {
   userId: string;
   leagueId: number;
   name: string;
+  commanderCardName: string;
+  partnerCardName?: string;
   qc?: QueryClient;
 }) {
   return withTransaction(qc, (tx) => {
@@ -21,7 +25,14 @@ export function createDeck({
 
     const { deckId } = tx
       .insert(deck)
-      .values({ userId, leagueId, name, collectionId })
+      .values({
+        userId,
+        leagueId,
+        name,
+        collectionId,
+        commanderCardName,
+        partnerCardName,
+      })
       .returning({ deckId: deck.id })
       .get();
 
@@ -39,7 +50,12 @@ export function getDeck({
   const res = qc.query.deck
     .findFirst({
       where: { id: deckId },
-      with: { owner: true, cardQuantities: { with: { card: true } } },
+      with: {
+        owner: true,
+        cardQuantities: { with: { card: true } },
+        commanderCard: true,
+        partnerCard: true,
+      },
     })
     .sync()!;
 

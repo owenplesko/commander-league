@@ -6,6 +6,7 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { EditDeck } from "../../../../../../../components/modals/EditDeckModal";
 import { useState } from "react";
+import type { CardGroup } from "../../../../../../../components/cardTable/organize";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
@@ -28,6 +29,12 @@ function RouteComponent() {
   const deleteMutation = useMutation(orpc.deck.delete.mutationOptions());
   const [modal, setModal] = useState<"edit" | null>(null);
 
+  const commanderGroup: CardGroup = {
+    groupId: "commander",
+    count: 1,
+    cardEntries: [{ card: deck.commanderCard, quantity: 1 }],
+  };
+
   return (
     <>
       <h1>{deck.name}</h1>
@@ -45,7 +52,10 @@ function RouteComponent() {
         />
       </div>
       <div className="card">
-        <CardTable cards={deck.cardQuantities} />
+        <CardTable
+          pinnedGroups={[commanderGroup]}
+          cards={deck.cardQuantities}
+        />
       </div>
       <EditDeck
         deckId={deckId}

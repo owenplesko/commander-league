@@ -38,18 +38,18 @@ export function searchCards({
   let query = (
     collectionId
       ? qc
-          .select({ cardName: card.name })
+          .select({ cardName: collectionCard.cardName })
           .from(collectionCard)
           .where(
             and(
               eq(collectionCard.collectionId, collectionId),
-              like(card.name, cardName),
+              like(collectionCard.cardName, `%${cardName}%`),
             ),
           )
       : qc
           .select({ cardName: card.name })
           .from(card)
-          .where(like(card.name, cardName))
+          .where(like(card.name, `%${cardName}%`))
   ).limit(limit);
 
   return query.all().map(({ cardName }) => cardName);

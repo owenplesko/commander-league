@@ -69,5 +69,14 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.deck.collectionId,
       to: r.collectionCard.collectionId,
     }),
+    commanderCard: r.one.card({
+      from: r.deck.commanderCardName,
+      to: r.card.name,
+      optional: false,
+    }),
+    partnerCard: r.one.card({
+      from: r.deck.partnerCardName,
+      to: r.card.name,
+    }),
   },
 }));

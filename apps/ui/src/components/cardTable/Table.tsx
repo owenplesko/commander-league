@@ -17,6 +17,7 @@ import { minIndex } from "../../lib/utils";
 
 type Props = {
   cards: CardQuantity[];
+  pinnedGroups?: CardGroup[];
   onRowHover?: (c: CardQuantity) => void;
   onSelectionChange?: (selection: CardQuantity[]) => void;
   selectedRows?: CardQuantity[];
@@ -24,6 +25,7 @@ type Props = {
 
 export function CardTable({
   cards,
+  pinnedGroups = [],
   onSelectionChange = () => {},
   selectedRows = [],
 }: Props) {
@@ -33,10 +35,13 @@ export function CardTable({
   );
   const [sortOption, setSortOption] = useState(sortOptions[0]!);
 
-  const organizedCards = organizeCards(cards, {
-    groupOption: groupMethods,
-    sortOption,
-  });
+  const organizedCards = [
+    ...pinnedGroups,
+    ...organizeCards(cards, {
+      groupOption: groupMethods,
+      sortOption,
+    }),
+  ];
 
   const groupBins = useMemo(() => {
     const columns = 3;

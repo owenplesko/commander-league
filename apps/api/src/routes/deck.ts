@@ -13,6 +13,9 @@ const listDecksController = base.deck.list
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.deck.findMany({
       where: { leagueId: input.leagueId, userId: input.userId },
+      with: {
+        commanderCard: true,
+      },
     });
     return res;
   });
@@ -34,6 +37,8 @@ const createDeckController = base.deck.create
       userId: context.userId,
       leagueId: input.leagueId,
       name: input.name,
+      commanderCardName: input.commanderCardName,
+      partnerCardName: input.partnerCardName,
     });
 
     const deck = getDeck({ deckId });

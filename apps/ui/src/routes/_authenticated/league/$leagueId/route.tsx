@@ -25,11 +25,14 @@ import { CreateTradeRequestModal } from "../../../../components/modals/CreateTra
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
   params: z.object({ leagueId: z.coerce.number() }),
-  beforeLoad: async ({ params }) => {
+  beforeLoad: async ({ params, context }) => {
     try {
-      await queryClient.ensureQueryData(
-        orpc.league.get.queryOptions({ input: { leagueId: params.leagueId } }),
+      const leagueMembership = await queryClient.ensureQueryData(
+        orpc.league.member.get.queryOptions({
+          input: { leagueId: params.leagueId, userId: context.user.id },
+        }),
       );
+      return { leagueMembership };
     } catch {
       throw redirect({ to: "/" });
     }
@@ -45,7 +48,7 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
 
 function RouteComponent() {
   const { leagueId } = Route.useParams();
-  const { user } = Route.useRouteContext();
+  const { user, leagueMembership } = Route.useRouteContext();
 
   const router = useRouter();
   const leagueMenuRef = useRef<Menu>(null);
@@ -64,8 +67,6 @@ function RouteComponent() {
   const { data: members } = useSuspenseQuery(
     orpc.league.member.list.queryOptions({ input: { leagueId } }),
   );
-
-  const membership = members.find((member) => member.user.id === user.id);
 
   const leaveLeague = useMutation(
     orpc.league.member.delete.mutationOptions({
@@ -96,7 +97,7 @@ function RouteComponent() {
   );
 
   const leagueMenuItems: MenuItem[] =
-    membership?.role === "owner"
+    leagueMembership?.role === "owner"
       ? [
           {
             label: "Invite Code",
@@ -161,7 +162,7 @@ function RouteComponent() {
 
   const memberMenuItems: MenuItem[] = [
     { label: "Trade", command: () => setModal("trade") },
-    ...(membership?.role === "owner" ? adminMenuItems : []),
+    ...(leagueMembership?.role === "owner" ? adminMenuItems : []),
   ];
 
   return (
@@ -250,7 +251,7 @@ function RouteComponent() {
         onHide={() => setModal(null)}
       />
       <Suspense>
-        {membership?.role === "owner" && (
+        {leagueMembership?.role === "owner" && (
           <InviteCode
             leagueId={leagueId}
             visible={modal === "invite"}

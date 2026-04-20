@@ -126,7 +126,10 @@ export const deck = sqliteTable(
       .notNull()
       .references(() => user.id),
     name: text().notNull(),
-    displayCardName: text().references(() => card.name),
+    commanderCardName: text()
+      .references(() => card.name)
+      .notNull(),
+    partnerCardName: text().references(() => card.name),
     collectionId: integer()
       .notNull()
       .references(() => collection.id),

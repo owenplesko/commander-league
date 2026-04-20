@@ -5,7 +5,7 @@ import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
 
 export const DeckListEntrySchema = z.object({
   id: z.number(),
-  displayCardName: CardSchema.shape.name.nullable(),
+  commanderCard: CardSchema,
   name: z.string(),
 });
 export type DeckListEntry = z.infer<typeof DeckListEntrySchema>;
@@ -15,6 +15,8 @@ export const DeckSchema = DeckListEntrySchema.extend({
   name: z.string(),
   owner: UserSchema,
   cardQuantities: CardQuantitySchema.array(),
+  commanderCard: CardSchema,
+  partnerCard: CardSchema.nullish(),
 });
 export type Deck = z.infer<typeof DeckSchema>;
 
@@ -26,6 +28,8 @@ export type GetDeckInput = z.infer<typeof GetDeckSchema>;
 export const CreateDeckBodySchema = z.object({
   leagueId: z.number(),
   name: z.string(),
+  commanderCardName: z.string(),
+  partnerCardName: z.string().optional(),
 });
 
 export const UpdateDeckBodySchema = CreateDeckBodySchema.extend({
