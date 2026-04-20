@@ -22,3 +22,9 @@ export const CardSchema = z.object({
   data: CardDataSchema,
 });
 export type Card = z.infer<typeof CardSchema>;
+
+export const CardSearchParams = z.object({
+  cardName: z.string(),
+  collectionId: z.number().optional(),
+  limit: z.number().optional(),
+});
