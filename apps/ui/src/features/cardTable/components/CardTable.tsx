@@ -2,7 +2,7 @@ import { Dropdown } from "primereact/dropdown";
 import { FloatLabel } from "primereact/floatlabel";
 import classes from "../styles/Table.module.css";
 import { useState } from "react";
-import type { GroupingMethods } from "../types/cardGrouping";
+import type { CardGroup, GroupingMethods } from "../types/cardGrouping";
 import { groupByColor, groupingOptions } from "../options/groupingOptions";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 import { useCardGrouping } from "../hooks/useCardGrouping";
@@ -12,7 +12,9 @@ import type { CardSortingMethods } from "../types/cardSorting";
 
 export function CardTable({
   cardQuantities,
+  pinnedGroups,
 }: {
+  pinnedGroups?: CardGroup[];
   cardQuantities: CardQuantity[];
 }) {
   const [groupingMethods, setGroupingMethods] =
@@ -21,6 +23,7 @@ export function CardTable({
     useState<CardSortingMethods>(sortByName);
 
   const cardGroups = useCardGrouping({
+    premadeGroups: pinnedGroups,
     cardQuantities,
     groupMethods: groupingMethods,
     sortBy: sortingMethods,

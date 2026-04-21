@@ -1,12 +1,12 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import z from "zod";
-import { CardTable } from "../../../../../../../components/cardTable/Table";
 import { orpc, queryClient } from "../../../../../../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { EditDeck } from "../../../../../../../components/modals/EditDeckModal";
 import { useState } from "react";
-import type { CardGroup } from "../../../../../../../components/cardTable/organize";
+import type { CardGroup } from "../../../../../../../features/cardTable/types/cardGrouping";
+import { CardTable } from "../../../../../../../features/cardTable/components/CardTable";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
@@ -30,9 +30,9 @@ function RouteComponent() {
   const [modal, setModal] = useState<"edit" | null>(null);
 
   const commanderGroup: CardGroup = {
-    groupId: "commander",
-    count: 1,
-    cardEntries: [{ card: deck.commanderCard, quantity: 1 }],
+    id: "commander",
+    header: () => "Commander",
+    entries: [{ card: deck.commanderCard, quantity: 1 }],
   };
 
   return (
@@ -51,12 +51,10 @@ function RouteComponent() {
           }}
         />
       </div>
-      <div className="card">
-        <CardTable
-          pinnedGroups={[commanderGroup]}
-          cards={deck.cardQuantities}
-        />
-      </div>
+      <CardTable
+        pinnedGroups={[commanderGroup]}
+        cardQuantities={deck.cardQuantities}
+      />
       <EditDeck
         deckId={deckId}
         userId={userId}
