@@ -1,13 +1,10 @@
-import classes from "./collection.module.css";
 import { createFileRoute, redirect } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
-import { CardTable } from "../../../../../../components/cardTable/Table";
 import { CollectionBulkEditModal } from "../../../../../../components/modals/CollectionBulkEdit";
 import { queryClient, orpc } from "../../../../../../lib/client";
-import { scryfallImgUrl } from "../../../../../../lib/utils";
-import type { CardQuantity } from "@commander-league/contract/schemas";
+import { CardTable } from "../../../../../../features/cardTable/components/CardTable";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/collection",
@@ -54,11 +51,7 @@ function RouteComponent() {
           setModal("bulk-edit");
         }}
       />
-      <div className={classes.layout}>
-        <div className="card">
-          <CardTable cards={collection.cardQuantities} />
-        </div>
-      </div>
+      <CardTable cardQuantities={collection.cardQuantities} />
       <CollectionBulkEditModal
         collection={collection}
         userId={userId}
