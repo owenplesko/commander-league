@@ -1,15 +1,23 @@
 import classes from "../styles/Table.module.css";
 import type { Card } from "@commander-league/contract/schemas";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { CardGroup } from "../types/cardGrouping";
 import { useToggleSet } from "../hooks/useToggleSet";
 import { PrimeIcons } from "primereact/api";
 import { HoverCard } from "./HoveredCard";
 import { useBinFilling } from "../hooks/useBinFilling";
+import { useSize } from "../hooks/useSize";
+
+const MAX_COL_SIZE = 300;
 
 export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
-  const columns = 4;
   const [hoveredCard, setHoveredCard] = useState<Card>();
+
+  const ref = useRef<HTMLDivElement>(null);
+  const { width } = useSize(ref);
+  const columns = Math.floor(width / MAX_COL_SIZE) + 1;
+  console.log(columns);
+
   const { isToggled: isCollapsed, toggle } = useToggleSet();
   const groupBins = useBinFilling({
     items: cardGroups,
@@ -20,6 +28,7 @@ export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
   return (
     <>
       <div
+        ref={ref}
         className={classes.contentBinContainer}
         style={{ gridTemplateColumns: `repeat(${columns}, 1fr)` }}
       >

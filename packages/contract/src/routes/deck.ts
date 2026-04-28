@@ -5,7 +5,9 @@ import {
   DeckListEntrySchema,
   DeckSchema,
   GetDeckSchema,
+  SetDeckCardsBodySchema,
   UpdateDeckBodySchema,
+  UpdateDeckCardsBodySchema,
 } from "../schemas/deck";
 
 const listDecks = oc
@@ -28,9 +30,16 @@ const getDeck = oc
   .output(DeckSchema);
 
 const updateDeck = oc
-  .route({ method: "PUT", path: "/deck/{deckId}" })
-  .input(GetDeckSchema.extend(UpdateDeckBodySchema.shape))
-  .output(DeckSchema);
+  .route({ method: "PATCH", path: "/deck/{deckId}" })
+  .input(GetDeckSchema.extend(UpdateDeckBodySchema.shape));
+
+const setDeckCards = oc
+  .route({ method: "PUT", path: "/deck/{deckId}/cards" })
+  .input(GetDeckSchema.extend(SetDeckCardsBodySchema.shape));
+
+const updateDeckCards = oc
+  .route({ method: "PATCH", path: "/deck/{deckId}/cards" })
+  .input(GetDeckSchema.extend(UpdateDeckCardsBodySchema.shape));
 
 const deleteDeck = oc
   .route({
@@ -45,5 +54,7 @@ export const deckRoutes = {
   get: getDeck,
   create: createDeck,
   update: updateDeck,
+  updateCards: updateDeckCards,
+  setCards: setDeckCards,
   delete: deleteDeck,
 };

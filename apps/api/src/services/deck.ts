@@ -17,7 +17,7 @@ export function createDeck({
   leagueId: number;
   name: string;
   commanderCardName: string;
-  partnerCardName?: string;
+  partnerCardName?: string | null;
   qc?: QueryClient;
 }) {
   return withTransaction(qc, (tx) => {

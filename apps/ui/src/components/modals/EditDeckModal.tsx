@@ -15,28 +15,20 @@ type Props = {
   onHide: () => void;
 };
 
-export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
+export function EditDeck({ deckId, visible, onHide }: Props) {
   const [name, setName] = useState<string>("");
 
   const mutation = useMutation(orpc.deck.update.mutationOptions());
 
-  const { data: collection } = useSuspenseQuery(
-    orpc.collection.get.queryOptions({
-      input: { leagueId, userId },
-    }),
-  );
   const { data: deck } = useSuspenseQuery(
     orpc.deck.get.queryOptions({
       input: { deckId },
     }),
   );
 
-  const [selectedCards, setSelectedCards] = useState<CardQuantity[]>([]);
-
   useEffect(() => {
     if (visible) {
       setName(deck.name);
-      setSelectedCards(deck.cardQuantities);
     }
   }, [visible]);
 
@@ -57,10 +49,6 @@ export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
               {
                 deckId,
                 name,
-                cardQuantities: selectedCards.map(({ quantity, card }) => ({
-                  quantity,
-                  cardName: card.name,
-                })),
               },
               { onSuccess: onHide },
             );
@@ -75,14 +63,6 @@ export function EditDeck({ deckId, userId, leagueId, visible, onHide }: Props) {
             placeholder="name..."
             value={name}
             onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-
-        <div style={{ overflow: "auto", maxHeight: "30rem" }}>
-          <CardTable
-            cards={collection.cardQuantities}
-            onSelectionChange={setSelectedCards}
-            selectedRows={selectedCards}
           />
         </div>
       </div>

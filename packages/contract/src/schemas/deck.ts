@@ -29,9 +29,21 @@ export const CreateDeckBodySchema = z.object({
   leagueId: z.number(),
   name: z.string(),
   commanderCardName: z.string(),
-  partnerCardName: z.string().optional(),
+  partnerCardName: z.string().nullable().optional(),
 });
 
-export const UpdateDeckBodySchema = CreateDeckBodySchema.extend({
+export const UpdateDeckBodySchema = z
+  .object({
+    name: z.string(),
+    commanderCardName: z.string(),
+    partnerCardName: z.string(),
+  })
+  .partial();
+
+export const SetDeckCardsBodySchema = z.object({
   cardQuantities: CreateCardQuantitySchema.array(),
-}).partial();
+});
+
+export const UpdateDeckCardsBodySchema = z.object({
+  cardDeltas: CreateCardQuantitySchema.array(),
+});

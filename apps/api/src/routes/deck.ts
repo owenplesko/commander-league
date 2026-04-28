@@ -5,7 +5,11 @@ import { base } from "../orpc";
 import { ORPCError } from "@orpc/server";
 import { deckOwner, deckVisibile } from "../middleware/deck";
 import { authGuard } from "../middleware/auth";
-import { deleteCollection, setCollection } from "../services/collection";
+import {
+  applyCollectionDeltas,
+  deleteCollection,
+  setCollection,
+} from "../services/collection";
 import { createDeck, getDeck, getDeckCollectionId } from "../services/deck";
 
 const listDecksController = base.deck.list
@@ -26,7 +30,6 @@ const getDeckController = base.deck.get
   .handler(async ({ input }) => {
     const deck = getDeck({ deckId: input.deckId });
     if (!deck) throw new ORPCError("NOT_FOUND");
-
     return deck;
   });
 
@@ -40,10 +43,8 @@ const createDeckController = base.deck.create
       commanderCardName: input.commanderCardName,
       partnerCardName: input.partnerCardName,
     });
-
     const deck = getDeck({ deckId });
     if (!deck) throw new ORPCError("INTERNAL_SERVER_ERROR");
-
     return deck;
   });
 
@@ -57,9 +58,10 @@ const updateDeckController = base.deck.update
         qc: tx,
       });
       if (!collectionId) throw new ORPCError("NOT_FOUND");
-
       const updates = {
         name: input.name,
+        commander: input.commanderCardName,
+        partner: input.partnerCardName,
       };
       if (Object.keys(updates).length !== 0) {
         context.env.db
@@ -68,19 +70,43 @@ const updateDeckController = base.deck.update
           .where(eq(deck.id, input.deckId))
           .run();
       }
-
-      if (input.cardQuantities)
-        setCollection({
-          collectionId,
-          cardQuantities: input.cardQuantities,
-          qc: tx,
-        });
     });
+  });
 
-    const res = getDeck({ deckId: input.deckId });
-    if (!res) throw new ORPCError("INTERNAL_SERVER_ERROR");
+const setDeckCardsController = base.deck.setCards
+  .use(authGuard)
+  .use(deckOwner)
+  .handler(async ({ input, context }) => {
+    context.env.db.transaction((tx) => {
+      const collectionId = getDeckCollectionId({
+        deckId: input.deckId,
+        qc: tx,
+      });
+      if (!collectionId) throw new ORPCError("NOT_FOUND");
+      setCollection({
+        collectionId,
+        cardQuantities: input.cardQuantities,
+        qc: tx,
+      });
+    });
+  });
 
-    return res;
+const updateDeckCardsController = base.deck.updateCards
+  .use(authGuard)
+  .use(deckOwner)
+  .handler(async ({ input, context }) => {
+    context.env.db.transaction((tx) => {
+      const collectionId = getDeckCollectionId({
+        deckId: input.deckId,
+        qc: tx,
+      });
+      if (!collectionId) throw new ORPCError("NOT_FOUND");
+      applyCollectionDeltas({
+        collectionId,
+        cardDeltas: input.cardDeltas,
+        qc: tx,
+      });
+    });
   });
 
 const deleteDeckController = base.deck.delete
@@ -94,9 +120,8 @@ const deleteDeckController = base.deck.delete
       });
       if (!collectionId) throw new ORPCError("NOT_FOUND");
 
+      tx.delete(deck).where(eq(deck.id, input.deckId)).run();
       deleteCollection({ collectionId, qc: tx });
-
-      tx.delete(deck).where(eq(deck.id, input.deckId));
     });
   });
 
@@ -106,4 +131,6 @@ export const deckRoutes = {
   create: createDeckController,
   update: updateDeckController,
   delete: deleteDeckController,
+  setCards: setDeckCardsController,
+  updateCards: updateDeckCardsController,
 };

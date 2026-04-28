@@ -31,7 +31,7 @@ export const groupByType: GroupingMethods<string[]> = {
 export const groupBySubtype: GroupingMethods<string[]> = {
   dataAccessor: (cardQuantity) => cardQuantity.card.data.subTypes,
   idAccessor: (subTypes) => subTypes.join("-"),
-  headerTemplate: (subTypes) => subTypes.join(" "),
+  headerTemplate: (subTypes) => subTypes.join(" ") || "N/A",
 };
 
 export const groupingOptions: GroupOption[] = [
