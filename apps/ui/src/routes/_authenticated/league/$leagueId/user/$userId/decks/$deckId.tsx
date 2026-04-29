@@ -7,6 +7,7 @@ import { EditDeck } from "../../../../../../../components/modals/EditDeckModal";
 import { useState } from "react";
 import type { CardGroup } from "../../../../../../../features/cardTable/types/cardGrouping";
 import { CardTable } from "../../../../../../../features/cardTable/components/CardTable";
+import { AddDeckCard } from "../../../../../../../features/deck/AddDeckCard";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
@@ -23,6 +24,7 @@ export const Route = createFileRoute(
 function RouteComponent() {
   const router = useRouter();
   const { deckId, userId, leagueId } = Route.useParams();
+  const { leagueMembership } = Route.useRouteContext();
   const { data: deck } = useSuspenseQuery(
     orpc.deck.get.queryOptions({ input: { deckId } }),
   );
@@ -49,6 +51,10 @@ function RouteComponent() {
               to: "/league/$leagueId/user/$userId/decks",
             });
           }}
+        />
+        <AddDeckCard
+          deckId={deckId}
+          collectionId={leagueMembership.collectionId}
         />
       </div>
       <CardTable

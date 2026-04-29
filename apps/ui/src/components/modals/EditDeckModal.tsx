@@ -4,8 +4,6 @@ import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
 import { orpc } from "../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import { CardTable } from "../cardTable/Table";
-import type { CardQuantity } from "@commander-league/contract/schemas";
 
 type Props = {
   deckId: number;
