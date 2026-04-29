@@ -4,8 +4,8 @@ import { useSuspenseQuery } from "@tanstack/react-query";
 import classes from "./index.module.css";
 import { Card } from "primereact/card";
 import { Button } from "primereact/button";
-import { NewDeck } from "../../../../../../../components/modals/NewDeckModal";
 import { useState } from "react";
+import { NewDeck } from "../../../../../../../features/deck/components/NewDeckModal";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/",

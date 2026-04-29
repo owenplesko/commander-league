@@ -1,31 +1,28 @@
 import { AutoComplete } from "primereact/autocomplete";
-import { queryClient, orpc } from "../../lib/client";
 import { useState } from "react";
-import { useMutation } from "@tanstack/react-query";
+import { orpc, queryClient } from "../../../lib/client";
 
-export function AddDeckCard({
-  deckId,
+export function CardAutoComplete({
   collectionId,
+  onSelection,
+  placeholder = "card name...",
+  cardName,
+  onChange,
 }: {
-  deckId: number;
-  collectionId: number;
+  collectionId?: number;
+  onSelection?: (s: string) => void;
+  placeholder?: string;
+  cardName: string | undefined;
+  onChange: (cardName: string) => void;
 }) {
-  const [cardName, setCardName] = useState<string | undefined>(undefined);
   const [suggestions, setSuggestions] = useState<string[]>([]);
-
-  const mutation = useMutation(orpc.deck.updateCards.mutationOptions());
-
-  function onSelect(cardName: string) {
-    mutation.mutate({ deckId, cardDeltas: [{ cardName, quantity: 1 }] });
-    setCardName(undefined);
-  }
 
   return (
     <AutoComplete
-      placeholder="add cards..."
+      placeholder={placeholder}
       value={cardName}
       onChange={(e) => {
-        setCardName(e.value);
+        onChange(e.value);
       }}
       suggestions={suggestions}
       completeMethod={async (e) => {
@@ -40,7 +37,9 @@ export function AddDeckCard({
 
         setSuggestions(res);
       }}
-      onSelect={(e) => onSelect(e.value)}
+      onSelect={(e) => {
+        if (onSelection) onSelection(e.value);
+      }}
       forceSelection
     />
   );

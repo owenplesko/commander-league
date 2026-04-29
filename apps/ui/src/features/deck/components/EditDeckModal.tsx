@@ -2,8 +2,8 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useEffect, useState } from "react";
-import { orpc } from "../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { orpc } from "../../../lib/client";
 
 type Props = {
   deckId: number;

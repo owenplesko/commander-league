@@ -2,10 +2,10 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { InputText } from "primereact/inputtext";
 import { useState } from "react";
-import { orpc, queryClient } from "../../lib/client";
 import { useMutation } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
-import { AutoComplete } from "primereact/autocomplete";
+import { orpc } from "../../../lib/client";
+import { CardAutoComplete } from "./CardAutoComplete";
 
 type Props = {
   leagueId: number;
@@ -19,8 +19,8 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
   const [commanderName, setCommanderName] = useState<string>("");
   const [partnerName, setPartnerName] = useState<string>("");
 
-  const [suggestions, setSuggestions] = useState<string[]>([]);
   const mutation = useMutation(orpc.deck.create.mutationOptions());
+
   const onCreate = async () => {
     await mutation.mutateAsync({
       leagueId,
@@ -53,46 +53,18 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
         </div>
         <div className="field">
           <label>Commander</label>
-          <AutoComplete
-            placeholder="commander..."
-            value={commanderName}
-            onChange={(e) => setCommanderName(e.value)}
-            suggestions={suggestions}
-            completeMethod={async (e) => {
-              const res = await queryClient.fetchQuery(
-                orpc.card.search.queryOptions({
-                  input: {
-                    cardName: e.query,
-                    collectionId: leagueMember.collectionId,
-                  },
-                }),
-              );
-
-              setSuggestions(res);
-            }}
-            forceSelection
+          <CardAutoComplete
+            cardName={commanderName}
+            onChange={setCommanderName}
+            collectionId={leagueMember.collectionId}
           />
         </div>
         <div className="field">
-          <label>Commander</label>
-          <AutoComplete
-            placeholder="partner..."
-            value={partnerName}
-            onChange={(e) => setPartnerName(e.value)}
-            suggestions={suggestions}
-            completeMethod={async (e) => {
-              const res = await queryClient.fetchQuery(
-                orpc.card.search.queryOptions({
-                  input: {
-                    cardName: e.query,
-                    collectionId: leagueMember.collectionId,
-                  },
-                }),
-              );
-
-              setSuggestions(res);
-            }}
-            forceSelection
+          <label>Partner</label>
+          <CardAutoComplete
+            cardName={partnerName}
+            onChange={setPartnerName}
+            collectionId={leagueMember.collectionId}
           />
         </div>
       </div>

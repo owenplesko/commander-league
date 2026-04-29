@@ -3,11 +3,11 @@ import z from "zod";
 import { orpc, queryClient } from "../../../../../../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
-import { EditDeck } from "../../../../../../../components/modals/EditDeckModal";
 import { useState } from "react";
 import type { CardGroup } from "../../../../../../../features/cardTable/types/cardGrouping";
 import { CardTable } from "../../../../../../../features/cardTable/components/CardTable";
-import { AddDeckCard } from "../../../../../../../features/deck/AddDeckCard";
+import { AddDeckCard } from "../../../../../../../features/deck/components/AddDeckCard";
+import { EditDeck } from "../../../../../../../features/deck/components/EditDeckModal";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
