@@ -3,10 +3,10 @@ import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { orpc, queryClient } from "../../lib/client";
 import { classNames } from "primereact/utils";
 import { useState } from "react";
-import { NewLeague } from "../../components/modals/NewLeague";
 import { Button } from "primereact/button";
 import { JoinLeague } from "../../components/modals/JoinLeague";
 import { useSuspenseQuery } from "@tanstack/react-query";
+import { NewLeagueModal } from "../../features/league/components/NewLeagueModal";
 
 export const Route = createFileRoute("/_authenticated/")({
   component: RouteComponent,
@@ -49,7 +49,10 @@ function RouteComponent() {
           </div>
         </div>
       </div>
-      <NewLeague visible={modal === "create"} onHide={() => setModal(null)} />
+      <NewLeagueModal
+        visible={modal === "create"}
+        onHide={() => setModal(null)}
+      />
       <JoinLeague visible={modal === "join"} onHide={() => setModal(null)} />
     </>
   );
