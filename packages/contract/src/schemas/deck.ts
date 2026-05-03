@@ -36,7 +36,7 @@ export const UpdateDeckBodySchema = z
   .object({
     name: z.string(),
     commanderCardName: z.string(),
-    partnerCardName: z.string(),
+    partnerCardName: z.string().nullish(),
   })
   .partial();
 

@@ -22,7 +22,7 @@ export const Route = createFileRoute(
 
 function RouteComponent() {
   const router = useRouter();
-  const { deckId, userId, leagueId } = Route.useParams();
+  const { deckId } = Route.useParams();
   const { leagueMembership } = Route.useRouteContext();
   const deleteMutation = useMutation(orpc.deck.delete.mutationOptions());
   const [modal, setModal] = useState<"edit" | null>(null);

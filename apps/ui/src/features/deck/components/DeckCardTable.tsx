@@ -32,7 +32,7 @@ export function DeckCardTable({
   }: MenuCard): MenuItem[] | null {
     if (readonly) return null;
 
-    if (groupId === COMMANDER_GROUP_ID) return [{ label: "Change" }];
+    if (groupId === COMMANDER_GROUP_ID) return null;
 
     return [
       {
