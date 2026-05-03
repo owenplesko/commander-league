@@ -72,7 +72,7 @@ export function Body({
                           className={classes.item}
                           onMouseEnter={() => setHoveredCard(cq.card)}
                           onMouseLeave={() => setHoveredCard(undefined)}
-                          onContextMenu={(e) => {
+                          onClick={(e) => {
                             setMenuCard({ ...cq, groupId: id });
                             menuRef.current?.show(e);
                           }}
