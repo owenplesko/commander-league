@@ -1,29 +1,23 @@
 import { AutoComplete } from "primereact/autocomplete";
 import { useState } from "react";
-import { orpc, queryClient } from "../../../lib/client";
+import {
+  useController,
+  type UseControllerProps,
+  type FieldValues,
+} from "react-hook-form";
+import { queryClient, orpc } from "../../lib/client";
 
-export function CardAutoComplete({
+export function FormCardAutoComplete<T extends FieldValues>({
   collectionId,
-  onSelection,
-  placeholder = "card name...",
-  cardName,
-  onChange,
-}: {
-  collectionId?: number;
-  onSelection?: (s: string) => void;
-  placeholder?: string;
-  cardName: string | undefined;
-  onChange: (cardName: string) => void;
-}) {
+  ...controllerProps
+}: UseControllerProps<T> & { collectionId?: number }) {
+  const { field, fieldState } = useController(controllerProps);
   const [suggestions, setSuggestions] = useState<string[]>([]);
 
   return (
     <AutoComplete
-      placeholder={placeholder}
-      value={cardName}
-      onChange={(e) => {
-        onChange(e.value);
-      }}
+      {...field}
+      invalid={fieldState.invalid}
       suggestions={suggestions}
       completeMethod={async (e) => {
         const res = await queryClient.fetchQuery(
@@ -36,9 +30,6 @@ export function CardAutoComplete({
         );
 
         setSuggestions(res);
-      }}
-      onSelect={(e) => {
-        if (onSelection) onSelection(e.value);
       }}
       forceSelection
     />

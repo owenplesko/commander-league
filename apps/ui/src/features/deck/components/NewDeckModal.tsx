@@ -1,11 +1,18 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
 import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
-import { CardAutoComplete } from "./CardAutoComplete";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { FormInputText } from "../../forms/FormInputText";
+import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
+
+type FormData = {
+  name: string;
+  commanderCardName: string;
+  partnerCardName: string | null;
+};
 
 type Props = {
   leagueId: number;
@@ -15,18 +22,20 @@ type Props = {
 };
 
 export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
-  const [name, setName] = useState<string>("");
-  const [commanderName, setCommanderName] = useState<string>("");
-  const [partnerName, setPartnerName] = useState<string>("");
+  const { control, handleSubmit } = useForm<FormData>();
 
   const mutation = useMutation(orpc.deck.create.mutationOptions());
 
-  const onCreate = async () => {
+  const onSubmit: SubmitHandler<FormData> = async ({
+    name,
+    commanderCardName,
+    partnerCardName,
+  }) => {
     await mutation.mutateAsync({
-      leagueId,
       name,
-      commanderCardName: commanderName,
-      partnerCardName: partnerName || undefined,
+      commanderCardName,
+      partnerCardName,
+      leagueId,
     });
     onHide();
   };
@@ -40,34 +49,21 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
       draggable={false}
       resizable={false}
       modal
-      footer={<Button label="Create" onClick={onCreate} />}
+      footer={<Button label="Create" type="submit" form="new-deck" />}
     >
-      <div className="form">
-        <div className="field">
-          <label>Deck Name</label>
-          <InputText
-            placeholder="name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-        <div className="field">
-          <label>Commander</label>
-          <CardAutoComplete
-            cardName={commanderName}
-            onChange={setCommanderName}
-            collectionId={leagueMember.collectionId}
-          />
-        </div>
-        <div className="field">
-          <label>Partner</label>
-          <CardAutoComplete
-            cardName={partnerName}
-            onChange={setPartnerName}
-            collectionId={leagueMember.collectionId}
-          />
-        </div>
-      </div>
+      <form id="new-deck" className="form" onSubmit={handleSubmit(onSubmit)}>
+        <FormInputText name="name" control={control} />
+        <FormCardAutoComplete
+          name="commanderCardName"
+          collectionId={leagueMember.collectionId}
+          control={control}
+        />
+        <FormCardAutoComplete
+          name="partnerCardName"
+          collectionId={leagueMember.collectionId}
+          control={control}
+        />
+      </form>
     </Dialog>
   );
 }
