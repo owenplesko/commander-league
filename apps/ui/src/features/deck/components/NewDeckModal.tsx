@@ -1,6 +1,5 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { useState } from "react";
 import { useMutation } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
@@ -51,15 +50,30 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
       modal
       footer={<Button label="Create" type="submit" form="new-deck" />}
     >
-      <form id="new-deck" className="form" onSubmit={handleSubmit(onSubmit)}>
-        <FormInputText name="name" control={control} />
+      <form
+        id="new-deck"
+        className="modalForm"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormInputText
+          name="name"
+          label="Name"
+          placeholder="name..."
+          rules={{ required: true, minLength: 3, maxLength: 20 }}
+          control={control}
+        />
         <FormCardAutoComplete
           name="commanderCardName"
+          label="Commander"
+          placeholder="card name..."
           collectionId={leagueMember.collectionId}
+          rules={{ required: true }}
           control={control}
         />
         <FormCardAutoComplete
           name="partnerCardName"
+          label="Partner"
+          placeholder="card name..."
           collectionId={leagueMember.collectionId}
           control={control}
         />

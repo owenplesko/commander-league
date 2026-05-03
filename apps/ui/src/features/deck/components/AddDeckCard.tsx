@@ -24,8 +24,16 @@ export function AddDeckCard({
   };
 
   return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <FormCardAutoComplete name="cardName" control={control} />
+    <form
+      onSubmit={handleSubmit(onSubmit)}
+      style={{ display: "flex", width: "100rem", gap: "0.5rem" }}
+    >
+      <FormCardAutoComplete
+        name="cardName"
+        placeholder="add card..."
+        control={control}
+        rules={{ required: true }}
+      />
       <Button label="Add" type="submit" />
     </form>
   );
