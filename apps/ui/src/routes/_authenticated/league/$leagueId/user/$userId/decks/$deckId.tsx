@@ -5,7 +5,7 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { useState } from "react";
 import { AddDeckCard } from "../../../../../../../features/deck/components/AddDeckCard";
-import { EditDeck } from "../../../../../../../features/deck/components/EditDeckModal";
+import { EditDeckModal } from "../../../../../../../features/deck/components/EditDeckModal";
 import { DeckCardTable } from "../../../../../../../features/deck/components/DeckCardTable";
 
 export const Route = createFileRoute(
@@ -55,10 +55,9 @@ function RouteComponent() {
         deck={deck}
         readonly={deck.owner.id !== leagueMembership.user.id}
       />
-      <EditDeck
+      <EditDeckModal
         deckId={deckId}
-        userId={userId}
-        leagueId={leagueId}
+        leagueMember={leagueMembership}
         visible={modal === "edit"}
         onHide={() => setModal(null)}
       />

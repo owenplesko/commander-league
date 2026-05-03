@@ -1,69 +1,99 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { InputText } from "primereact/inputtext";
-import { useEffect, useState } from "react";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import type { LeagueMember } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { FormInputText } from "../../forms/FormInputText";
+import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
+import { useState } from "react";
+
+type FormData = {
+  name: string;
+  commanderCardName: string;
+  partnerCardName: string | null;
+};
 
 type Props = {
   deckId: number;
-  userId: string;
-  leagueId: number;
+  leagueMember: LeagueMember;
   visible: boolean;
   onHide: () => void;
 };
 
-export function EditDeck({ deckId, visible, onHide }: Props) {
-  const [name, setName] = useState<string>("");
+export function EditDeckModal({
+  deckId,
+  leagueMember,
+  visible,
+  onHide,
+}: Props) {
+  const { data: deck } = useSuspenseQuery(
+    orpc.deck.get.queryOptions({ input: { deckId } }),
+  );
+
+  const { control, handleSubmit } = useForm<FormData>({
+    defaultValues: {
+      name: deck.name,
+      commanderCardName: deck.commanderCard.name,
+      partnerCardName: deck.partnerCard?.name,
+    },
+  });
 
   const mutation = useMutation(orpc.deck.update.mutationOptions());
 
-  const { data: deck } = useSuspenseQuery(
-    orpc.deck.get.queryOptions({
-      input: { deckId },
-    }),
-  );
-
-  useEffect(() => {
-    if (visible) {
-      setName(deck.name);
-    }
-  }, [visible]);
+  const onSubmit: SubmitHandler<FormData> = async ({
+    name,
+    commanderCardName,
+    partnerCardName,
+  }) => {
+    await mutation.mutateAsync({
+      deckId,
+      name,
+      commanderCardName,
+      partnerCardName,
+    });
+    onHide();
+  };
 
   return (
     <Dialog
-      header="Edit Deck"
+      header={`Edit "${deck.name}"`}
       visible={visible}
       onHide={onHide}
-      style={{ width: "100%", maxWidth: "1600px", margin: "4rem" }}
+      style={{ width: "40rem", margin: "4rem" }}
       draggable={false}
       resizable={false}
       modal
-      footer={
-        <Button
-          label="Save"
-          onClick={() => {
-            mutation.mutate(
-              {
-                deckId,
-                name,
-              },
-              { onSuccess: onHide },
-            );
-          }}
-        />
-      }
+      footer={<Button label="Save" type="submit" form="new-deck" />}
     >
-      <div className="form">
-        <div className="field">
-          <label>Deck Name</label>
-          <InputText
-            placeholder="name..."
-            value={name}
-            onChange={(e) => setName(e.target.value)}
-          />
-        </div>
-      </div>
+      <form
+        id="new-deck"
+        className="modalForm"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormInputText
+          name="name"
+          label="Name"
+          placeholder="name..."
+          rules={{ required: true, minLength: 3, maxLength: 20 }}
+          control={control}
+        />
+        <FormCardAutoComplete
+          name="commanderCardName"
+          label="Commander"
+          placeholder="card name..."
+          collectionId={leagueMember.collectionId}
+          rules={{ required: true }}
+          control={control}
+        />
+        <FormCardAutoComplete
+          name="partnerCardName"
+          label="Partner"
+          placeholder="card name..."
+          collectionId={leagueMember.collectionId}
+          control={control}
+        />
+      </form>
     </Dialog>
   );
 }
