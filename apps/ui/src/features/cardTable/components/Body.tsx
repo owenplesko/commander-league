@@ -92,7 +92,7 @@ export function Body({
       </div>
       <HoverCard card={menuVisible ? undefined : hoveredCard} />
       <ContextMenu
-        model={menuOptions ?? undefined}
+        model={menuOptions ?? [{ label: "No Options", disabled: true }]}
         ref={menuRef}
         onShow={() => setMenuVisible(true)}
         onHide={() => setMenuVisible(false)}
