@@ -60,14 +60,6 @@
   }
 }
 
-.cardOptions {
-  margin-left: auto;
-  cursor: pointer;
-  &:hover {
-    color: var(--text-color-secondary);
-  }
-}
-
 .textEllipsis {
   min-width: 0;
   white-space: nowrap;

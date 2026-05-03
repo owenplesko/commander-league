@@ -7,10 +7,9 @@ import { PrimeIcons } from "primereact/api";
 import { HoverCard } from "./HoveredCard";
 import { useBinFilling } from "../hooks/useBinFilling";
 import { useSize } from "../hooks/useSize";
-import { Menu } from "primereact/menu";
 import type { MenuItem } from "primereact/menuitem";
 import type { MenuCard } from "../types/menuCard";
-import { classNames } from "primereact/utils";
+import { ContextMenu } from "primereact/contextmenu";
 
 const MAX_COL_SIZE = 300;
 
@@ -24,7 +23,7 @@ export function Body({
   const [hoveredCard, setHoveredCard] = useState<Card>();
   const [menuCard, setMenuCard] = useState<MenuCard>();
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
-  const menuRef = useRef<Menu>(null);
+  const menuRef = useRef<ContextMenu>(null);
   const menuOptions: MenuItem[] | null =
     menuOptionsTemplate && menuCard ? menuOptionsTemplate(menuCard) : null;
 
@@ -73,20 +72,14 @@ export function Body({
                           className={classes.item}
                           onMouseEnter={() => setHoveredCard(cq.card)}
                           onMouseLeave={() => setHoveredCard(undefined)}
+                          onContextMenu={(e) => {
+                            setMenuCard({ ...cq, groupId: id });
+                            menuRef.current?.show(e);
+                          }}
                         >
                           <span className={classes.textEllipsis}>
                             {`${cq.quantity} ${cq.card.name}`}
                           </span>
-                          <i
-                            className={classNames(
-                              PrimeIcons.ELLIPSIS_V,
-                              classes.cardOptions,
-                            )}
-                            onClick={(e) => {
-                              setMenuCard({ ...cq, groupId: id });
-                              menuRef.current?.toggle(e);
-                            }}
-                          />
                         </div>
                       </li>
                     ))}
@@ -98,16 +91,12 @@ export function Body({
         ))}
       </div>
       <HoverCard card={menuVisible ? undefined : hoveredCard} />
-      {menuOptions && (
-        <Menu
-          model={menuOptions}
-          ref={menuRef}
-          popup
-          popupAlignment="right"
-          onShow={() => setMenuVisible(true)}
-          onHide={() => setMenuVisible(false)}
-        />
-      )}
+      <ContextMenu
+        model={menuOptions ?? undefined}
+        ref={menuRef}
+        onShow={() => setMenuVisible(true)}
+        onHide={() => setMenuVisible(false)}
+      />
     </>
   );
 }
