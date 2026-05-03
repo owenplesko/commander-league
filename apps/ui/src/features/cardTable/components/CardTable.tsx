@@ -9,12 +9,16 @@ import { useCardGrouping } from "../hooks/useCardGrouping";
 import { Body } from "./Body";
 import { sortByName, sortingOptions } from "../options/sortingOptions";
 import type { CardSortingMethods } from "../types/cardSorting";
+import type { MenuItem } from "primereact/menuitem";
+import type { MenuCard } from "../types/menuCard";
 
 export function CardTable({
   cardQuantities,
+  menuOptionsTemplate,
   pinnedGroups,
 }: {
   pinnedGroups?: CardGroup[];
+  menuOptionsTemplate?: (mc: MenuCard) => MenuItem[] | null;
   cardQuantities: CardQuantity[];
 }) {
   const [groupingMethods, setGroupingMethods] =
@@ -55,7 +59,7 @@ export function CardTable({
           <label>Sort by:</label>
         </FloatLabel>
       </div>
-      <Body cardGroups={cardGroups} />
+      <Body cardGroups={cardGroups} menuOptionsTemplate={menuOptionsTemplate} />
     </div>
   );
 }

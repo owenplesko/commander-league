@@ -7,11 +7,26 @@ import { PrimeIcons } from "primereact/api";
 import { HoverCard } from "./HoveredCard";
 import { useBinFilling } from "../hooks/useBinFilling";
 import { useSize } from "../hooks/useSize";
+import { Menu } from "primereact/menu";
+import type { MenuItem } from "primereact/menuitem";
+import type { MenuCard } from "../types/menuCard";
+import { classNames } from "primereact/utils";
 
 const MAX_COL_SIZE = 300;
 
-export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
+export function Body({
+  cardGroups,
+  menuOptionsTemplate,
+}: {
+  cardGroups: CardGroup[];
+  menuOptionsTemplate?: (mc: MenuCard) => MenuItem[] | null;
+}) {
   const [hoveredCard, setHoveredCard] = useState<Card>();
+  const [menuCard, setMenuCard] = useState<MenuCard>();
+  const [menuVisible, setMenuVisible] = useState<boolean>(false);
+  const menuRef = useRef<Menu>(null);
+  const menuOptions: MenuItem[] | null =
+    menuOptionsTemplate && menuCard ? menuOptionsTemplate(menuCard) : null;
 
   const ref = useRef<HTMLDivElement>(null);
   const { width } = useSize(ref);
@@ -35,7 +50,7 @@ export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
         {groupBins.map((bin) => (
           <div className={classes.contentBin}>
             {bin.map(({ id, header, entries }) => (
-              <div>
+              <div key={id}>
                 <div className={classes.groupHeader} onClick={() => toggle(id)}>
                   {header()}
                   <span>{`(${entries.length})`}</span>
@@ -52,16 +67,26 @@ export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
                   className={`${classes.groupContent} ${isCollapsed(id) ? classes.collapsed : ""}`}
                 >
                   <ul>
-                    {entries.map(({ quantity, card }) => (
-                      <li key={card.name} className={classes.listSeparator}>
+                    {entries.map((cq) => (
+                      <li key={cq.card.name} className={classes.listSeparator}>
                         <div
                           className={classes.item}
-                          onMouseEnter={() => setHoveredCard(card)}
+                          onMouseEnter={() => setHoveredCard(cq.card)}
                           onMouseLeave={() => setHoveredCard(undefined)}
                         >
-                          <span className={classes["text-ellipsis"]}>
-                            {`${quantity} ${card.name}`}
+                          <span className={classes.textEllipsis}>
+                            {`${cq.quantity} ${cq.card.name}`}
                           </span>
+                          <i
+                            className={classNames(
+                              PrimeIcons.ELLIPSIS_V,
+                              classes.cardOptions,
+                            )}
+                            onClick={(e) => {
+                              setMenuCard({ ...cq, groupId: id });
+                              menuRef.current?.toggle(e);
+                            }}
+                          />
                         </div>
                       </li>
                     ))}
@@ -72,7 +97,17 @@ export function Body({ cardGroups }: { cardGroups: CardGroup[] }) {
           </div>
         ))}
       </div>
-      <HoverCard card={hoveredCard} />
+      <HoverCard card={menuVisible ? undefined : hoveredCard} />
+      {menuOptions && (
+        <Menu
+          model={menuOptions}
+          ref={menuRef}
+          popup
+          popupAlignment="right"
+          onShow={() => setMenuVisible(true)}
+          onHide={() => setMenuVisible(false)}
+        />
+      )}
     </>
   );
 }

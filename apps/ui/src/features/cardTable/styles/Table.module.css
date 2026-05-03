@@ -53,34 +53,24 @@
   display: flex;
   align-items: center;
   gap: 0.25rem;
-  cursor: pointer;
   padding: 0.5rem;
   border-radius: var(--border-radius);
   &:hover {
     background-color: var(--surface-hover);
   }
-  &.selected {
-    cursor: default;
-    background-color: var(--highlight-bg);
-    color: var(--highlight-text-color);
-  }
 }
 
-.text-ellipsis {
-  min-width: 0;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-}
-
-.selected i {
+.cardOptions {
+  margin-left: auto;
   cursor: pointer;
-  &.disabled {
-    cursor: default;
+  &:hover {
     color: var(--text-color-secondary);
   }
 }
 
-.item.selected + .item {
-  border-top: none;
+.textEllipsis {
+  min-width: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }

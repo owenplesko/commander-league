@@ -4,10 +4,9 @@ import { orpc, queryClient } from "../../../../../../../lib/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { Button } from "primereact/button";
 import { useState } from "react";
-import type { CardGroup } from "../../../../../../../features/cardTable/types/cardGrouping";
-import { CardTable } from "../../../../../../../features/cardTable/components/CardTable";
 import { AddDeckCard } from "../../../../../../../features/deck/components/AddDeckCard";
 import { EditDeck } from "../../../../../../../features/deck/components/EditDeckModal";
+import { DeckCardTable } from "../../../../../../../features/deck/components/DeckCardTable";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/decks/$deckId",
@@ -25,17 +24,12 @@ function RouteComponent() {
   const router = useRouter();
   const { deckId, userId, leagueId } = Route.useParams();
   const { leagueMembership } = Route.useRouteContext();
-  const { data: deck } = useSuspenseQuery(
-    orpc.deck.get.queryOptions({ input: { deckId } }),
-  );
   const deleteMutation = useMutation(orpc.deck.delete.mutationOptions());
   const [modal, setModal] = useState<"edit" | null>(null);
 
-  const commanderGroup: CardGroup = {
-    id: "commander",
-    header: () => "Commander",
-    entries: [{ card: deck.commanderCard, quantity: 1 }],
-  };
+  const { data: deck } = useSuspenseQuery(
+    orpc.deck.get.queryOptions({ input: { deckId } }),
+  );
 
   return (
     <>
@@ -57,9 +51,9 @@ function RouteComponent() {
           collectionId={leagueMembership.collectionId}
         />
       </div>
-      <CardTable
-        pinnedGroups={[commanderGroup]}
-        cardQuantities={deck.cardQuantities}
+      <DeckCardTable
+        deck={deck}
+        readonly={deck.owner.id !== leagueMembership.user.id}
       />
       <EditDeck
         deckId={deckId}
