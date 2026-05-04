@@ -10,6 +10,7 @@ type FormData = {
 
 export function AddDeckCard({
   deckId,
+  collectionId,
 }: {
   deckId: number;
   collectionId: number;
@@ -33,6 +34,7 @@ export function AddDeckCard({
         placeholder="add card..."
         control={control}
         rules={{ required: true }}
+        collectionId={collectionId}
       />
       <Button label="Add" type="submit" />
     </form>

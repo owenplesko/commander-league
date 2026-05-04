@@ -18,9 +18,9 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
 import { ContextMenu } from "primereact/contextmenu";
 import { InviteCode } from "../../../../components/modals/InviteCode";
-import { LeagueSettings } from "../../../../components/modals/LeagueSettings";
 import { queryClient, orpc } from "../../../../lib/client";
 import { CreateTradeRequestModal } from "../../../../components/modals/CreateTradeModal";
+import { LeagueSettingsModal } from "../../../../features/league/components/LeagueSettingsModal";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -245,18 +245,21 @@ function RouteComponent() {
       </div>
       <ContextMenu ref={memberMenuRef} model={memberMenuItems} />
       <Menu popup ref={leagueMenuRef} model={leagueMenuItems} />
-      <LeagueSettings
-        league={league}
-        visible={modal === "settings"}
-        onHide={() => setModal(null)}
-      />
       <Suspense>
         {leagueMembership?.role === "owner" && (
-          <InviteCode
-            leagueId={leagueId}
-            visible={modal === "invite"}
-            onHide={() => setModal(null)}
-          />
+          <>
+            <InviteCode
+              leagueId={leagueId}
+              visible={modal === "invite"}
+              onHide={() => setModal(null)}
+            />
+
+            <LeagueSettingsModal
+              leagueId={leagueId}
+              visible={modal === "settings"}
+              onHide={() => setModal(null)}
+            />
+          </>
         )}
         {selectedMember && (
           <CreateTradeRequestModal
