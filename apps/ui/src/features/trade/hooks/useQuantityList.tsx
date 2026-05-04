@@ -28,5 +28,9 @@ export function useCardQuantityList() {
     });
   }
 
-  return { cards, createCards, applyDelta };
+  function reset() {
+    setCards([]);
+  }
+
+  return { cards, createCards, applyDelta, reset };
 }

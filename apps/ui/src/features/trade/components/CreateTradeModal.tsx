@@ -6,7 +6,7 @@ import { orpc } from "../../../lib/client";
 import { UserBadge } from "../../../components/UserBadge";
 import { useCardQuantityList } from "../hooks/useQuantityList";
 import { CardAutoComplete } from "../../common/components/CardAutoComplete";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { AutoCompleteSelectEvent } from "primereact/autocomplete";
 import { TradeItemsPreview } from "../../../components/TradePreview";
 
@@ -42,6 +42,13 @@ export function CreateTradeRequestModal({
     onHide();
   };
 
+  useEffect(() => {
+    if (visible) {
+      offerCardQuantityList.reset();
+      recipientCardQuantityList.reset();
+    }
+  }, [visible]);
+
   return (
     <Dialog
       header="Trade Request"
@@ -56,7 +63,7 @@ export function CreateTradeRequestModal({
       footer={<Button label="Request" type="submit" form="create-trade" />}
     >
       <form
-        style={{ display: "flex" }}
+        style={{ display: "flex", marginBottom: "1rem" }}
         id="create-trade"
         onSubmit={(e) => {
           e.preventDefault();
