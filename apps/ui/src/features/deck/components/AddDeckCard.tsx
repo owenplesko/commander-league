@@ -3,9 +3,10 @@ import { useMutation } from "@tanstack/react-query";
 import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { Button } from "primereact/button";
+import type { Card } from "@commander-league/contract/schemas";
 
 type FormData = {
-  cardName: string;
+  card: Card;
 };
 
 export function AddDeckCard({
@@ -19,8 +20,11 @@ export function AddDeckCard({
 
   const mutation = useMutation(orpc.deck.updateCards.mutationOptions());
 
-  const onSubmit: SubmitHandler<FormData> = ({ cardName }) => {
-    mutation.mutate({ deckId, cardDeltas: [{ cardName, quantity: 1 }] });
+  const onSubmit: SubmitHandler<FormData> = ({ card }) => {
+    mutation.mutate({
+      deckId,
+      cardDeltas: [{ cardName: card.name, quantity: 1 }],
+    });
     reset();
   };
 
@@ -30,7 +34,7 @@ export function AddDeckCard({
       style={{ display: "flex", width: "100rem", gap: "0.5rem" }}
     >
       <FormCardAutoComplete
-        name="cardName"
+        name="card"
         placeholder="add card..."
         control={control}
         rules={{ required: true }}

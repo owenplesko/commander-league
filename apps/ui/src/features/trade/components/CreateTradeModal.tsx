@@ -1,4 +1,4 @@
-import type { LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, LeagueMember } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@tanstack/react-query";
@@ -7,6 +7,7 @@ import { UserBadge } from "../../../components/UserBadge";
 import { useCardQuantityList } from "../hooks/useQuantityList";
 import { CardAutoComplete } from "../../common/components/CardAutoComplete";
 import { useState } from "react";
+import type { AutoCompleteSelectEvent } from "primereact/autocomplete";
 import { TradeItemsPreview } from "../../../components/TradePreview";
 
 type Props = {
@@ -34,9 +35,9 @@ export function CreateTradeRequestModal({
   const onSubmit = async () => {
     await mutation.mutateAsync({
       leagueId,
-      offerCardQuantities: offerCardQuantityList.cards,
+      offerCardQuantities: offerCardQuantityList.createCards,
       recipientId: recipient.user.id,
-      recipientCardQuantities: recipientCardQuantityList.cards,
+      recipientCardQuantities: recipientCardQuantityList.createCards,
     });
     onHide();
   };
@@ -76,10 +77,10 @@ export function CreateTradeRequestModal({
             value={offerCardSearch}
             placeholder="add cards..."
             onChange={(e) => setOfferCardSearch(e.value)}
-            onSelect={(e) => {
+            onSelect={(e: AutoCompleteSelectEvent<Card>) => {
               setOfferCardSearch("");
               offerCardQuantityList.applyDelta({
-                cardName: e.value,
+                card: e.value,
                 quantity: 1,
               });
             }}
@@ -100,16 +101,20 @@ export function CreateTradeRequestModal({
             value={recipientCardSearch}
             placeholder="add cards..."
             onChange={(e) => setRecipientCardSearch(e.value)}
-            onSelect={(e) => {
+            onSelect={(e: AutoCompleteSelectEvent<Card>) => {
               setRecipientCardSearch("");
               recipientCardQuantityList.applyDelta({
-                cardName: e.value,
+                card: e.value,
                 quantity: 1,
               });
             }}
           />
         </div>
       </form>
+      <TradeItemsPreview
+        requesterCardQuantities={offerCardQuantityList.cards}
+        recipientCardQuantities={recipientCardQuantityList.cards}
+      />
     </Dialog>
   );
 }

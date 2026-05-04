@@ -1,7 +1,7 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@tanstack/react-query";
-import type { LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, LeagueMember } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputText } from "../../forms/FormInputText";
@@ -9,8 +9,8 @@ import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
 
 type FormData = {
   name: string;
-  commanderCardName: string;
-  partnerCardName: string | null;
+  commander: Card;
+  partner: Card | null;
 };
 
 type Props = {
@@ -27,13 +27,13 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
 
   const onSubmit: SubmitHandler<FormData> = async ({
     name,
-    commanderCardName,
-    partnerCardName,
+    commander,
+    partner,
   }) => {
     await mutation.mutateAsync({
       name,
-      commanderCardName,
-      partnerCardName,
+      commanderCardName: commander.name,
+      partnerCardName: partner?.name,
       leagueId,
     });
     onHide();
@@ -63,7 +63,7 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
           control={control}
         />
         <FormCardAutoComplete
-          name="commanderCardName"
+          name="commander"
           label="Commander"
           placeholder="card name..."
           collectionId={leagueMember.collectionId}
@@ -71,7 +71,7 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
           control={control}
         />
         <FormCardAutoComplete
-          name="partnerCardName"
+          name="partner"
           label="Partner"
           placeholder="card name..."
           collectionId={leagueMember.collectionId}

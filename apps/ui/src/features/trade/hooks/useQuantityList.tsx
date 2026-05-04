@@ -1,28 +1,32 @@
 import { useState } from "react";
-import type { CreateCardQuantity } from "@commander-league/contract/schemas";
+import type { CardQuantity } from "@commander-league/contract/schemas";
 
 export function useCardQuantityList() {
-  const [cards, setCards] = useState<CreateCardQuantity[]>([]);
+  const [cards, setCards] = useState<CardQuantity[]>([]);
+  const createCards = cards.map(({ card, quantity }) => ({
+    cardName: card.name,
+    quantity,
+  }));
 
-  function applyDelta({ cardName, quantity }: CreateCardQuantity) {
+  function applyDelta(cq: CardQuantity) {
     setCards((prev) => {
-      const existing = prev.find((c) => c.cardName === cardName);
+      const existing = prev.find((c) => c.card.name === cq.card.name);
 
       if (!existing) {
-        return [...prev, { cardName, quantity }];
+        return [...prev, cq];
       }
 
-      const newQuantity = existing.quantity + quantity;
+      const newQuantity = existing.quantity + cq.quantity;
 
       if (newQuantity <= 0) {
-        return prev.filter((c) => c.cardName !== cardName);
+        return prev.filter((c) => c.card.name !== cq.card.name);
       }
 
       return prev.map((c) =>
-        c.cardName === cardName ? { ...c, quantity: newQuantity } : c,
+        c.card.name === cq.card.name ? { ...c, quantity: newQuantity } : c,
       );
     });
   }
 
-  return { cards, applyDelta };
+  return { cards, createCards, applyDelta };
 }

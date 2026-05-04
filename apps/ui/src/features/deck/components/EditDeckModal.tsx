@@ -1,17 +1,16 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import type { LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, LeagueMember } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputText } from "../../forms/FormInputText";
 import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
-import { useState } from "react";
 
 type FormData = {
   name: string;
-  commanderCardName: string;
-  partnerCardName: string | null;
+  commander: Card;
+  partner: Card | null;
 };
 
 type Props = {
@@ -34,8 +33,8 @@ export function EditDeckModal({
   const { control, handleSubmit } = useForm<FormData>({
     defaultValues: {
       name: deck.name,
-      commanderCardName: deck.commanderCard.name,
-      partnerCardName: deck.partnerCard?.name,
+      commander: deck.commanderCard,
+      partner: deck.partnerCard,
     },
   });
 
@@ -43,14 +42,14 @@ export function EditDeckModal({
 
   const onSubmit: SubmitHandler<FormData> = async ({
     name,
-    commanderCardName,
-    partnerCardName,
+    commander,
+    partner,
   }) => {
     await mutation.mutateAsync({
       deckId,
       name,
-      commanderCardName,
-      partnerCardName,
+      commanderCardName: commander.name,
+      partnerCardName: partner?.name,
     });
     onHide();
   };
@@ -79,7 +78,7 @@ export function EditDeckModal({
           control={control}
         />
         <FormCardAutoComplete
-          name="commanderCardName"
+          name="commander"
           label="Commander"
           placeholder="card name..."
           collectionId={leagueMember.collectionId}
@@ -87,7 +86,7 @@ export function EditDeckModal({
           control={control}
         />
         <FormCardAutoComplete
-          name="partnerCardName"
+          name="partner"
           label="Partner"
           placeholder="card name..."
           collectionId={leagueMember.collectionId}

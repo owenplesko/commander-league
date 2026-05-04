@@ -1,6 +1,5 @@
 import { oc } from "@orpc/contract";
-import { CardSearchParams } from "../schemas";
-import z from "zod";
+import { CardSchema, CardSearchParams } from "../schemas";
 
 const searchCards = oc
   .route({
@@ -8,7 +7,7 @@ const searchCards = oc
     path: "/cards/search",
   })
   .input(CardSearchParams)
-  .output(z.string().array());
+  .output(CardSchema.array());
 
 export const cardRoutes = {
   search: searchCards,

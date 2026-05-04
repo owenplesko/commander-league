@@ -1,6 +1,6 @@
-import { inArray, like, and, eq } from "drizzle-orm";
+import { inArray } from "drizzle-orm";
 import db, { type DB, type QueryClient, type TX } from "../db";
-import { card, collectionCard } from "../db/schema";
+import { card } from "../db/schema";
 
 export function getInvalidCardNames({
   qc = db,
@@ -35,22 +35,38 @@ export function searchCards({
   collectionId?: number;
   limit?: number;
 }) {
-  let query = (
-    collectionId
-      ? qc
-          .select({ cardName: collectionCard.cardName })
-          .from(collectionCard)
-          .where(
-            and(
-              eq(collectionCard.collectionId, collectionId),
-              like(collectionCard.cardName, `%${cardName}%`),
-            ),
-          )
-      : qc
-          .select({ cardName: card.name })
-          .from(card)
-          .where(like(card.name, `%${cardName}%`))
-  ).limit(limit);
+  // no collection scope
+  if (!collectionId) {
+    const res = qc.query.card
+      .findMany({
+        where: {
+          name: {
+            like: `%${cardName}%`,
+          },
+        },
+      })
+      .sync();
 
-  return query.all().map(({ cardName }) => cardName);
+    return res;
+  }
+
+  // yes collection scope
+  const res = qc.query.collectionCard
+    .findMany({
+      columns: {},
+      where: {
+        collectionId,
+        cardName: {
+          like: `%${cardName}%`,
+        },
+      },
+      limit,
+      with: {
+        card: true,
+      },
+    })
+    .sync()
+    .map(({ card }) => card);
+
+  return res;
 }
