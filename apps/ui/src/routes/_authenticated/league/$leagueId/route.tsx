@@ -19,8 +19,8 @@ import type { LeagueMember } from "@commander-league/contract/schemas";
 import { ContextMenu } from "primereact/contextmenu";
 import { InviteCode } from "../../../../components/modals/InviteCode";
 import { queryClient, orpc } from "../../../../lib/client";
-import { CreateTradeRequestModal } from "../../../../components/modals/CreateTradeModal";
 import { LeagueSettingsModal } from "../../../../features/league/components/LeagueSettingsModal";
+import { CreateTradeRequestModal } from "../../../../features/trade/components/CreateTradeModal";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
@@ -263,8 +263,8 @@ function RouteComponent() {
         )}
         {selectedMember && (
           <CreateTradeRequestModal
-            requester={user}
-            recipient={selectedMember?.user}
+            requester={leagueMembership}
+            recipient={selectedMember}
             leagueId={leagueId}
             visible={modal === "trade"}
             onHide={() => setModal(null)}
