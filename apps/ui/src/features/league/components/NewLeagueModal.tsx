@@ -15,7 +15,7 @@ type Props = {
 };
 
 export function NewLeagueModal({ visible, onHide }: Props) {
-  const { control, handleSubmit, reset } = useForm<FormData>();
+  const { control, handleSubmit } = useForm<FormData>();
 
   const mutation = useMutation(orpc.league.create.mutationOptions());
 
@@ -35,7 +35,11 @@ export function NewLeagueModal({ visible, onHide }: Props) {
       modal
       footer={<Button label="Create" type="submit" form="new-league" />}
     >
-      <form className="form" id="new-league" onSubmit={handleSubmit(onSubmit)}>
+      <form
+        className="modaForm"
+        id="new-league"
+        onSubmit={handleSubmit(onSubmit)}
+      >
         <FormInputText
           name="name"
           label="Name"

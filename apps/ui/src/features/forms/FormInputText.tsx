@@ -20,6 +20,7 @@ export function FormInputText<T extends FieldValues>({
         {...field}
         placeholder={placeholder}
         invalid={fieldState.invalid}
+        autoComplete="off"
       />
     </div>
   );
