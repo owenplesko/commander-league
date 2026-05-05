@@ -29,6 +29,7 @@ export function FormCardAutoComplete<
       {label && <label htmlFor={field.name}>{label}</label>}
       <CardAutoComplete
         {...field}
+        collectionId={collectionId}
         inputStyle={{ width: "100%" }}
         placeholder={placeholder}
         invalid={fieldState.invalid}
