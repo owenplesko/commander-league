@@ -1,0 +1,40 @@
+import classes from "./styles.module.css";
+import {
+  useController,
+  type UseControllerProps,
+  type FieldValues,
+  type Path,
+  type PathValue,
+} from "react-hook-form";
+import { CardAutoComplete } from "../common/components/CardAutoComplete";
+import type { Card } from "@commander-league/contract/schemas";
+
+export function FormCardAutoComplete<
+  T extends FieldValues,
+  TName extends Path<T> = Path<T>,
+>({
+  collectionId,
+  label,
+  placeholder,
+  ...controllerProps
+}: UseControllerProps<T, TName> & {
+  collectionId?: number;
+  label?: string;
+  placeholder?: string;
+} & (PathValue<T, TName> extends Card | null | undefined ? unknown : never)) {
+  const { field, fieldState } = useController(controllerProps);
+
+  return (
+    <div className={classes.field}>
+      {label && <label htmlFor={field.name}>{label}</label>}
+      <CardAutoComplete
+        {...field}
+        collectionId={collectionId}
+        inputStyle={{ width: "100%" }}
+        placeholder={placeholder}
+        invalid={fieldState.invalid}
+        forceSelection
+      />
+    </div>
+  );
+}

@@ -18,18 +18,21 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import type { LeagueMember } from "@commander-league/contract/schemas";
 import { ContextMenu } from "primereact/contextmenu";
 import { InviteCode } from "../../../../components/modals/InviteCode";
-import { LeagueSettings } from "../../../../components/modals/LeagueSettings";
 import { queryClient, orpc } from "../../../../lib/client";
-import { CreateTradeRequestModal } from "../../../../components/modals/CreateTradeModal";
+import { LeagueSettingsModal } from "../../../../features/league/components/LeagueSettingsModal";
+import { CreateTradeRequestModal } from "../../../../features/trade/components/CreateTradeModal";
 
 export const Route = createFileRoute("/_authenticated/league/$leagueId")({
   component: RouteComponent,
   params: z.object({ leagueId: z.coerce.number() }),
-  beforeLoad: async ({ params }) => {
+  beforeLoad: async ({ params, context }) => {
     try {
-      await queryClient.ensureQueryData(
-        orpc.league.get.queryOptions({ input: { leagueId: params.leagueId } }),
+      const leagueMembership = await queryClient.ensureQueryData(
+        orpc.league.member.get.queryOptions({
+          input: { leagueId: params.leagueId, userId: context.user.id },
+        }),
       );
+      return { leagueMembership };
     } catch {
       throw redirect({ to: "/" });
     }
@@ -45,7 +48,7 @@ export const Route = createFileRoute("/_authenticated/league/$leagueId")({
 
 function RouteComponent() {
   const { leagueId } = Route.useParams();
-  const { user } = Route.useRouteContext();
+  const { user, leagueMembership } = Route.useRouteContext();
 
   const router = useRouter();
   const leagueMenuRef = useRef<Menu>(null);
@@ -64,8 +67,6 @@ function RouteComponent() {
   const { data: members } = useSuspenseQuery(
     orpc.league.member.list.queryOptions({ input: { leagueId } }),
   );
-
-  const membership = members.find((member) => member.user.id === user.id);
 
   const leaveLeague = useMutation(
     orpc.league.member.delete.mutationOptions({
@@ -96,7 +97,7 @@ function RouteComponent() {
   );
 
   const leagueMenuItems: MenuItem[] =
-    membership?.role === "owner"
+    leagueMembership?.role === "owner"
       ? [
           {
             label: "Invite Code",
@@ -161,7 +162,7 @@ function RouteComponent() {
 
   const memberMenuItems: MenuItem[] = [
     { label: "Trade", command: () => setModal("trade") },
-    ...(membership?.role === "owner" ? adminMenuItems : []),
+    ...(leagueMembership?.role === "owner" ? adminMenuItems : []),
   ];
 
   return (
@@ -182,7 +183,7 @@ function RouteComponent() {
             <ul>
               <li>
                 <Link
-                  to="/league/$leagueId/collection/$userId"
+                  to="/league/$leagueId/user/$userId/collection"
                   params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
@@ -191,7 +192,7 @@ function RouteComponent() {
               </li>
               <li>
                 <Link
-                  to="/league/$leagueId/decks/$userId"
+                  to="/league/$leagueId/user/$userId/decks"
                   params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
@@ -200,8 +201,8 @@ function RouteComponent() {
               </li>
               <li>
                 <Link
-                  to="/league/$leagueId/trades"
-                  params={{ leagueId: league.id }}
+                  to="/league/$leagueId/user/$userId/trades"
+                  params={{ leagueId: league.id, userId: user.id }}
                   className={classNames(classes.item, classes.interactable)}
                 >
                   Trades
@@ -222,7 +223,7 @@ function RouteComponent() {
                     }}
                   >
                     <Link
-                      to="/league/$leagueId/collection/$userId"
+                      to="/league/$leagueId/user/$userId/collection"
                       params={{ leagueId: league.id, userId: member.user.id }}
                       className={classNames(classes.item, classes.interactable)}
                     >
@@ -244,23 +245,26 @@ function RouteComponent() {
       </div>
       <ContextMenu ref={memberMenuRef} model={memberMenuItems} />
       <Menu popup ref={leagueMenuRef} model={leagueMenuItems} />
-      <LeagueSettings
-        league={league}
-        visible={modal === "settings"}
-        onHide={() => setModal(null)}
-      />
       <Suspense>
-        {membership?.role === "owner" && (
-          <InviteCode
-            leagueId={leagueId}
-            visible={modal === "invite"}
-            onHide={() => setModal(null)}
-          />
+        {leagueMembership?.role === "owner" && (
+          <>
+            <InviteCode
+              leagueId={leagueId}
+              visible={modal === "invite"}
+              onHide={() => setModal(null)}
+            />
+
+            <LeagueSettingsModal
+              leagueId={leagueId}
+              visible={modal === "settings"}
+              onHide={() => setModal(null)}
+            />
+          </>
         )}
         {selectedMember && (
           <CreateTradeRequestModal
-            requester={user}
-            recipient={selectedMember?.user}
+            requester={leagueMembership}
+            recipient={selectedMember}
             leagueId={leagueId}
             visible={modal === "trade"}
             onHide={() => setModal(null)}

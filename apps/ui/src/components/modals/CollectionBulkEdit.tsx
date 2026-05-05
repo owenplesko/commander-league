@@ -17,7 +17,7 @@ type Props = {
 };
 
 function marshalCollection(collection: Collection) {
-  return collection.cards
+  return collection.cardQuantities
     .map(({ card: { name }, quantity }) => `${quantity} ${name}`)
     .join("\n");
 }
@@ -92,8 +92,8 @@ export function CollectionBulkEditModal({
         <Button
           label="Save"
           onClick={() => {
-            const cards = unmarshalCollection(collectionText ?? "");
-            mutation.mutate({ leagueId, userId, cards });
+            const cardQuantites = unmarshalCollection(collectionText ?? "");
+            mutation.mutate({ leagueId, userId, cardQuantites });
           }}
         />
       }

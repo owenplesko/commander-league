@@ -1,7 +1,7 @@
 import { oc } from "@orpc/contract";
 import {
   CollectionSchema,
-  CreateCollectionSchema,
+  CreateCollectionBodySchema,
 } from "../schemas/collection";
 import { CardSchema, GetLeagueMemberSchema } from "../schemas";
 import z from "zod";
@@ -20,7 +20,7 @@ const setCollection = oc
     path: "/league/{leagueId}/member/{userId}/collection",
     successStatus: 204,
   })
-  .input(GetLeagueMemberSchema.extend(CreateCollectionSchema.shape))
+  .input(GetLeagueMemberSchema.extend(CreateCollectionBodySchema.shape))
   .errors({
     BAD_REQUEST: {
       data: z.object({

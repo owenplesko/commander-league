@@ -1,39 +1,33 @@
 import type { GetTradeInput } from "@commander-league/contract/schemas";
 import { ORPCError } from "@orpc/server";
 import { authGuard } from "./auth";
-import { eq } from "drizzle-orm";
-import { tradeRequest, tradeSide } from "../db/schema";
+
+type TradeRole = "requester" | "recipient";
 
 export const tradeParticipantGuard = authGuard.concat(
   async ({ context, next }, input: GetTradeInput) => {
-    const participants = context.env.db
-      .selectDistinct({ userId: tradeSide.userId })
-      .from(tradeSide)
-      .where(eq(tradeSide.tradeId, input.tradeId))
-      .all()
-      .map(({ userId }) => userId) as [string, string];
+    const trade = await context.env.db.query.tradeRequest.findFirst({
+      where: { id: input.tradeId },
+    });
 
-    if (participants.length !== 2) throw new ORPCError("INTERNAL_SERVER_ERROR");
+    if (!trade) throw new ORPCError("NOT_FOUND");
 
-    if (!participants.includes(context.userId))
-      throw new ORPCError("NOT_FOUND");
+    if (
+      context.userId !== trade.requesterId &&
+      context.userId !== trade.recipientId
+    )
+      throw new ORPCError("UNAUTHORIZED");
 
-    return next({ context: { participants } });
+    const tradeRole: TradeRole =
+      context.userId === trade.requesterId ? "requester" : "recipient";
+
+    return next({ context: { tradeRole } });
   },
 );
 
-export const tradeOwner = authGuard.concat(
-  async ({ context, next }, input: GetTradeInput) => {
-    const res = context.env.db
-      .select()
-      .from(tradeRequest)
-      .where(eq(tradeRequest.id, input.tradeId))
-      .get();
-
-    if (!res) throw new ORPCError("NOT_FOUND");
-
-    if (res.ownerId !== context.userId) throw new ORPCError("UNAUTHORIZED");
-
+export const tradeRequesterGuard = tradeParticipantGuard.concat(
+  ({ context, next }) => {
+    if (context.tradeRole !== "requester") throw new ORPCError("UNAUTHORIZED");
     return next();
   },
 );

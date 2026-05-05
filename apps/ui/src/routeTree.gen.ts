@@ -15,9 +15,10 @@ import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedLeagueIndexRouteImport } from './routes/_authenticated/league/index'
 import { Route as AuthenticatedLeagueLeagueIdRouteRouteImport } from './routes/_authenticated/league/$leagueId/route'
 import { Route as AuthenticatedLeagueLeagueIdIndexRouteImport } from './routes/_authenticated/league/$leagueId/index'
-import { Route as AuthenticatedLeagueLeagueIdTradesRouteImport } from './routes/_authenticated/league/$leagueId/trades'
-import { Route as AuthenticatedLeagueLeagueIdDecksUserIdRouteImport } from './routes/_authenticated/league/$leagueId/decks.$userId'
-import { Route as AuthenticatedLeagueLeagueIdCollectionUserIdRouteImport } from './routes/_authenticated/league/$leagueId/collection.$userId'
+import { Route as AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/trades'
+import { Route as AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/collection'
+import { Route as AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/decks/index'
+import { Route as AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
@@ -51,22 +52,28 @@ const AuthenticatedLeagueLeagueIdIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
-const AuthenticatedLeagueLeagueIdTradesRoute =
-  AuthenticatedLeagueLeagueIdTradesRouteImport.update({
-    id: '/trades',
-    path: '/trades',
+const AuthenticatedLeagueLeagueIdUserUserIdTradesRoute =
+  AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport.update({
+    id: '/user/$userId/trades',
+    path: '/user/$userId/trades',
     getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
-const AuthenticatedLeagueLeagueIdDecksUserIdRoute =
-  AuthenticatedLeagueLeagueIdDecksUserIdRouteImport.update({
-    id: '/decks/$userId',
-    path: '/decks/$userId',
+const AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute =
+  AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport.update({
+    id: '/user/$userId/collection',
+    path: '/user/$userId/collection',
     getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
-const AuthenticatedLeagueLeagueIdCollectionUserIdRoute =
-  AuthenticatedLeagueLeagueIdCollectionUserIdRouteImport.update({
-    id: '/collection/$userId',
-    path: '/collection/$userId',
+const AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute =
+  AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport.update({
+    id: '/user/$userId/decks/',
+    path: '/user/$userId/decks/',
+    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
+  } as any)
+const AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute =
+  AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport.update({
+    id: '/user/$userId/decks/$deckId',
+    path: '/user/$userId/decks/$deckId',
     getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
   } as any)
 
@@ -75,19 +82,21 @@ export interface FileRoutesByFullPath {
   '/login': typeof LoginRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
   '/league/': typeof AuthenticatedLeagueIndexRoute
-  '/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
-  '/league/$leagueId/decks/$userId': typeof AuthenticatedLeagueLeagueIdDecksUserIdRoute
+  '/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
+  '/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
+  '/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
+  '/league/$leagueId/user/$userId/decks/': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
 }
 export interface FileRoutesByTo {
   '/login': typeof LoginRoute
   '/': typeof AuthenticatedIndexRoute
   '/league': typeof AuthenticatedLeagueIndexRoute
-  '/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
-  '/league/$leagueId/decks/$userId': typeof AuthenticatedLeagueLeagueIdDecksUserIdRoute
+  '/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
+  '/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
+  '/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
+  '/league/$leagueId/user/$userId/decks': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -96,10 +105,11 @@ export interface FileRoutesById {
   '/_authenticated/': typeof AuthenticatedIndexRoute
   '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
   '/_authenticated/league/': typeof AuthenticatedLeagueIndexRoute
-  '/_authenticated/league/$leagueId/trades': typeof AuthenticatedLeagueLeagueIdTradesRoute
   '/_authenticated/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/_authenticated/league/$leagueId/collection/$userId': typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
-  '/_authenticated/league/$leagueId/decks/$userId': typeof AuthenticatedLeagueLeagueIdDecksUserIdRoute
+  '/_authenticated/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
+  '/_authenticated/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
+  '/_authenticated/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
+  '/_authenticated/league/$leagueId/user/$userId/decks/': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -108,19 +118,21 @@ export interface FileRouteTypes {
     | '/login'
     | '/league/$leagueId'
     | '/league/'
-    | '/league/$leagueId/trades'
     | '/league/$leagueId/'
-    | '/league/$leagueId/collection/$userId'
-    | '/league/$leagueId/decks/$userId'
+    | '/league/$leagueId/user/$userId/collection'
+    | '/league/$leagueId/user/$userId/trades'
+    | '/league/$leagueId/user/$userId/decks/$deckId'
+    | '/league/$leagueId/user/$userId/decks/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/login'
     | '/'
     | '/league'
-    | '/league/$leagueId/trades'
     | '/league/$leagueId'
-    | '/league/$leagueId/collection/$userId'
-    | '/league/$leagueId/decks/$userId'
+    | '/league/$leagueId/user/$userId/collection'
+    | '/league/$leagueId/user/$userId/trades'
+    | '/league/$leagueId/user/$userId/decks/$deckId'
+    | '/league/$leagueId/user/$userId/decks'
   id:
     | '__root__'
     | '/_authenticated'
@@ -128,10 +140,11 @@ export interface FileRouteTypes {
     | '/_authenticated/'
     | '/_authenticated/league/$leagueId'
     | '/_authenticated/league/'
-    | '/_authenticated/league/$leagueId/trades'
     | '/_authenticated/league/$leagueId/'
-    | '/_authenticated/league/$leagueId/collection/$userId'
-    | '/_authenticated/league/$leagueId/decks/$userId'
+    | '/_authenticated/league/$leagueId/user/$userId/collection'
+    | '/_authenticated/league/$leagueId/user/$userId/trades'
+    | '/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
+    | '/_authenticated/league/$leagueId/user/$userId/decks/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -183,47 +196,57 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedLeagueLeagueIdIndexRouteImport
       parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
-    '/_authenticated/league/$leagueId/trades': {
-      id: '/_authenticated/league/$leagueId/trades'
-      path: '/trades'
-      fullPath: '/league/$leagueId/trades'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdTradesRouteImport
+    '/_authenticated/league/$leagueId/user/$userId/trades': {
+      id: '/_authenticated/league/$leagueId/user/$userId/trades'
+      path: '/user/$userId/trades'
+      fullPath: '/league/$leagueId/user/$userId/trades'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport
       parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
-    '/_authenticated/league/$leagueId/decks/$userId': {
-      id: '/_authenticated/league/$leagueId/decks/$userId'
-      path: '/decks/$userId'
-      fullPath: '/league/$leagueId/decks/$userId'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdDecksUserIdRouteImport
+    '/_authenticated/league/$leagueId/user/$userId/collection': {
+      id: '/_authenticated/league/$leagueId/user/$userId/collection'
+      path: '/user/$userId/collection'
+      fullPath: '/league/$leagueId/user/$userId/collection'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport
       parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
-    '/_authenticated/league/$leagueId/collection/$userId': {
-      id: '/_authenticated/league/$leagueId/collection/$userId'
-      path: '/collection/$userId'
-      fullPath: '/league/$leagueId/collection/$userId'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdCollectionUserIdRouteImport
+    '/_authenticated/league/$leagueId/user/$userId/decks/': {
+      id: '/_authenticated/league/$leagueId/user/$userId/decks/'
+      path: '/user/$userId/decks'
+      fullPath: '/league/$leagueId/user/$userId/decks/'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport
+      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
+    }
+    '/_authenticated/league/$leagueId/user/$userId/decks/$deckId': {
+      id: '/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
+      path: '/user/$userId/decks/$deckId'
+      fullPath: '/league/$leagueId/user/$userId/decks/$deckId'
+      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport
       parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
     }
   }
 }
 
 interface AuthenticatedLeagueLeagueIdRouteRouteChildren {
-  AuthenticatedLeagueLeagueIdTradesRoute: typeof AuthenticatedLeagueLeagueIdTradesRoute
   AuthenticatedLeagueLeagueIdIndexRoute: typeof AuthenticatedLeagueLeagueIdIndexRoute
-  AuthenticatedLeagueLeagueIdCollectionUserIdRoute: typeof AuthenticatedLeagueLeagueIdCollectionUserIdRoute
-  AuthenticatedLeagueLeagueIdDecksUserIdRoute: typeof AuthenticatedLeagueLeagueIdDecksUserIdRoute
+  AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
+  AuthenticatedLeagueLeagueIdUserUserIdTradesRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
+  AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
+  AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
 }
 
 const AuthenticatedLeagueLeagueIdRouteRouteChildren: AuthenticatedLeagueLeagueIdRouteRouteChildren =
   {
-    AuthenticatedLeagueLeagueIdTradesRoute:
-      AuthenticatedLeagueLeagueIdTradesRoute,
     AuthenticatedLeagueLeagueIdIndexRoute:
       AuthenticatedLeagueLeagueIdIndexRoute,
-    AuthenticatedLeagueLeagueIdCollectionUserIdRoute:
-      AuthenticatedLeagueLeagueIdCollectionUserIdRoute,
-    AuthenticatedLeagueLeagueIdDecksUserIdRoute:
-      AuthenticatedLeagueLeagueIdDecksUserIdRoute,
+    AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute:
+      AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute,
+    AuthenticatedLeagueLeagueIdUserUserIdTradesRoute:
+      AuthenticatedLeagueLeagueIdUserUserIdTradesRoute,
+    AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute:
+      AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute,
+    AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute:
+      AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute,
   }
 
 const AuthenticatedLeagueLeagueIdRouteRouteWithChildren =

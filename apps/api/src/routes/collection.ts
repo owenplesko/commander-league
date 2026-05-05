@@ -1,87 +1,63 @@
-import { card, collectionCard } from "../db/schema";
-import { eq, and, sql, isNull } from "drizzle-orm";
 import { base } from "../orpc";
 import {
   memberOfLeague,
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
+import { ORPCError } from "@orpc/server";
+import { setCollection } from "../services/collection";
+import { getLeagueMemberCollectionId } from "../services/leagueMember";
+import db from "../db";
+import { getInvalidCardNames } from "../services/card";
 
-const getCollection = base.collection.get
+const getCollectionController = base.collection.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
-    const cards = await context.env.db.query.collectionCard.findMany({
+    const res = await context.env.db.query.leagueMember.findFirst({
+      columns: {},
       where: {
         leagueId: input.leagueId,
         userId: input.userId,
       },
-      with: { card: true },
+      with: {
+        collection: { with: { cardQuantities: { with: { card: true } } } },
+      },
     });
 
-    return { cards };
+    if (!res) throw new ORPCError("NOT_FOUND");
+
+    return res.collection;
   });
 
-const setCollection = base.collection.set
+const setCollectionController = base.collection.set
   .use(selfOrLeagueOwner)
-  .handler(async ({ input, context, errors }) => {
-    context.env.db.transaction((tx) => {
-      tx.delete(collectionCard)
-        .where(
-          and(
-            eq(collectionCard.leagueId, input.leagueId),
-            eq(collectionCard.userId, input.userId),
-          ),
-        )
-        .run();
+  .handler(async ({ input, errors }) => {
+    const invalidCardNames = getInvalidCardNames({
+      cardNames: input.cardQuantites.map(({ cardName }) => cardName),
+    });
+    if (invalidCardNames.length > 0) {
+      throw errors.BAD_REQUEST({
+        data: {
+          invalidCardNames,
+        },
+      });
+    }
 
-      const valuesSql = sql.join(
-        input.cards.map((c) => sql`(${c.cardName})`),
-        sql`,`,
-      );
+    db.transaction((tx) => {
+      const collectionId = getLeagueMemberCollectionId({
+        userId: input.userId,
+        leagueId: input.leagueId,
+        qc: tx,
+      });
+      if (!collectionId) throw new ORPCError("NOT_FOUND");
 
-      const inputCardsSubquery = tx
-        .select({ cardName: sql<string>`column1`.as("cardName") })
-        .from(sql`(values ${valuesSql})`)
-        .as("input_cards");
-
-      const invalidCards = tx
-        .select({ cardName: inputCardsSubquery.cardName })
-        .from(inputCardsSubquery)
-        .leftJoin(card, eq(inputCardsSubquery.cardName, card.name))
-        .where(isNull(card.name))
-        .all();
-
-      if (invalidCards.length > 0) {
-        throw errors.BAD_REQUEST({
-          data: {
-            invalidCardNames: invalidCards.map(({ cardName }) => cardName),
-          },
-        });
-      }
-
-      tx.insert(collectionCard)
-        .values(
-          input.cards.map(({ cardName, quantity }) => ({
-            cardName,
-            quantity,
-            leagueId: input.leagueId,
-            userId: input.userId,
-          })),
-        )
-        .onConflictDoUpdate({
-          target: [
-            collectionCard.leagueId,
-            collectionCard.userId,
-            collectionCard.cardName,
-          ],
-          set: {
-            quantity: sql`${collectionCard.quantity} + excluded.quantity`,
-          },
-        })
-        .run();
+      setCollection({
+        collectionId,
+        cardQuantities: input.cardQuantites,
+      });
     });
   });
 
 export const collectionRoutes = {
-  get: getCollection,
-  set: setCollection,
+  get: getCollectionController,
+  set: setCollectionController,
 };

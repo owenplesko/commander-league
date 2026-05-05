@@ -2,7 +2,7 @@ import { Database } from "bun:sqlite";
 import { drizzle } from "drizzle-orm/bun-sqlite";
 import { relations } from "./relations.ts";
 
-const sqlite = new Database(process.env.DB_FILE_NAME!);
+const sqlite = new Database(process.env.DB_FILE_NAME ?? "db.sqlite");
 
 sqlite.run("PRAGMA foreign_keys = ON;");
 

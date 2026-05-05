@@ -5,16 +5,10 @@
   padding: 1rem;
 }
 
-.form {
+.modalForm {
   display: flex;
   flex-direction: column;
   gap: 2rem;
-
-  .field {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
 }
 
 li,

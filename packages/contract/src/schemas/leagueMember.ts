@@ -9,6 +9,7 @@ export type LeagueRole = (typeof leagueRoleValues)[number];
 export const LeagueMemberSchema = z.object({
   role: z.enum(leagueRoleValues),
   user: UserSchema,
+  collectionId: z.number(),
 });
 export type LeagueMember = z.infer<typeof LeagueMemberSchema>;
 
