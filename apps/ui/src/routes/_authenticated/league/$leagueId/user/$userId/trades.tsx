@@ -11,9 +11,9 @@ import { Tag, type TagProps } from "primereact/tag";
 import { Menu } from "primereact/menu";
 import { useMemo, useRef, useState } from "react";
 import type { MenuItem } from "primereact/menuitem";
-import { TradeItemsPreview } from "../../../../../../components/TradePreview";
-import { UserBadge } from "../../../../../../components/UserBadge";
 import { queryClient, orpc } from "../../../../../../lib/client";
+import { TradeItemsPreview } from "../../../../../../features/trade/components/TradePreview";
+import { UserBadge } from "../../../../../../features/common/components/UserBade";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/trades",

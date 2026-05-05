@@ -6,9 +6,9 @@ import {
   useRouter,
 } from "@tanstack/react-router";
 import { authClient } from "../../lib/authClient";
-import { UserBadge } from "../../components/UserBadge";
 import { Menu } from "primereact/menu";
 import { useRef } from "react";
+import { UserBadge } from "../../features/common/components/UserBade";
 
 export const Route = createFileRoute("/_authenticated")({
   beforeLoad: async ({ location }) => {

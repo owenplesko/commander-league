@@ -1,5 +1,5 @@
 import type { User } from "@commander-league/contract/schemas";
-import classes from "./UserBadge.module.css";
+import classes from "../styles/UserBadge.module.css";
 import { Avatar } from "primereact/avatar";
 
 type Props = { user: User };

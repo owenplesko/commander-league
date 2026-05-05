@@ -3,12 +3,12 @@ import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@tanstack/react-query";
 import { orpc } from "../../../lib/client";
-import { UserBadge } from "../../../components/UserBadge";
 import { useCardQuantityList } from "../hooks/useQuantityList";
 import { CardAutoComplete } from "../../common/components/CardAutoComplete";
 import { useEffect, useState } from "react";
 import type { AutoCompleteSelectEvent } from "primereact/autocomplete";
-import { TradeItemsPreview } from "../../../components/TradePreview";
+import { TradeItemsPreview } from "./TradePreview";
+import { UserBadge } from "../../common/components/UserBade";
 
 type Props = {
   leagueId: number;
