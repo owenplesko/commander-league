@@ -37,8 +37,6 @@ export async function downloadAllPrintings(): Promise<void> {
     unlinkSync(GZ_PATH);
     console.log("Cleaning up AllPrintings.json.gz");
   }
-
-  console.log("Done!");
 }
 
 export async function getAllPrintings(): Promise<Record<string, Set>> {

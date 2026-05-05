@@ -54,5 +54,3 @@ for (let i = 0; i < rows.length; i += BATCH_SIZE) {
     `Inserted ${Math.min(i + BATCH_SIZE, rows.length)}/${rows.length} cards`,
   );
 }
-
-console.log("Done!");
