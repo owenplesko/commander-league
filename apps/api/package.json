@@ -4,8 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "download-all-printings": "bun scripts/downloadAllPrintings.ts",
-    "load-cards": "bun scripts/loadCards.ts",
+    "mtg:download": "bun scripts/downloadAllPrintings.ts",
+    "mtg:load-cards": "bun scripts/loadCards.ts",
+    "db:migrate": "bunx drizzle-kit migrate",
     "dev": "bun --watch src/index.ts"
   },
   "devDependencies": {
