@@ -6,23 +6,17 @@ import { HoverCard } from "./HoverCard";
 
 export function CardAutoComplete({
   collectionId,
-  onSelect,
   ...defautlProps
 }: AutoCompleteProps & {
   collectionId?: number;
 }) {
   const [suggestions, setSuggestions] = useState<Card[]>([]);
-  const [hoverCard, setHoverCard] = useState<Card>();
 
   function itemTemplate(card: Card) {
     return (
-      <div
-        onMouseEnter={() => setHoverCard(card)}
-        onMouseLeave={() => setHoverCard(undefined)}
-        style={{ padding: "0.75rem 1.25rem" }}
-      >
-        {card.name}
-      </div>
+      <HoverCard card={card}>
+        <div style={{ padding: "0.75rem 1.25rem" }}>{card.name}</div>
+      </HoverCard>
     );
   }
 
@@ -52,12 +46,7 @@ export function CardAutoComplete({
 
           setSuggestions(res);
         }}
-        onSelect={(e) => {
-          setHoverCard(undefined);
-          if (onSelect) onSelect(e);
-        }}
       />
-      <HoverCard card={hoverCard} />
     </>
   );
 }

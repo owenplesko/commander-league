@@ -44,6 +44,7 @@ export function searchCards({
             like: `%${cardName}%`,
           },
         },
+        limit,
       })
       .sync();
 

@@ -1,5 +1,4 @@
 import classes from "../styles/Table.module.css";
-import type { Card } from "@commander-league/contract/schemas";
 import { useRef, useState } from "react";
 import type { CardGroup } from "../types/cardGrouping";
 import { useToggleSet } from "../hooks/useToggleSet";
@@ -20,7 +19,6 @@ export function Body({
   cardGroups: CardGroup[];
   menuOptionsTemplate?: (mc: MenuCard) => MenuItem[] | null;
 }) {
-  const [hoveredCard, setHoveredCard] = useState<Card>();
   const [menuCard, setMenuCard] = useState<MenuCard>();
   const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const menuRef = useRef<ContextMenu>(null);
@@ -30,7 +28,6 @@ export function Body({
   const ref = useRef<HTMLDivElement>(null);
   const { width } = useSize(ref);
   const columns = Math.floor(width / MAX_COL_SIZE) + 1;
-  console.log(columns);
 
   const { isToggled: isCollapsed, toggle } = useToggleSet();
   const groupBins = useBinFilling({
@@ -68,19 +65,19 @@ export function Body({
                   <ul>
                     {entries.map((cq) => (
                       <li key={cq.card.name} className={classes.listSeparator}>
-                        <div
-                          className={classes.item}
-                          onMouseEnter={() => setHoveredCard(cq.card)}
-                          onMouseLeave={() => setHoveredCard(undefined)}
-                          onClick={(e) => {
-                            setMenuCard({ ...cq, groupId: id });
-                            menuRef.current?.show(e);
-                          }}
-                        >
-                          <span className={classes.textEllipsis}>
-                            {`${cq.quantity} ${cq.card.name}`}
-                          </span>
-                        </div>
+                        <HoverCard card={cq.card}>
+                          <div
+                            className={classes.item}
+                            onClick={(e) => {
+                              setMenuCard({ ...cq, groupId: id });
+                              menuRef.current?.show(e);
+                            }}
+                          >
+                            <span className={classes.textEllipsis}>
+                              {`${cq.quantity} ${cq.card.name}`}
+                            </span>
+                          </div>
+                        </HoverCard>
                       </li>
                     ))}
                   </ul>
@@ -90,7 +87,6 @@ export function Body({
           </div>
         ))}
       </div>
-      <HoverCard card={menuVisible ? undefined : hoveredCard} />
       <ContextMenu
         model={menuOptions ?? [{ label: "No Options", disabled: true }]}
         ref={menuRef}
