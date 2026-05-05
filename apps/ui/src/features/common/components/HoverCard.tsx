@@ -1,6 +1,7 @@
 import type { Card } from "@commander-league/contract/schemas";
 import { useEffect, useState } from "react";
-import { scryfallImgUrl } from "../lib/utils";
+import { scryfallImgUrl } from "../../../lib/utils";
+import { createPortal } from "react-dom";
 
 type Props = { card: Card | undefined };
 export function HoverCard({ card }: Props) {
@@ -14,17 +15,19 @@ export function HoverCard({ card }: Props) {
 
   if (!card) return null;
 
-  return (
+  return createPortal(
     <img
       style={{
         position: "fixed",
         top: 0,
         left: 0,
+        zIndex: 3000,
         transform: `translate(${x + 32}px, ${y - 48}px)`,
         pointerEvents: "none",
         height: "300px",
       }}
       src={scryfallImgUrl(card?.data.printings[0]?.scryfallId ?? null)}
-    />
+    />,
+    document.body,
   );
 }

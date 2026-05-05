@@ -4,12 +4,12 @@ import { useRef, useState } from "react";
 import type { CardGroup } from "../types/cardGrouping";
 import { useToggleSet } from "../hooks/useToggleSet";
 import { PrimeIcons } from "primereact/api";
-import { HoverCard } from "./HoveredCard";
 import { useBinFilling } from "../hooks/useBinFilling";
 import { useSize } from "../hooks/useSize";
 import type { MenuItem } from "primereact/menuitem";
 import type { MenuCard } from "../types/menuCard";
 import { ContextMenu } from "primereact/contextmenu";
+import { HoverCard } from "../../common/components/HoverCard";
 
 const MAX_COL_SIZE = 300;
 
