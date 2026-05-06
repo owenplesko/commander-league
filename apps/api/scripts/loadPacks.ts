@@ -21,7 +21,7 @@ function transformToPack(
 ): Pack {
   const pack: Pack = {
     id: `${setCode}-${packCode}`,
-    name: cfg.name ?? `${setCode} ${packCode}`,
+    name: cfg.name ?? `${setCode} Default`,
     structures: cfg.boosters.map((b) => ({
       weight: b.weight,
       slots: Object.fromEntries(
