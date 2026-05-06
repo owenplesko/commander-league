@@ -143,7 +143,7 @@ export const deck = sqliteTable(
 );
 
 export const pack = sqliteTable("pack", {
-  id: integer().notNull().primaryKey(),
+  id: text().notNull().primaryKey(),
   name: text().notNull(),
 });
 
@@ -151,9 +151,9 @@ export const packPool = sqliteTable(
   "pack_card_pool",
   {
     id: text().notNull(),
-    packId: integer()
+    packId: text()
       .notNull()
-      .references(() => pack.id),
+      .references(() => pack.id, { onDelete: "cascade" }),
     collectionId: integer()
       .notNull()
       .references(() => collection.id),
@@ -165,9 +165,9 @@ export const packStructure = sqliteTable(
   "pack_structure",
   {
     index: integer().notNull(),
-    packId: integer()
+    packId: text()
       .notNull()
-      .references(() => pack.id),
+      .references(() => pack.id, { onDelete: "cascade" }),
     weight: integer().notNull(),
   },
   (t) => [
@@ -179,18 +179,18 @@ export const packStructure = sqliteTable(
 export const packStructureSlot = sqliteTable(
   "pack_structure_slot",
   {
-    packId: integer().notNull(),
+    packId: text().notNull(),
     structureIndex: integer().notNull(),
-    poolId: integer().notNull(),
+    poolId: text().notNull(),
     count: integer().notNull(),
   },
   (t) => [
-    primaryKey({ columns: [t.structureIndex, t.poolId] }),
+    primaryKey({ columns: [t.packId, t.structureIndex, t.poolId] }),
     // ensure that the packStructure and packPool references are all within the same pack
     foreignKey({
       columns: [t.packId, t.structureIndex],
       foreignColumns: [packStructure.packId, packStructure.index],
-    }),
+    }).onDelete("cascade"),
     foreignKey({
       columns: [t.packId, t.poolId],
       foreignColumns: [packPool.packId, packPool.id],

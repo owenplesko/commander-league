@@ -1,4 +1,5 @@
 export type Pack = {
+  id: string;
   name: string;
   structures: PackStructure[];
   cardPools: Record<string, CardPool>;

@@ -1,7 +1,7 @@
 {
   "version": "7",
   "dialect": "sqlite",
-  "id": "65f5a31e-5aac-4567-8076-3e0767dd0bbe",
+  "id": "46011a4f-ee5d-4289-982e-36f179b2aeb2",
   "prevIds": [
     "00000000-0000-0000-0000-000000000000"
   ],
@@ -431,7 +431,7 @@
       "table": "league_member"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": false,
       "autoincrement": false,
       "default": null,
@@ -461,7 +461,7 @@
       "table": "pack_card_pool"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -491,7 +491,7 @@
       "table": "pack_structure"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -511,7 +511,7 @@
       "table": "pack_structure"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -531,7 +531,7 @@
       "table": "pack_structure_slot"
     },
     {
-      "type": "integer",
+      "type": "text",
       "notNull": true,
       "autoincrement": false,
       "default": null,
@@ -1046,7 +1046,7 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "nameExplicit": false,
       "name": "fk_pack_card_pool_pack_id_pack_id_fk",
       "entityType": "fks",
@@ -1076,7 +1076,7 @@
         "id"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "nameExplicit": false,
       "name": "fk_pack_structure_pack_id_pack_id_fk",
       "entityType": "fks",
@@ -1093,7 +1093,7 @@
         "index"
       ],
       "onUpdate": "NO ACTION",
-      "onDelete": "NO ACTION",
+      "onDelete": "CASCADE",
       "nameExplicit": false,
       "name": "fk_pack_structure_slot_pack_id_structure_index_pack_structure_pack_id_index_fk",
       "entityType": "fks",
@@ -1237,6 +1237,7 @@
     },
     {
       "columns": [
+        "pack_id",
         "structure_index",
         "pool_id"
       ],

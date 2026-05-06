@@ -75,35 +75,35 @@ CREATE TABLE `league_member` (
 );
 --> statement-breakpoint
 CREATE TABLE `pack` (
-	`id` integer PRIMARY KEY,
+	`id` text PRIMARY KEY,
 	`name` text NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `pack_card_pool` (
 	`id` text NOT NULL,
-	`pack_id` integer NOT NULL,
+	`pack_id` text NOT NULL,
 	`collection_id` integer NOT NULL,
 	CONSTRAINT `pack_card_pool_pk` PRIMARY KEY(`pack_id`, `id`),
-	CONSTRAINT `fk_pack_card_pool_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`),
+	CONSTRAINT `fk_pack_card_pool_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `fk_pack_card_pool_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `pack_structure` (
 	`index` integer NOT NULL,
-	`pack_id` integer NOT NULL,
+	`pack_id` text NOT NULL,
 	`weight` integer NOT NULL,
 	CONSTRAINT `pack_structure_pk` PRIMARY KEY(`pack_id`, `index`),
-	CONSTRAINT `fk_pack_structure_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`),
+	CONSTRAINT `fk_pack_structure_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`) ON DELETE CASCADE,
 	CONSTRAINT "pack_structure_weight_check" CHECK("weight" > 0)
 );
 --> statement-breakpoint
 CREATE TABLE `pack_structure_slot` (
-	`pack_id` integer NOT NULL,
+	`pack_id` text NOT NULL,
 	`structure_index` integer NOT NULL,
-	`pool_id` integer NOT NULL,
+	`pool_id` text NOT NULL,
 	`count` integer NOT NULL,
-	CONSTRAINT `pack_structure_slot_pk` PRIMARY KEY(`structure_index`, `pool_id`),
-	CONSTRAINT `fk_pack_structure_slot_pack_id_structure_index_pack_structure_pack_id_index_fk` FOREIGN KEY (`pack_id`,`structure_index`) REFERENCES `pack_structure`(`pack_id`,`index`),
+	CONSTRAINT `pack_structure_slot_pk` PRIMARY KEY(`pack_id`, `structure_index`, `pool_id`),
+	CONSTRAINT `fk_pack_structure_slot_pack_id_structure_index_pack_structure_pack_id_index_fk` FOREIGN KEY (`pack_id`,`structure_index`) REFERENCES `pack_structure`(`pack_id`,`index`) ON DELETE CASCADE,
 	CONSTRAINT `fk_pack_structure_slot_pack_id_pool_id_pack_card_pool_pack_id_id_fk` FOREIGN KEY (`pack_id`,`pool_id`) REFERENCES `pack_card_pool`(`pack_id`,`id`)
 );
 --> statement-breakpoint
@@ -156,3 +156,33 @@ CREATE TABLE `verification` (
 CREATE INDEX `account_userId_idx` ON `account` (`user_id`);--> statement-breakpoint
 CREATE INDEX `session_userId_idx` ON `session` (`user_id`);--> statement-breakpoint
 CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);
+--> statement-breakpoint
+CREATE TRIGGER delete_collection_on_league_member_delete
+AFTER DELETE ON league_member
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;
+--> statement-breakpoint
+CREATE TRIGGER delete_collection_on_deck_delete
+AFTER DELETE ON deck
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;
+--> statement-breakpoint
+CREATE TRIGGER delete_collection_on_trade_request_requester_delete
+AFTER DELETE ON trade_request
+BEGIN
+  DELETE FROM collection WHERE id = OLD.requester_collection_id;
+END;
+--> statement-breakpoint
+CREATE TRIGGER delete_collection_on_trade_request_recipient_delete
+AFTER DELETE ON trade_request
+BEGIN
+  DELETE FROM collection WHERE id = OLD.recipient_collection_id;
+END;
+--> statement-breakpoint
+CREATE TRIGGER delete_collection_on_pack_card_pool_delete
+AFTER DELETE ON pack_card_pool
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;
