@@ -150,16 +150,15 @@ export const pack = sqliteTable("pack", {
 export const packPool = sqliteTable(
   "pack_card_pool",
   {
-    index: integer().notNull(),
+    id: text().notNull(),
     packId: integer()
       .notNull()
       .references(() => pack.id),
-    name: text().notNull(),
     collectionId: integer()
       .notNull()
       .references(() => collection.id),
   },
-  (t) => [primaryKey({ columns: [t.packId, t.index] })],
+  (t) => [primaryKey({ columns: [t.packId, t.id] })],
 );
 
 export const packStructure = sqliteTable(
@@ -169,7 +168,6 @@ export const packStructure = sqliteTable(
     packId: integer()
       .notNull()
       .references(() => pack.id),
-    name: text().notNull(),
     weight: integer().notNull(),
   },
   (t) => [
@@ -182,20 +180,20 @@ export const packStructureSlot = sqliteTable(
   "pack_structure_slot",
   {
     packId: integer().notNull(),
-    packStructureId: integer().notNull(),
+    structureIndex: integer().notNull(),
     poolId: integer().notNull(),
     count: integer().notNull(),
   },
   (t) => [
-    primaryKey({ columns: [t.packStructureId, t.poolId] }),
+    primaryKey({ columns: [t.structureIndex, t.poolId] }),
     // ensure that the packStructure and packPool references are all within the same pack
     foreignKey({
-      columns: [t.packStructureId, t.packId],
-      foreignColumns: [packStructure.index, packStructure.packId],
+      columns: [t.packId, t.structureIndex],
+      foreignColumns: [packStructure.packId, packStructure.index],
     }),
     foreignKey({
-      columns: [t.poolId, t.packId],
-      foreignColumns: [packPool.index, packPool.packId],
+      columns: [t.packId, t.poolId],
+      foreignColumns: [packPool.packId, packPool.id],
     }),
   ],
 );

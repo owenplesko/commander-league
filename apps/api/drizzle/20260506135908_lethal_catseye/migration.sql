@@ -39,11 +39,13 @@ CREATE TABLE `deck` (
 	`league_id` integer NOT NULL,
 	`user_id` text NOT NULL,
 	`name` text NOT NULL,
-	`display_card_name` text,
+	`commander_card_name` text NOT NULL,
+	`partner_card_name` text,
 	`collection_id` integer NOT NULL,
 	CONSTRAINT `fk_deck_league_id_league_id_fk` FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `fk_deck_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
-	CONSTRAINT `fk_deck_display_card_name_card_name_fk` FOREIGN KEY (`display_card_name`) REFERENCES `card`(`name`),
+	CONSTRAINT `fk_deck_commander_card_name_card_name_fk` FOREIGN KEY (`commander_card_name`) REFERENCES `card`(`name`),
+	CONSTRAINT `fk_deck_partner_card_name_card_name_fk` FOREIGN KEY (`partner_card_name`) REFERENCES `card`(`name`),
 	CONSTRAINT `fk_deck_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`),
 	CONSTRAINT `fk_deck_league_id_user_id_league_member_league_id_user_id_fk` FOREIGN KEY (`league_id`,`user_id`) REFERENCES `league_member`(`league_id`,`user_id`) ON DELETE CASCADE
 );
@@ -72,6 +74,39 @@ CREATE TABLE `league_member` (
 	CONSTRAINT `fk_league_member_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `pack` (
+	`id` integer PRIMARY KEY,
+	`name` text NOT NULL
+);
+--> statement-breakpoint
+CREATE TABLE `pack_card_pool` (
+	`id` text NOT NULL,
+	`pack_id` integer NOT NULL,
+	`collection_id` integer NOT NULL,
+	CONSTRAINT `pack_card_pool_pk` PRIMARY KEY(`pack_id`, `id`),
+	CONSTRAINT `fk_pack_card_pool_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`),
+	CONSTRAINT `fk_pack_card_pool_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
+);
+--> statement-breakpoint
+CREATE TABLE `pack_structure` (
+	`index` integer NOT NULL,
+	`pack_id` integer NOT NULL,
+	`weight` integer NOT NULL,
+	CONSTRAINT `pack_structure_pk` PRIMARY KEY(`pack_id`, `index`),
+	CONSTRAINT `fk_pack_structure_pack_id_pack_id_fk` FOREIGN KEY (`pack_id`) REFERENCES `pack`(`id`),
+	CONSTRAINT "pack_structure_weight_check" CHECK("weight" > 0)
+);
+--> statement-breakpoint
+CREATE TABLE `pack_structure_slot` (
+	`pack_id` integer NOT NULL,
+	`structure_index` integer NOT NULL,
+	`pool_id` integer NOT NULL,
+	`count` integer NOT NULL,
+	CONSTRAINT `pack_structure_slot_pk` PRIMARY KEY(`structure_index`, `pool_id`),
+	CONSTRAINT `fk_pack_structure_slot_pack_id_structure_index_pack_structure_pack_id_index_fk` FOREIGN KEY (`pack_id`,`structure_index`) REFERENCES `pack_structure`(`pack_id`,`index`),
+	CONSTRAINT `fk_pack_structure_slot_pack_id_pool_id_pack_card_pool_pack_id_id_fk` FOREIGN KEY (`pack_id`,`pool_id`) REFERENCES `pack_card_pool`(`pack_id`,`id`)
+);
+--> statement-breakpoint
 CREATE TABLE `session` (
 	`id` text PRIMARY KEY,
 	`expires_at` integer NOT NULL,
@@ -87,20 +122,16 @@ CREATE TABLE `session` (
 CREATE TABLE `trade_request` (
 	`id` integer PRIMARY KEY,
 	`league_id` integer NOT NULL,
-	`owner_id` text NOT NULL,
-	CONSTRAINT `fk_trade_request_league_id_league_id_fk` FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_trade_request_owner_id_user_id_fk` FOREIGN KEY (`owner_id`) REFERENCES `user`(`id`)
-);
---> statement-breakpoint
-CREATE TABLE `trade_side` (
-	`trade_id` integer NOT NULL,
-	`user_id` text NOT NULL,
-	`status` text DEFAULT 'pending' NOT NULL,
-	`collection_id` integer NOT NULL,
-	CONSTRAINT `trade_side_pk` PRIMARY KEY(`trade_id`, `user_id`),
-	CONSTRAINT `fk_trade_side_trade_id_trade_request_id_fk` FOREIGN KEY (`trade_id`) REFERENCES `trade_request`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_trade_side_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
-	CONSTRAINT `fk_trade_side_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
+	`requester_id` text NOT NULL,
+	`requester_status` text DEFAULT 'pending' NOT NULL,
+	`requester_collection_id` integer NOT NULL,
+	`recipient_id` text NOT NULL,
+	`recipient_status` text DEFAULT 'pending' NOT NULL,
+	`recipient_collection_id` integer NOT NULL,
+	CONSTRAINT `fk_trade_request_requester_collection_id_collection_id_fk` FOREIGN KEY (`requester_collection_id`) REFERENCES `collection`(`id`),
+	CONSTRAINT `fk_trade_request_recipient_collection_id_collection_id_fk` FOREIGN KEY (`recipient_collection_id`) REFERENCES `collection`(`id`),
+	CONSTRAINT `requester_fkey` FOREIGN KEY (`league_id`,`requester_id`) REFERENCES `league_member`(`league_id`,`user_id`),
+	CONSTRAINT `recipient_fkey` FOREIGN KEY (`league_id`,`recipient_id`) REFERENCES `league_member`(`league_id`,`user_id`)
 );
 --> statement-breakpoint
 CREATE TABLE `user` (
