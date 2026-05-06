@@ -142,6 +142,64 @@ export const deck = sqliteTable(
   ],
 );
 
+export const pack = sqliteTable("pack", {
+  id: integer().notNull().primaryKey(),
+  name: text().notNull(),
+});
+
+export const packPool = sqliteTable(
+  "pack_card_pool",
+  {
+    index: integer().notNull(),
+    packId: integer()
+      .notNull()
+      .references(() => pack.id),
+    name: text().notNull(),
+    collectionId: integer()
+      .notNull()
+      .references(() => collection.id),
+  },
+  (t) => [primaryKey({ columns: [t.packId, t.index] })],
+);
+
+export const packStructure = sqliteTable(
+  "pack_structure",
+  {
+    index: integer().notNull(),
+    packId: integer()
+      .notNull()
+      .references(() => pack.id),
+    name: text().notNull(),
+    weight: integer().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.packId, t.index] }),
+    check("pack_structure_weight_check", sql`${t.weight} > 0`),
+  ],
+);
+
+export const packStructureSlot = sqliteTable(
+  "pack_structure_slot",
+  {
+    packId: integer().notNull(),
+    packStructureId: integer().notNull(),
+    poolId: integer().notNull(),
+    count: integer().notNull(),
+  },
+  (t) => [
+    primaryKey({ columns: [t.packStructureId, t.poolId] }),
+    // ensure that the packStructure and packPool references are all within the same pack
+    foreignKey({
+      columns: [t.packStructureId, t.packId],
+      foreignColumns: [packStructure.index, packStructure.packId],
+    }),
+    foreignKey({
+      columns: [t.poolId, t.packId],
+      foreignColumns: [packPool.index, packPool.packId],
+    }),
+  ],
+);
+
 // auth stuff
 export const user = sqliteTable("user", {
   id: text("id").primaryKey(),
