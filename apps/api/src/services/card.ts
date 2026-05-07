@@ -1,7 +1,7 @@
 import { inArray } from "drizzle-orm";
 import db, { type DB, type TX } from "../db";
 import { card } from "../db/schema";
-import { collectionCardSearch, globalCardSearch } from "../repository/card";
+import * as repo from "../repository/";
 
 export function getInvalidCardNames({
   qc = db,
@@ -35,7 +35,17 @@ export function searchCards({
   limit?: number;
 }) {
   if (collectionId)
-    return collectionCardSearch({ searchTerm, collectionId, limit });
+    return repo.collectionCardSearch({ searchTerm, collectionId, limit });
 
-  return globalCardSearch({ searchTerm, limit });
+  return repo.globalCardSearch({ searchTerm, limit });
+}
+
+export function filterInvalidCardNames({ cardNames }: { cardNames: string[] }) {
+  const validCards = repo.filterValidCardNames({ cardNames });
+
+  const validNames = new Set(validCards.map((c) => c.name));
+
+  const invalidNames = cardNames.filter((name) => !validNames.has(name));
+
+  return invalidNames;
 }

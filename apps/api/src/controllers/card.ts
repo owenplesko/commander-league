@@ -1,5 +1,5 @@
 import { member } from "../orpc";
-import { searchCards } from "../services/card";
+import { searchCards } from "../services";
 
 const listCardsController = member.card.list.handler(({ input }) => {
   return searchCards(input);

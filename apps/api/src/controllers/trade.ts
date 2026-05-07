@@ -11,7 +11,7 @@ import {
   executeTrade,
   deleteTrade as deleteTradeProcedure,
 } from "../services/trade";
-import { createCollection, setCollection } from "../services/collection";
+import { createCollection, setCollectionCards } from "../services/collection";
 
 const listTradesController = public.trade.list
   .use(memberOfLeague)
@@ -74,7 +74,7 @@ const createTradeController = public.trade.create
         const { collectionId: requesterCollectionId } = createCollection({
           qc: tx,
         });
-        setCollection({
+        setCollectionCards({
           collectionId: requesterCollectionId,
           cardQuantities: offerCardQuantities,
         });
@@ -82,7 +82,7 @@ const createTradeController = public.trade.create
         const { collectionId: recipientCollectionId } = createCollection({
           qc: tx,
         });
-        setCollection({
+        setCollectionCards({
           collectionId: recipientCollectionId,
           cardQuantities: recipientCardQuantities,
         });

@@ -1,25 +1,21 @@
 import { ORPCError } from "@orpc/server";
-import { eq, and } from "drizzle-orm";
-import { member } from "../db/schema";
 import { authMiddleware } from "./auth";
+import { getMember } from "../repository/member";
 
-export const memberMiddleware = authMiddleware.concat(({ context, next }) => {
-  if (!membership) throw new ORPCError("UNAUTHORIZED");
+export const memberMiddleware = authMiddleware.concat(
+  ({ context: { userId }, next }) => {
+    const member = getMember({ userId });
 
-  return next({ context: { leagueRole: membership.role } });
-});
+    if (!member) throw new ORPCError("UNAUTHORIZED");
 
-export const leagueOwner = memberOfLeague.concat(({ context, next }) => {
-  if (context.leagueRole !== "owner") throw new ORPCError("UNAUTHORIZED");
+    return next({ context: { admin: member.admin } });
+  },
+);
 
-  return next();
-});
+export const adminMiddleware = memberMiddleware.concat(
+  ({ context: { admin }, next }) => {
+    if (!admin) throw new ORPCError("UNAUTHORIZED");
 
-export const selfOrLeagueOwner = memberOfLeague.concat(
-  ({ context, next }, input: GetLeagueMemberInput) => {
-    if (context.leagueRole === "owner" || context.userId === input.userId)
-      return next();
-
-    throw new ORPCError("UNAUTHORIZED");
+    return next();
   },
 );

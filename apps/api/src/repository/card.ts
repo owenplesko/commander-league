@@ -1,4 +1,6 @@
+import { inArray } from "drizzle-orm";
 import db from "../db";
+import { card } from "../db/schema";
 
 export function globalCardSearch({
   searchTerm,
@@ -48,4 +50,16 @@ export function collectionCardSearch({
     .map(({ card }) => card);
 
   return res;
+}
+
+export function filterValidCardNames({ cardNames }: { cardNames: string[] }) {
+  if (cardNames.length === 0) return [];
+
+  const validCards = db
+    .select({ name: card.name })
+    .from(card)
+    .where(inArray(card.name, cardNames))
+    .all();
+
+  return validCards;
 }
