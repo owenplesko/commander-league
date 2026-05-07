@@ -1,11 +1,10 @@
-import { base } from "../orpc";
+import { member } from "../orpc";
 import { searchCards } from "../services/card";
 
-const searchCardsController = base.card.search.handler(({ input, context }) => {
-  const res = searchCards({ ...input });
-  return res;
+const listCardsController = member.card.list.handler(({ input }) => {
+  return searchCards(input);
 });
 
 export const cardRoutes = {
-  search: searchCardsController,
+  list: listCardsController,
 };

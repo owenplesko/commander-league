@@ -1,6 +1,7 @@
 import { inArray } from "drizzle-orm";
-import db, { type DB, type QueryClient, type TX } from "../db";
+import db, { type DB, type TX } from "../db";
 import { card } from "../db/schema";
+import { collectionCardSearch, globalCardSearch } from "../repository/card";
 
 export function getInvalidCardNames({
   qc = db,
@@ -25,49 +26,16 @@ export function getInvalidCardNames({
 }
 
 export function searchCards({
-  qc = db,
-  cardName,
+  searchTerm = "",
   collectionId,
   limit = 10,
 }: {
-  qc?: QueryClient;
-  cardName: string;
+  searchTerm?: string;
   collectionId?: number;
   limit?: number;
 }) {
-  // no collection scope
-  if (!collectionId) {
-    const res = qc.query.card
-      .findMany({
-        where: {
-          name: {
-            like: `%${cardName}%`,
-          },
-        },
-        limit,
-      })
-      .sync();
+  if (collectionId)
+    return collectionCardSearch({ searchTerm, collectionId, limit });
 
-    return res;
-  }
-
-  // yes collection scope
-  const res = qc.query.collectionCard
-    .findMany({
-      columns: {},
-      where: {
-        collectionId,
-        cardName: {
-          like: `%${cardName}%`,
-        },
-      },
-      limit,
-      with: {
-        card: true,
-      },
-    })
-    .sync()
-    .map(({ card }) => card);
-
-  return res;
+  return globalCardSearch({ searchTerm, limit });
 }

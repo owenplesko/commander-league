@@ -1,10 +1,10 @@
 import type { GetTradeInput } from "@commander-league/contract/schemas";
 import { ORPCError } from "@orpc/server";
-import { authGuard } from "./auth";
+import { authMiddleware } from "./auth";
 
 type TradeRole = "requester" | "recipient";
 
-export const tradeParticipantGuard = authGuard.concat(
+export const tradeParticipantGuard = authMiddleware.concat(
   async ({ context, next }, input: GetTradeInput) => {
     const trade = await context.env.db.query.tradeRequest.findFirst({
       where: { id: input.tradeId },

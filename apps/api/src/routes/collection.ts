@@ -1,4 +1,4 @@
-import { base } from "../orpc";
+import { public } from "../orpc";
 import {
   memberOfLeague,
   selfOrLeagueOwner,
@@ -9,7 +9,7 @@ import { getLeagueMemberCollectionId } from "../services/leagueMember";
 import db from "../db";
 import { getInvalidCardNames } from "../services/card";
 
-const getCollectionController = base.collection.get
+const getCollectionController = public.collection.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leagueMember.findFirst({
@@ -28,7 +28,7 @@ const getCollectionController = base.collection.get
     return res.collection;
   });
 
-const setCollectionController = base.collection.set
+const setCollectionController = public.collection.set
   .use(selfOrLeagueOwner)
   .handler(async ({ input, errors }) => {
     const invalidCardNames = getInvalidCardNames({

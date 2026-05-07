@@ -1,31 +1,31 @@
-import { inviteCode, league, leagueMember } from "../db/schema";
+import { inviteCode, league, member } from "../db/schema";
 import { and, count, eq, ne } from "drizzle-orm";
 import type { League } from "@commander-league/contract/schemas";
 import { MAX_INVITE_COUNT } from "@commander-league/contract/constants";
 import { ORPCError } from "@orpc/server";
 import { generateBase36Code } from "../lib/generateInviteCode";
-import { base } from "../orpc";
+import { public } from "../orpc";
 import {
   memberOfLeague,
   leagueOwner,
   selfOrLeagueOwner,
 } from "../middleware/leagueMembership";
-import { authGuard } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth";
 import { createLeagueMember } from "../services/leagueMember";
 
 // TODO: add a search param for userId instead of getting from auth
-const listLeagueController = base.league.list
-  .use(authGuard)
+const listLeagueController = public.league.list
+  .use(authMiddleware)
   .handler(async ({ context }) => {
     const leagues: League[] = await context.env.db
       .select({ id: league.id, name: league.name })
       .from(league)
-      .innerJoin(leagueMember, eq(league.id, leagueMember.leagueId))
-      .where(eq(leagueMember.userId, context.userId));
+      .innerJoin(member, eq(league.id, member.leagueId))
+      .where(eq(member.userId, context.userId));
     return leagues;
   });
 
-const getLeagueController = base.league.get
+const getLeagueController = public.league.get
   .use(memberOfLeague)
   .handler(({ input, context }) => {
     const res: League | undefined = context.env.db
@@ -39,8 +39,8 @@ const getLeagueController = base.league.get
     return res;
   });
 
-const createLeagueController = base.league.create
-  .use(authGuard)
+const createLeagueController = public.league.create
+  .use(authMiddleware)
   .handler(({ input, context }) => {
     const newLeague = context.env.db.transaction((tx) => {
       const newLeague = tx.insert(league).values(input).returning().get();
@@ -58,8 +58,8 @@ const createLeagueController = base.league.create
     return newLeague;
   });
 
-const joinLeagueController = base.league.join
-  .use(authGuard)
+const joinLeagueController = public.league.join
+  .use(authMiddleware)
   .handler(({ input, context }) => {
     const leagueRes = context.env.db.transaction((tx) => {
       const leagueRes = tx
@@ -94,7 +94,7 @@ const joinLeagueController = base.league.join
     return leagueRes;
   });
 
-const updateLeagueController = base.league.update
+const updateLeagueController = public.league.update
   .use(leagueOwner)
   .handler(async ({ input, context }) => {
     const { leagueId, ...values } = input;
@@ -104,13 +104,13 @@ const updateLeagueController = base.league.update
       .where(eq(league.id, leagueId));
   });
 
-const deleteLeagueController = base.league.delete
+const deleteLeagueController = public.league.delete
   .use(leagueOwner)
   .handler(({ input, context }) => {
     context.env.db.delete(league).where(eq(league.id, input.leagueId)).run();
   });
 
-const listLeagueMembersController = base.league.member.list
+const listLeagueMembersController = public.league.member.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const member = await context.env.db.query.leagueMember.findMany({
@@ -125,7 +125,7 @@ const listLeagueMembersController = base.league.member.list
     return member;
   });
 
-const getLeagueMemberController = base.league.member.get
+const getLeagueMemberController = public.league.member.get
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.leagueMember.findFirst({
@@ -143,22 +143,22 @@ const getLeagueMemberController = base.league.member.get
     return res;
   });
 
-const deleteLeagueMemberController = base.league.member.delete
+const deleteLeagueMemberController = public.league.member.delete
   .use(selfOrLeagueOwner)
   .handler(({ input, context }) => {
     context.env.db
-      .delete(leagueMember)
+      .delete(member)
       .where(
         and(
-          eq(leagueMember.leagueId, input.leagueId),
-          eq(leagueMember.userId, input.userId),
-          ne(leagueMember.role, "owner"),
+          eq(member.leagueId, input.leagueId),
+          eq(member.userId, input.userId),
+          ne(member.role, "owner"),
         ),
       )
       .run();
   });
 
-const listInviteCodesController = base.league.inviteCode.list
+const listInviteCodesController = public.league.inviteCode.list
   .use(leagueOwner)
   .handler(({ input, context }) => {
     const codes = context.env.db
@@ -169,7 +169,7 @@ const listInviteCodesController = base.league.inviteCode.list
     return codes;
   });
 
-const createInviteCodeController = base.league.inviteCode.create
+const createInviteCodeController = public.league.inviteCode.create
   .use(leagueOwner)
   .handler(({ input, context }) => {
     const code = generateBase36Code();
@@ -199,7 +199,7 @@ const createInviteCodeController = base.league.inviteCode.create
     return insertRes;
   });
 
-const updateInviteCodeController = base.league.inviteCode.update
+const updateInviteCodeController = public.league.inviteCode.update
   .use(leagueOwner)
   .handler(({ input, context }) => {
     const { leagueId, code, ...values } = input;
@@ -212,7 +212,7 @@ const updateInviteCodeController = base.league.inviteCode.update
     return res;
   });
 
-const deleteInviteCodeController = base.league.inviteCode.delete
+const deleteInviteCodeController = public.league.inviteCode.delete
   .use(leagueOwner)
   .handler(({ input: { leagueId, code }, context }) => {
     context.env.db

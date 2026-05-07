@@ -8,11 +8,20 @@ import {
   foreignKey,
   check,
 } from "drizzle-orm/sqlite-core";
-import {
-  leagueRoleValues,
-  type CardData,
-} from "@commander-league/contract/schemas";
+import { type CardData } from "@commander-league/contract/schemas";
 import { sql } from "drizzle-orm";
+
+export const settings = sqliteTable(
+  "settings",
+  {
+    id: integer().primaryKey().notNull(),
+    name: text().notNull(),
+    ownerId: text()
+      .notNull()
+      .references(() => member.userId),
+  },
+  (t) => [check("settings_singleton_check", sql`${t.id} = 1`)],
+);
 
 export const card = sqliteTable("card", {
   name: text().primaryKey().notNull(),
@@ -43,104 +52,51 @@ export const collectionCard = sqliteTable(
   ],
 );
 
-export const league = sqliteTable("league", {
-  id: integer().primaryKey().notNull(),
-  name: text().notNull(),
-});
-
-export const leagueMember = sqliteTable(
-  "league_member",
-  {
-    leagueId: integer()
-      .notNull()
-      .references(() => league.id, { onDelete: "cascade" }),
-    userId: text()
-      .notNull()
-      .references(() => user.id),
-    role: text({ enum: leagueRoleValues }).notNull(),
-    collectionId: integer()
-      .notNull()
-      .references(() => collection.id),
-  },
-  (table) => [
-    primaryKey({
-      columns: [table.leagueId, table.userId],
-      name: "league_member_pk",
-    }),
-  ],
-);
-
-export const inviteCode = sqliteTable("invite_code", {
-  code: text().notNull().primaryKey(),
-  leagueId: integer()
+export const member = sqliteTable("league_member", {
+  userId: text()
     .notNull()
-    .references(() => league.id, { onDelete: "cascade" }),
-  active: integer({ mode: "boolean" }).notNull(),
-  uses: integer().default(0).notNull(),
+    .primaryKey()
+    .references(() => user.id),
+  admin: integer({ mode: "boolean" }).notNull(),
+  collectionId: integer()
+    .notNull()
+    .references(() => collection.id),
 });
 
 const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 
-export const tradeRequest = sqliteTable(
-  "trade_request",
-  {
-    id: integer().primaryKey().notNull(),
-    leagueId: integer().notNull(),
-    requesterId: text().notNull(),
-    requesterStatus: text({ enum: tradeStatusValues })
-      .default("pending")
-      .notNull(),
-    requesterCollectionId: integer()
-      .notNull()
-      .references(() => collection.id),
-    recipientId: text().notNull(),
-    recipientStatus: text({ enum: tradeStatusValues })
-      .default("pending")
-      .notNull(),
-    recipientCollectionId: integer()
-      .notNull()
-      .references(() => collection.id),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.leagueId, table.requesterId],
-      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
-      name: "requester_fkey",
-    }),
-    foreignKey({
-      columns: [table.leagueId, table.recipientId],
-      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
-      name: "recipient_fkey",
-    }),
-  ],
-);
+export const tradeRequest = sqliteTable("trade_request", {
+  id: integer().primaryKey().notNull(),
+  requesterId: text()
+    .notNull()
+    .references(() => member.userId),
+  requesterStatus: text({ enum: tradeStatusValues }).notNull(),
+  requesterCollectionId: integer()
+    .notNull()
+    .references(() => collection.id),
+  recipientId: text()
+    .notNull()
+    .references(() => member.userId),
+  recipientStatus: text({ enum: tradeStatusValues }).notNull(),
+  recipientCollectionId: integer()
+    .notNull()
+    .references(() => collection.id),
+});
 
-export const deck = sqliteTable(
-  "deck",
-  {
-    id: integer().primaryKey().notNull(),
-    leagueId: integer()
-      .notNull()
-      .references(() => league.id, { onDelete: "cascade" }),
-    userId: text()
-      .notNull()
-      .references(() => user.id),
-    name: text().notNull(),
-    commanderCardName: text()
-      .references(() => card.name)
-      .notNull(),
-    partnerCardName: text().references(() => card.name),
-    collectionId: integer()
-      .notNull()
-      .references(() => collection.id),
-  },
-  (table) => [
-    foreignKey({
-      columns: [table.leagueId, table.userId],
-      foreignColumns: [leagueMember.leagueId, leagueMember.userId],
-    }).onDelete("cascade"),
-  ],
-);
+export const deck = sqliteTable("deck", {
+  id: integer().primaryKey().notNull(),
+  userId: text()
+    .notNull()
+    .references(() => member.userId),
+  name: text().notNull(),
+  commanderCardName: text()
+    .references(() => card.name)
+    .notNull(),
+  partnerCardName: text().references(() => card.name),
+  collectionId: integer()
+    .notNull()
+    .references(() => collection.id),
+});
 
 export const pack = sqliteTable("pack", {
   id: text().notNull().primaryKey(),

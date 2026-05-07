@@ -1,10 +1,10 @@
 import { eq } from "drizzle-orm";
 import { deck } from "../db/schema";
 import { memberOfLeague } from "../middleware/leagueMembership";
-import { base } from "../orpc";
+import { public } from "../orpc";
 import { ORPCError } from "@orpc/server";
 import { deckOwner, deckVisibile } from "../middleware/deck";
-import { authGuard } from "../middleware/auth";
+import { authMiddleware } from "../middleware/auth";
 import {
   applyCollectionDeltas,
   deleteCollection,
@@ -12,7 +12,7 @@ import {
 } from "../services/collection";
 import { createDeck, getDeck, getDeckCollectionId } from "../services/deck";
 
-const listDecksController = base.deck.list
+const listDecksController = public.deck.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const res = await context.env.db.query.deck.findMany({
@@ -24,8 +24,8 @@ const listDecksController = base.deck.list
     return res;
   });
 
-const getDeckController = base.deck.get
-  .use(authGuard)
+const getDeckController = public.deck.get
+  .use(authMiddleware)
   .use(deckVisibile)
   .handler(async ({ input }) => {
     const deck = getDeck({ deckId: input.deckId });
@@ -33,7 +33,7 @@ const getDeckController = base.deck.get
     return deck;
   });
 
-const createDeckController = base.deck.create
+const createDeckController = public.deck.create
   .use(memberOfLeague)
   .handler(({ input, context }) => {
     const deckId = createDeck({
@@ -48,8 +48,8 @@ const createDeckController = base.deck.create
     return deck;
   });
 
-const updateDeckController = base.deck.update
-  .use(authGuard)
+const updateDeckController = public.deck.update
+  .use(authMiddleware)
   .use(deckOwner)
   .handler(async ({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -73,8 +73,8 @@ const updateDeckController = base.deck.update
     });
   });
 
-const setDeckCardsController = base.deck.setCards
-  .use(authGuard)
+const setDeckCardsController = public.deck.setCards
+  .use(authMiddleware)
   .use(deckOwner)
   .handler(async ({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -91,8 +91,8 @@ const setDeckCardsController = base.deck.setCards
     });
   });
 
-const updateDeckCardsController = base.deck.updateCards
-  .use(authGuard)
+const updateDeckCardsController = public.deck.updateCards
+  .use(authMiddleware)
   .use(deckOwner)
   .handler(async ({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -109,8 +109,8 @@ const updateDeckCardsController = base.deck.updateCards
     });
   });
 
-const deleteDeckController = base.deck.delete
-  .use(authGuard)
+const deleteDeckController = public.deck.delete
+  .use(authMiddleware)
   .use(deckOwner)
   .handler(({ input, context }) => {
     context.env.db.transaction((tx) => {

@@ -15,20 +15,14 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
-  league: {
-    members: r.many.leagueMember({
-      from: r.league.id,
-      to: r.leagueMember.leagueId,
-    }),
-  },
-  leagueMember: {
+  member: {
     user: r.one.user({
-      from: r.leagueMember.userId,
+      from: r.member.userId,
       to: r.user.id,
       optional: false,
     }),
     collection: r.one.collection({
-      from: r.leagueMember.collectionId,
+      from: r.member.collectionId,
       to: r.collection.id,
       optional: false,
     }),
@@ -36,35 +30,29 @@ export const relations = defineRelations(schema, (r) => ({
   tradeRequest: {
     requester: r.one.user({
       from: r.tradeRequest.requesterId,
-      to: r.user.id,
+      to: r.member.userId,
       optional: false,
     }),
     requesterCardQuantities: r.many.collectionCard({
       from: r.tradeRequest.requesterCollectionId,
       to: r.collectionCard.collectionId,
     }),
-    requesterLeagueMembership: r.one.leagueMember({
-      from: [r.tradeRequest.leagueId, r.tradeRequest.requesterId],
-      to: [r.leagueMember.leagueId, r.leagueMember.userId],
-      optional: false,
-    }),
     recipient: r.one.user({
       from: r.tradeRequest.recipientId,
-      to: r.user.id,
+      to: r.member.userId,
       optional: false,
     }),
     recipientCardQuantities: r.many.collectionCard({
       from: r.tradeRequest.recipientCollectionId,
       to: r.collectionCard.collectionId,
     }),
-    recipientLeagueMembership: r.one.leagueMember({
-      from: [r.tradeRequest.leagueId, r.tradeRequest.recipientId],
-      to: [r.leagueMember.leagueId, r.leagueMember.userId],
-      optional: false,
-    }),
   },
   deck: {
-    owner: r.one.user({ from: r.deck.userId, to: r.user.id, optional: false }),
+    owner: r.one.member({
+      from: r.deck.userId,
+      to: r.member.userId,
+      optional: false,
+    }),
     cardQuantities: r.many.collectionCard({
       from: r.deck.collectionId,
       to: r.collectionCard.collectionId,

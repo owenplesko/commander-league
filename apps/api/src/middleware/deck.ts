@@ -1,11 +1,11 @@
 import { and, eq } from "drizzle-orm";
 import type { DB } from "../db";
-import { deck, leagueMember } from "../db/schema";
-import { base } from "../orpc";
+import { deck, member } from "../db/schema";
+import { public } from "../orpc";
 import type { GetDeckInput } from "@commander-league/contract/schemas";
 import { ORPCError } from "@orpc/server";
 
-export const deckOwner = base
+export const deckOwner = public
   .$context<{
     userId: string;
     env: {
@@ -26,7 +26,7 @@ export const deckOwner = base
     return next();
   });
 
-export const deckVisibile = base
+export const deckVisibile = public
   .$context<{
     userId: string;
     env: {
@@ -38,10 +38,8 @@ export const deckVisibile = base
     const exists = context.env.db
       .select()
       .from(deck)
-      .innerJoin(leagueMember, eq(deck.leagueId, leagueMember.leagueId))
-      .where(
-        and(eq(deck.id, input.deckId), eq(leagueMember.userId, context.userId)),
-      )
+      .innerJoin(member, eq(deck.leagueId, member.leagueId))
+      .where(and(eq(deck.id, input.deckId), eq(member.userId, context.userId)))
       .get();
 
     if (!exists) throw new ORPCError("UNAUTHORIZED");

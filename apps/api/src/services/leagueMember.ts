@@ -1,6 +1,6 @@
 import type { LeagueRole } from "@commander-league/contract/schemas";
 import type { QueryClient } from "../db";
-import { leagueMember } from "../db/schema";
+import { member } from "../db/schema";
 import { createCollection } from "./collection";
 import db from "../db";
 import { withTransaction } from "../db/helper";
@@ -19,9 +19,7 @@ export function createLeagueMember({
   withTransaction(qc, (tx) => {
     const { collectionId } = createCollection({});
 
-    tx.insert(leagueMember)
-      .values({ collectionId, leagueId, userId, role })
-      .run();
+    tx.insert(member).values({ collectionId, leagueId, userId, role }).run();
   });
 }
 

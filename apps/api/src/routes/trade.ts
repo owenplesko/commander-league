@@ -4,7 +4,7 @@ import {
   tradeParticipantGuard,
   tradeRequesterGuard,
 } from "../middleware/trade";
-import { base } from "../orpc";
+import { public } from "../orpc";
 import { and, eq, or } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
 import {
@@ -13,7 +13,7 @@ import {
 } from "../services/trade";
 import { createCollection, setCollection } from "../services/collection";
 
-const listTradesController = base.trade.list
+const listTradesController = public.trade.list
   .use(memberOfLeague)
   .handler(async ({ input, context }) => {
     const trades = context.env.db.transaction((tx) => {
@@ -58,7 +58,7 @@ const listTradesController = base.trade.list
     return trades;
   });
 
-const createTradeController = base.trade.create
+const createTradeController = public.trade.create
   .use(memberOfLeague)
   .handler(
     ({
@@ -128,7 +128,7 @@ const createTradeController = base.trade.create
     },
   );
 
-const setTradeStatusController = base.trade.setStatus
+const setTradeStatusController = public.trade.setStatus
   .use(tradeParticipantGuard)
   .handler(({ input, context }) => {
     context.env.db.transaction((tx) => {
@@ -160,7 +160,7 @@ const setTradeStatusController = base.trade.setStatus
     });
   });
 
-const deleteTradeController = base.trade.delete
+const deleteTradeController = public.trade.delete
   .use(tradeRequesterGuard)
   .handler(async ({ input }) => {
     deleteTradeProcedure({ tradeId: input.tradeId });
