@@ -3,6 +3,10 @@ import { UserSchema } from "./user";
 import { CardSchema } from "./card";
 import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
 
+export const ListDeckParamsSchema = z.object({
+  userId: UserSchema.shape.id.optional(),
+});
+
 export const DeckListEntrySchema = z.object({
   id: z.number(),
   commanderCard: CardSchema,
@@ -26,7 +30,6 @@ export const GetDeckSchema = z.object({
 export type GetDeckInput = z.infer<typeof GetDeckSchema>;
 
 export const CreateDeckBodySchema = z.object({
-  leagueId: z.number(),
   name: z.string(),
   commanderCardName: z.string(),
   partnerCardName: z.string().nullable().optional(),

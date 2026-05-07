@@ -1,14 +1,14 @@
 import { oc } from "@orpc/contract";
-import { CardSchema, CardSearchParams } from "../schemas";
+import { CardSchema, CardListParams } from "../schemas";
 
-const searchCards = oc
+const listCards = oc
   .route({
     method: "GET",
-    path: "/cards/search",
+    path: "/card",
   })
-  .input(CardSearchParams)
+  .input(CardListParams)
   .output(CardSchema.array());
 
 export const cardRoutes = {
-  search: searchCards,
+  list: listCards,
 };

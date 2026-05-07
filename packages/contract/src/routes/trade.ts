@@ -1,35 +1,33 @@
 import { oc } from "@orpc/contract";
-import { GetLeagueSchema } from "../schemas";
 import {
   CreateTradeRequestSchema,
   GetTradeSchema,
   TradeRequestSchema,
   UpdateTradeStatusSchema,
-} from "../schemas/trade";
+} from "../schemas";
 
 const listTrades = oc
-  .route({ method: "GET", path: "/league/{leagueId}/trade" })
-  .input(GetLeagueSchema)
+  .route({ method: "GET", path: "/trade" })
   .output(TradeRequestSchema.array());
 
 const createTrade = oc
-  .route({ method: "POST", path: "/league/{leagueId}/trade" })
-  .input(GetLeagueSchema.extend(CreateTradeRequestSchema.shape))
+  .route({ method: "POST", path: "/trade", successStatus: 201 })
+  .input(CreateTradeRequestSchema)
   .output(TradeRequestSchema);
 
 const setTradeStatus = oc
   .route({
     method: "POST",
-    path: "/league/{leagueId}/trade/{tradeId}/status",
-    successStatus: 201,
+    path: "/trade/{tradeId}/status",
+    successStatus: 204,
   })
   .input(GetTradeSchema.extend(UpdateTradeStatusSchema.shape));
 
 const deleteTrade = oc
   .route({
     method: "DELETE",
-    path: "/league/{leagueId}/trade/{tradeId}",
-    successStatus: 201,
+    path: "/trade/{tradeId}",
+    successStatus: 204,
   })
   .input(GetTradeSchema);
 

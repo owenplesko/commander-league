@@ -1,6 +1,6 @@
 import { oc } from "@orpc/contract";
-import { GetLeagueMemberSchema, GetLeagueSchema } from "../schemas";
 import {
+  GetMemberSchema,
   CreateDeckBodySchema,
   DeckListEntrySchema,
   DeckSchema,
@@ -8,11 +8,11 @@ import {
   SetDeckCardsBodySchema,
   UpdateDeckBodySchema,
   UpdateDeckCardsBodySchema,
-} from "../schemas/deck";
+} from "../schemas";
 
 const listDecks = oc
-  .route({ method: "GET", path: "/league/{leagueId}/users/{userId}/deck" })
-  .input(GetLeagueMemberSchema)
+  .route({ method: "GET", path: "/deck" })
+  .input(GetMemberSchema)
   .output(DeckListEntrySchema.array());
 
 const createDeck = oc
@@ -21,7 +21,7 @@ const createDeck = oc
     path: "/deck",
     successStatus: 201,
   })
-  .input(GetLeagueSchema.extend(CreateDeckBodySchema.shape))
+  .input(CreateDeckBodySchema)
   .output(DeckSchema);
 
 const getDeck = oc
@@ -30,15 +30,15 @@ const getDeck = oc
   .output(DeckSchema);
 
 const updateDeck = oc
-  .route({ method: "PATCH", path: "/deck/{deckId}" })
+  .route({ method: "PATCH", path: "/deck/{deckId}", successStatus: 204 })
   .input(GetDeckSchema.extend(UpdateDeckBodySchema.shape));
 
 const setDeckCards = oc
-  .route({ method: "PUT", path: "/deck/{deckId}/cards" })
+  .route({ method: "PUT", path: "/deck/{deckId}/card", successStatus: 204 })
   .input(GetDeckSchema.extend(SetDeckCardsBodySchema.shape));
 
 const updateDeckCards = oc
-  .route({ method: "PATCH", path: "/deck/{deckId}/cards" })
+  .route({ method: "PATCH", path: "/deck/{deckId}/card", successStatus: 204 })
   .input(GetDeckSchema.extend(UpdateDeckCardsBodySchema.shape));
 
 const deleteDeck = oc

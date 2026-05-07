@@ -1,6 +1,5 @@
 import z from "zod";
 import { UserSchema } from "./user";
-import { GetLeagueSchema } from "./league";
 import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
 
 const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
@@ -19,7 +18,7 @@ export const TradeRequestSchema = z.object({
 });
 export type TradeRequest = z.infer<typeof TradeRequestSchema>;
 
-export const GetTradeSchema = GetLeagueSchema.extend({
+export const GetTradeSchema = z.object({
   tradeId: z.coerce.number<number>(),
 });
 export type GetTradeInput = z.infer<typeof GetTradeSchema>;

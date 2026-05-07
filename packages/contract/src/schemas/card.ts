@@ -23,8 +23,8 @@ export const CardSchema = z.object({
 });
 export type Card = z.infer<typeof CardSchema>;
 
-export const CardSearchParams = z.object({
-  cardName: z.string(),
+export const CardListParams = z.object({
+  searchTerm: z.string(),
   collectionId: z.coerce.number<number>().optional(),
-  limit: z.number().optional(),
+  limit: z.coerce.number<number>().min(1).max(100).optional(),
 });
