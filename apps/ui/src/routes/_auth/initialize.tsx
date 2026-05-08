@@ -1,12 +1,18 @@
 import { FormInputText } from "@/features/forms/FormInputText";
-import { orpc } from "@/lib/client";
+import { orpc, queryClient } from "@/lib/client";
 import { useMutation } from "@tanstack/react-query";
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { useForm, type SubmitHandler } from "react-hook-form";
 
 export const Route = createFileRoute("/_auth/initialize")({
+  beforeLoad: async () => {
+    const league = await queryClient.ensureQueryData(
+      orpc.league.get.queryOptions(),
+    );
+    if (league.initialized) throw redirect({ to: "/" });
+  },
   component: RouteComponent,
 });
 
