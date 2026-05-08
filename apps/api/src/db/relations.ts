@@ -28,7 +28,7 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   tradeRequest: {
-    requester: r.one.user({
+    requester: r.one.member({
       from: r.tradeRequest.requesterId,
       to: r.member.userId,
       optional: false,
@@ -37,7 +37,7 @@ export const relations = defineRelations(schema, (r) => ({
       from: r.tradeRequest.requesterCollectionId,
       to: r.collectionCard.collectionId,
     }),
-    recipient: r.one.user({
+    recipient: r.one.member({
       from: r.tradeRequest.recipientId,
       to: r.member.userId,
       optional: false,
@@ -48,9 +48,9 @@ export const relations = defineRelations(schema, (r) => ({
     }),
   },
   deck: {
-    owner: r.one.user({
+    owner: r.one.member({
       from: r.deck.userId,
-      to: r.user.id,
+      to: r.member.userId,
       optional: false,
     }),
     cardQuantities: r.many.collectionCard({

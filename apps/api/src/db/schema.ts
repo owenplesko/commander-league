@@ -8,7 +8,10 @@ import {
   foreignKey,
   check,
 } from "drizzle-orm/sqlite-core";
-import { type CardData } from "@commander-league/contract/schemas";
+import {
+  tradeStatusValues,
+  type CardData,
+} from "@commander-league/contract/schemas";
 import { sql } from "drizzle-orm";
 
 export const settings = sqliteTable(
@@ -62,8 +65,6 @@ export const member = sqliteTable("league_member", {
     .notNull()
     .references(() => collection.id),
 });
-
-const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 
 export const tradeRequest = sqliteTable("trade_request", {
   id: integer().primaryKey().notNull(),

@@ -8,7 +8,7 @@ export const listDecks = ({ ownerId }: { ownerId?: string }) =>
       where: { userId: ownerId },
       with: {
         commanderCard: true,
-        owner: true,
+        owner: { with: { user: true } },
       },
     })
     .sync();
@@ -18,7 +18,7 @@ export const getDeck = ({ deckId }: { deckId: number }) =>
     .findFirst({
       where: { id: deckId },
       with: {
-        owner: true,
+        owner: { with: { user: true } },
         commanderCard: true,
         partnerCard: true,
         cardQuantities: { with: { card: true } },

@@ -79,6 +79,18 @@ export function getCollectionCardQuantitiesByName(
   return res;
 }
 
+export function getCollectionCardQuantities(
+  { collectionId }: { collectionId: number },
+  tx: TX,
+) {
+  return tx.query.collectionCard
+    .findMany({
+      columns: { cardName: true, quantity: true },
+      where: { collectionId },
+    })
+    .sync();
+}
+
 export function deleteCollectionCardsByName(
   {
     collectionId,

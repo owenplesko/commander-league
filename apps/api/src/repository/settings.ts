@@ -1,12 +1,12 @@
 import db, { type TX } from "../db";
 import { settings } from "../db/schema";
 
-export const getLeagueSettings = () =>
+export const getPublicSettings = () =>
   db.query.settings
     .findFirst({ columns: { name: true, ownerId: true } })
     .sync();
 
-export const insertLeagueSettings = (
+export const insertSettings = (
   {
     name,
     ownerId,

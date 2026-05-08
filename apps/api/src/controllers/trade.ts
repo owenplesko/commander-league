@@ -1,174 +1,68 @@
-import { tradeRequest } from "../db/schema";
-import { memberOfLeague } from "../middleware/leagueMembership";
-import {
-  tradeParticipantGuard,
-  tradeRequesterGuard,
-} from "../middleware/trade";
-import { public } from "../orpc";
-import { and, eq, or } from "drizzle-orm";
 import { ORPCError } from "@orpc/server";
-import {
-  executeTrade,
-  deleteTrade as deleteTradeProcedure,
-} from "../services/trade";
-import { createCollection, setCollectionCards } from "../services/collection";
+import { tradeParticipantMiddleware } from "../middleware/trade";
+import { member } from "../orpc";
 
-const listTradesController = public.trade.list
-  .use(memberOfLeague)
-  .handler(async ({ input, context }) => {
-    const trades = context.env.db.transaction((tx) => {
-      // get relevant trade ids
-      const tradeIds = tx
-        .select({ id: tradeRequest.id })
-        .from(tradeRequest)
-        .where(
-          and(
-            eq(tradeRequest.leagueId, input.leagueId),
-            or(
-              eq(tradeRequest.requesterId, context.userId),
-              eq(tradeRequest.recipientId, context.userId),
-            ),
-          ),
-        )
-        .all()
-        .map(({ id }) => id);
+import * as service from "../services/";
 
-      // query trades
-      const trades = tx.query.tradeRequest
-        .findMany({
-          where: {
-            id: { in: tradeIds },
-          },
-          with: {
-            requester: true,
-            requesterCardQuantities: {
-              with: { card: true },
-            },
-            recipient: true,
-            recipientCardQuantities: {
-              with: { card: true },
-            },
-          },
-        })
-        .sync();
+const listTrades = member.trade.list.handler(async ({ context }) => {
+  const trades = service.listTradesWithParticipant({
+    userId: context.userId,
+  });
+  return trades;
+});
 
-      return trades;
+const createTrade = member.trade.create.handler(
+  ({
+    input: { recipientId, offerCardQuantities, recipientCardQuantities },
+    context,
+  }) => {
+    service.createTrade({
+      requesterId: context.userId,
+      recipientId,
+      requesterCardQuantities: offerCardQuantities,
+      recipientCardQuantities,
+    });
+  },
+);
+
+const setTradeStatus = member.trade.setStatus
+  .use(tradeParticipantMiddleware)
+  .handler(({ input: { tradeId, status }, context: { tradeRole } }) => {
+    service.updateTradeStatus({
+      tradeId,
+      requesterStatus: tradeRole === "requester" ? status : undefined,
+      recipientStatus: tradeRole === "recipient" ? status : undefined,
     });
 
-    return trades;
+    // try to execute trade if can, silent failure is okay
+    service.executeTrade({ tradeId });
   });
 
-const createTradeController = public.trade.create
-  .use(memberOfLeague)
-  .handler(
-    ({
-      input: {
-        leagueId,
-        recipientId,
-        offerCardQuantities,
-        recipientCardQuantities,
-      },
-      context,
-    }) => {
-      const trade = context.env.db.transaction((tx) => {
-        const { collectionId: requesterCollectionId } = createCollection({
-          qc: tx,
-        });
-        setCollectionCards({
-          collectionId: requesterCollectionId,
-          cardQuantities: offerCardQuantities,
-        });
-
-        const { collectionId: recipientCollectionId } = createCollection({
-          qc: tx,
-        });
-        setCollectionCards({
-          collectionId: recipientCollectionId,
-          cardQuantities: recipientCardQuantities,
-        });
-
-        // insert trade request
-        const { tradeId } = tx
-          .insert(tradeRequest)
-          .values({
-            leagueId,
-            requesterId: context.userId,
-            requesterCollectionId,
-            recipientId,
-            recipientCollectionId,
-          })
-          .returning({ tradeId: tradeRequest.id })
-          .get();
-
-        // retrieve trade response
-        const trade = tx.query.tradeRequest
-          .findFirst({
-            where: {
-              id: tradeId,
-            },
-            with: {
-              requester: true,
-              requesterCardQuantities: {
-                with: { card: true },
-              },
-              recipient: true,
-              recipientCardQuantities: {
-                with: { card: true },
-              },
-            },
-          })
-          .sync();
-
-        return trade;
-      });
-
-      if (!trade) throw new ORPCError("CONFLICT");
-
-      return trade;
-    },
-  );
-
-const setTradeStatusController = public.trade.setStatus
-  .use(tradeParticipantGuard)
-  .handler(({ input, context }) => {
-    context.env.db.transaction((tx) => {
-      // update trade status
-      tx.update(tradeRequest)
-        .set(
-          context.tradeRole === "requester"
-            ? { requesterStatus: input.status }
-            : { recipientStatus: input.status },
-        )
-        .where(eq(tradeRequest.id, input.tradeId))
-        .run();
-
-      const trade = tx.query.tradeRequest
-        .findFirst({
-          where: { id: input.tradeId },
-        })
-        .sync()!;
-
-      if (
-        trade.requesterStatus === "accepted" &&
-        trade.recipientStatus === "accepted"
-      )
-        executeTrade({
-          tradeId: input.tradeId,
-          leagueId: input.leagueId,
-          qc: tx,
-        });
-    });
+const executeTrade = member.trade.execute
+  .use(tradeParticipantMiddleware)
+  .handler(({ input: { tradeId } }) => {
+    const res = service.executeTrade({ tradeId });
+    if (!res.success) {
+      switch (res.error) {
+        case "not_found":
+          throw new ORPCError("NOT_FOUND");
+        case "not_accepted":
+        case "insufficient_cards":
+          throw new ORPCError("PRECONDITION_FAILED");
+      }
+    }
   });
 
-const deleteTradeController = public.trade.delete
-  .use(tradeRequesterGuard)
-  .handler(async ({ input }) => {
-    deleteTradeProcedure({ tradeId: input.tradeId });
+const deleteTrade = member.trade.delete
+  .use(tradeParticipantMiddleware)
+  .handler(({ input: { tradeId } }) => {
+    service.deleteTrade({ tradeId });
   });
 
 export const tradeRoutes = {
-  list: listTradesController,
-  create: createTradeController,
-  setStatus: setTradeStatusController,
-  delete: deleteTradeController,
+  list: listTrades,
+  create: createTrade,
+  setStatus: setTradeStatus,
+  execute: executeTrade,
+  delete: deleteTrade,
 };

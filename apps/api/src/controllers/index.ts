@@ -1,14 +1,19 @@
 import { collectionRoutes } from "./collection";
 import { leagueRoutes } from "./league";
 import { tradeRoutes } from "./trade";
-import { public } from "../orpc";
 import { deckRoutes } from "./deck";
 import { cardRoutes } from "./card";
+import { base } from "../orpc";
+import { memberRoutes } from "./member";
+import { settingsRoutes } from "./settings";
 
-export const routes = public.router({
+export const routes = base.router({
   card: cardRoutes,
   collection: collectionRoutes,
   league: leagueRoutes,
+  member: memberRoutes,
+  settings: settingsRoutes,
   trade: tradeRoutes,
   deck: deckRoutes,
+  user: undefined,
 });
