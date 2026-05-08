@@ -1,4 +1,4 @@
-import { authed } from "../orpc";
+import { authed } from "../middleware/auth";
 import * as service from "../services/";
 
 const getLeague = authed.league.get.handler(() => {

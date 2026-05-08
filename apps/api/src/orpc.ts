@@ -8,6 +8,3 @@ type BaseContext = {
 };
 
 export const base = implement(contract).$context<BaseContext>();
-export const authed = base.use(authMiddleware);
-export const member = base.use(memberMiddleware);
-export const admin = base.use(adminMiddleware);

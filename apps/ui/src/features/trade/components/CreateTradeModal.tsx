@@ -1,4 +1,4 @@
-import type { Card, LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, Member } from "@commander-league/contract/schemas";
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@tanstack/react-query";
@@ -11,15 +11,13 @@ import { TradeItemsPreview } from "./TradePreview";
 import { UserBadge } from "../../common/components/UserBade";
 
 type Props = {
-  leagueId: number;
-  requester: LeagueMember;
-  recipient: LeagueMember;
+  requester: Member;
+  recipient: Member;
   visible: boolean;
   onHide: () => void;
 };
 
 export function CreateTradeRequestModal({
-  leagueId,
   requester,
   recipient,
   visible,
@@ -34,7 +32,6 @@ export function CreateTradeRequestModal({
 
   const onSubmit = async () => {
     await mutation.mutateAsync({
-      leagueId,
       offerCardQuantities: offerCardQuantityList.createCards,
       recipientId: recipient.user.id,
       recipientCardQuantities: recipientCardQuantityList.createCards,

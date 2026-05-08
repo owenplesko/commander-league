@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { admin, member } from "../orpc";
+import { admin, member } from "../middleware/member";
 import * as service from "../services/";
 
 const listMembers = member.member.list.handler(() => {

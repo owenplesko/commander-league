@@ -14,3 +14,5 @@ export const authMiddleware = base.middleware(async ({ context, next }) => {
     },
   });
 });
+
+export const authed = base.use(authMiddleware);

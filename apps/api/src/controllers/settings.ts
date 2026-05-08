@@ -1,5 +1,5 @@
 import { ORPCError } from "@orpc/server";
-import { admin } from "../orpc";
+import { admin } from "../middleware/member";
 
 const getSettings = admin.settings.get.handler(() => {
   throw new ORPCError("NOT_IMPLEMENTED");

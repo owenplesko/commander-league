@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import { authMiddleware } from "./auth";
 import { getMember } from "../repository/member";
+import { base } from "../orpc";
 
 export const memberMiddleware = authMiddleware.concat(
   ({ context: { userId }, next }) => {
@@ -19,3 +20,6 @@ export const adminMiddleware = memberMiddleware.concat(
     return next();
   },
 );
+
+export const member = base.use(memberMiddleware);
+export const admin = base.use(adminMiddleware);

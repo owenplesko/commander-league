@@ -36,40 +36,21 @@ CREATE TABLE `collection_card` (
 --> statement-breakpoint
 CREATE TABLE `deck` (
 	`id` integer PRIMARY KEY,
-	`league_id` integer NOT NULL,
 	`user_id` text NOT NULL,
 	`name` text NOT NULL,
 	`commander_card_name` text NOT NULL,
 	`partner_card_name` text,
 	`collection_id` integer NOT NULL,
-	CONSTRAINT `fk_deck_league_id_league_id_fk` FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON DELETE CASCADE,
-	CONSTRAINT `fk_deck_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
+	CONSTRAINT `fk_deck_user_id_league_member_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `league_member`(`user_id`),
 	CONSTRAINT `fk_deck_commander_card_name_card_name_fk` FOREIGN KEY (`commander_card_name`) REFERENCES `card`(`name`),
 	CONSTRAINT `fk_deck_partner_card_name_card_name_fk` FOREIGN KEY (`partner_card_name`) REFERENCES `card`(`name`),
-	CONSTRAINT `fk_deck_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`),
-	CONSTRAINT `fk_deck_league_id_user_id_league_member_league_id_user_id_fk` FOREIGN KEY (`league_id`,`user_id`) REFERENCES `league_member`(`league_id`,`user_id`) ON DELETE CASCADE
-);
---> statement-breakpoint
-CREATE TABLE `invite_code` (
-	`code` text PRIMARY KEY,
-	`league_id` integer NOT NULL,
-	`active` integer NOT NULL,
-	`uses` integer DEFAULT 0 NOT NULL,
-	CONSTRAINT `fk_invite_code_league_id_league_id_fk` FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON DELETE CASCADE
-);
---> statement-breakpoint
-CREATE TABLE `league` (
-	`id` integer PRIMARY KEY,
-	`name` text NOT NULL
+	CONSTRAINT `fk_deck_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `league_member` (
-	`league_id` integer NOT NULL,
-	`user_id` text NOT NULL,
-	`role` text NOT NULL,
+	`user_id` text PRIMARY KEY,
+	`admin` integer NOT NULL,
 	`collection_id` integer NOT NULL,
-	CONSTRAINT `league_member_pk` PRIMARY KEY(`league_id`, `user_id`),
-	CONSTRAINT `fk_league_member_league_id_league_id_fk` FOREIGN KEY (`league_id`) REFERENCES `league`(`id`) ON DELETE CASCADE,
 	CONSTRAINT `fk_league_member_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`),
 	CONSTRAINT `fk_league_member_collection_id_collection_id_fk` FOREIGN KEY (`collection_id`) REFERENCES `collection`(`id`)
 );
@@ -119,19 +100,26 @@ CREATE TABLE `session` (
 	CONSTRAINT `fk_session_user_id_user_id_fk` FOREIGN KEY (`user_id`) REFERENCES `user`(`id`)
 );
 --> statement-breakpoint
+CREATE TABLE `settings` (
+	`id` integer PRIMARY KEY,
+	`name` text NOT NULL,
+	`owner_id` text NOT NULL,
+	CONSTRAINT `fk_settings_owner_id_league_member_user_id_fk` FOREIGN KEY (`owner_id`) REFERENCES `league_member`(`user_id`),
+	CONSTRAINT "settings_singleton_check" CHECK("id" = 1)
+);
+--> statement-breakpoint
 CREATE TABLE `trade_request` (
 	`id` integer PRIMARY KEY,
-	`league_id` integer NOT NULL,
 	`requester_id` text NOT NULL,
-	`requester_status` text DEFAULT 'pending' NOT NULL,
+	`requester_status` text NOT NULL,
 	`requester_collection_id` integer NOT NULL,
 	`recipient_id` text NOT NULL,
-	`recipient_status` text DEFAULT 'pending' NOT NULL,
+	`recipient_status` text NOT NULL,
 	`recipient_collection_id` integer NOT NULL,
+	CONSTRAINT `fk_trade_request_requester_id_league_member_user_id_fk` FOREIGN KEY (`requester_id`) REFERENCES `league_member`(`user_id`),
 	CONSTRAINT `fk_trade_request_requester_collection_id_collection_id_fk` FOREIGN KEY (`requester_collection_id`) REFERENCES `collection`(`id`),
-	CONSTRAINT `fk_trade_request_recipient_collection_id_collection_id_fk` FOREIGN KEY (`recipient_collection_id`) REFERENCES `collection`(`id`),
-	CONSTRAINT `requester_fkey` FOREIGN KEY (`league_id`,`requester_id`) REFERENCES `league_member`(`league_id`,`user_id`),
-	CONSTRAINT `recipient_fkey` FOREIGN KEY (`league_id`,`recipient_id`) REFERENCES `league_member`(`league_id`,`user_id`)
+	CONSTRAINT `fk_trade_request_recipient_id_league_member_user_id_fk` FOREIGN KEY (`recipient_id`) REFERENCES `league_member`(`user_id`),
+	CONSTRAINT `fk_trade_request_recipient_collection_id_collection_id_fk` FOREIGN KEY (`recipient_collection_id`) REFERENCES `collection`(`id`)
 );
 --> statement-breakpoint
 CREATE TABLE `user` (
@@ -156,33 +144,3 @@ CREATE TABLE `verification` (
 CREATE INDEX `account_userId_idx` ON `account` (`user_id`);--> statement-breakpoint
 CREATE INDEX `session_userId_idx` ON `session` (`user_id`);--> statement-breakpoint
 CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);
---> statement-breakpoint
-CREATE TRIGGER delete_collection_on_league_member_delete
-AFTER DELETE ON league_member
-BEGIN
-  DELETE FROM collection WHERE id = OLD.collection_id;
-END;
---> statement-breakpoint
-CREATE TRIGGER delete_collection_on_deck_delete
-AFTER DELETE ON deck
-BEGIN
-  DELETE FROM collection WHERE id = OLD.collection_id;
-END;
---> statement-breakpoint
-CREATE TRIGGER delete_collection_on_trade_request_requester_delete
-AFTER DELETE ON trade_request
-BEGIN
-  DELETE FROM collection WHERE id = OLD.requester_collection_id;
-END;
---> statement-breakpoint
-CREATE TRIGGER delete_collection_on_trade_request_recipient_delete
-AFTER DELETE ON trade_request
-BEGIN
-  DELETE FROM collection WHERE id = OLD.recipient_collection_id;
-END;
---> statement-breakpoint
-CREATE TRIGGER delete_collection_on_pack_card_pool_delete
-AFTER DELETE ON pack_card_pool
-BEGIN
-  DELETE FROM collection WHERE id = OLD.collection_id;
-END;

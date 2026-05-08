@@ -2,13 +2,12 @@ import { onError } from "@orpc/server";
 import { OpenAPIHandler } from "@orpc/openapi/fetch";
 import { auth } from "./auth";
 import { Hono } from "hono";
-import db from "./db";
-import { public } from "./orpc";
-import { routes } from "./routes";
+import { base } from "./orpc";
+import { routes } from "./controllers";
 
 const app = new Hono();
 
-export const orpcRouter = public.router(routes);
+export const orpcRouter = base.router(routes);
 
 const orpcHandler = new OpenAPIHandler(orpcRouter, {
   interceptors: [onError((error) => console.log(error))],
@@ -23,7 +22,7 @@ app.use("/api/auth/*", async (c, next) => {
 app.use("/api/*", async (c, next) => {
   const { matched, response } = await orpcHandler.handle(c.req.raw, {
     prefix: "/api",
-    context: { headers: c.req.raw.headers, env: { db } },
+    context: { headers: c.req.raw.headers },
   });
   if (matched) {
     return response;

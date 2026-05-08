@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import { tradeParticipantMiddleware } from "../middleware/trade";
-import { member } from "../orpc";
+import { member } from "../middleware/member";
 
 import * as service from "../services/";
 

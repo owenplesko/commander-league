@@ -10,145 +10,125 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as LoginRouteImport } from './routes/login'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthenticatedIndexRouteImport } from './routes/_authenticated/index'
-import { Route as AuthenticatedLeagueIndexRouteImport } from './routes/_authenticated/league/index'
-import { Route as AuthenticatedLeagueLeagueIdRouteRouteImport } from './routes/_authenticated/league/$leagueId/route'
-import { Route as AuthenticatedLeagueLeagueIdIndexRouteImport } from './routes/_authenticated/league/$leagueId/index'
-import { Route as AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/trades'
-import { Route as AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/collection'
-import { Route as AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/decks/index'
-import { Route as AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport } from './routes/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
+import { Route as AuthRouteRouteImport } from './routes/_auth/route'
+import { Route as AuthPurgatoryRouteImport } from './routes/_auth/purgatory'
+import { Route as AuthInitializeRouteImport } from './routes/_auth/initialize'
+import { Route as AuthLeagueRouteRouteImport } from './routes/_auth/_league/route'
+import { Route as AuthLeagueIndexRouteImport } from './routes/_auth/_league/index'
+import { Route as AuthLeagueTradesRouteImport } from './routes/_auth/_league/trades'
+import { Route as AuthLeagueUserUserIdDecksRouteImport } from './routes/_auth/_league/user/$userId/decks'
+import { Route as AuthLeagueUserUserIdCollectionRouteImport } from './routes/_auth/_league/user/$userId/collection'
 
 const LoginRoute = LoginRouteImport.update({
   id: '/login',
   path: '/login',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
+const AuthRouteRoute = AuthRouteRouteImport.update({
+  id: '/_auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedIndexRoute = AuthenticatedIndexRouteImport.update({
+const AuthPurgatoryRoute = AuthPurgatoryRouteImport.update({
+  id: '/purgatory',
+  path: '/purgatory',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthInitializeRoute = AuthInitializeRouteImport.update({
+  id: '/initialize',
+  path: '/initialize',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthLeagueRouteRoute = AuthLeagueRouteRouteImport.update({
+  id: '/_league',
+  getParentRoute: () => AuthRouteRoute,
+} as any)
+const AuthLeagueIndexRoute = AuthLeagueIndexRouteImport.update({
   id: '/',
   path: '/',
-  getParentRoute: () => AuthenticatedRouteRoute,
+  getParentRoute: () => AuthLeagueRouteRoute,
 } as any)
-const AuthenticatedLeagueIndexRoute =
-  AuthenticatedLeagueIndexRouteImport.update({
-    id: '/league/',
-    path: '/league/',
-    getParentRoute: () => AuthenticatedRouteRoute,
+const AuthLeagueTradesRoute = AuthLeagueTradesRouteImport.update({
+  id: '/trades',
+  path: '/trades',
+  getParentRoute: () => AuthLeagueRouteRoute,
+} as any)
+const AuthLeagueUserUserIdDecksRoute =
+  AuthLeagueUserUserIdDecksRouteImport.update({
+    id: '/user/$userId/decks',
+    path: '/user/$userId/decks',
+    getParentRoute: () => AuthLeagueRouteRoute,
   } as any)
-const AuthenticatedLeagueLeagueIdRouteRoute =
-  AuthenticatedLeagueLeagueIdRouteRouteImport.update({
-    id: '/league/$leagueId',
-    path: '/league/$leagueId',
-    getParentRoute: () => AuthenticatedRouteRoute,
-  } as any)
-const AuthenticatedLeagueLeagueIdIndexRoute =
-  AuthenticatedLeagueLeagueIdIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
-  } as any)
-const AuthenticatedLeagueLeagueIdUserUserIdTradesRoute =
-  AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport.update({
-    id: '/user/$userId/trades',
-    path: '/user/$userId/trades',
-    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
-  } as any)
-const AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute =
-  AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport.update({
+const AuthLeagueUserUserIdCollectionRoute =
+  AuthLeagueUserUserIdCollectionRouteImport.update({
     id: '/user/$userId/collection',
     path: '/user/$userId/collection',
-    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
-  } as any)
-const AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute =
-  AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport.update({
-    id: '/user/$userId/decks/',
-    path: '/user/$userId/decks/',
-    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
-  } as any)
-const AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute =
-  AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport.update({
-    id: '/user/$userId/decks/$deckId',
-    path: '/user/$userId/decks/$deckId',
-    getParentRoute: () => AuthenticatedLeagueLeagueIdRouteRoute,
+    getParentRoute: () => AuthLeagueRouteRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
-  '/': typeof AuthenticatedIndexRoute
+  '/': typeof AuthLeagueIndexRoute
   '/login': typeof LoginRoute
-  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
-  '/league/': typeof AuthenticatedLeagueIndexRoute
-  '/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
-  '/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
-  '/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
-  '/league/$leagueId/user/$userId/decks/': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
+  '/initialize': typeof AuthInitializeRoute
+  '/purgatory': typeof AuthPurgatoryRoute
+  '/trades': typeof AuthLeagueTradesRoute
+  '/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
+  '/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
 export interface FileRoutesByTo {
+  '/': typeof AuthLeagueIndexRoute
   '/login': typeof LoginRoute
-  '/': typeof AuthenticatedIndexRoute
-  '/league': typeof AuthenticatedLeagueIndexRoute
-  '/league/$leagueId': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
-  '/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
-  '/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
-  '/league/$leagueId/user/$userId/decks': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
+  '/initialize': typeof AuthInitializeRoute
+  '/purgatory': typeof AuthPurgatoryRoute
+  '/trades': typeof AuthLeagueTradesRoute
+  '/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
+  '/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
-  '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
+  '/_auth': typeof AuthRouteRouteWithChildren
   '/login': typeof LoginRoute
-  '/_authenticated/': typeof AuthenticatedIndexRoute
-  '/_authenticated/league/$leagueId': typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
-  '/_authenticated/league/': typeof AuthenticatedLeagueIndexRoute
-  '/_authenticated/league/$leagueId/': typeof AuthenticatedLeagueLeagueIdIndexRoute
-  '/_authenticated/league/$leagueId/user/$userId/collection': typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
-  '/_authenticated/league/$leagueId/user/$userId/trades': typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
-  '/_authenticated/league/$leagueId/user/$userId/decks/$deckId': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
-  '/_authenticated/league/$leagueId/user/$userId/decks/': typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
+  '/_auth/_league': typeof AuthLeagueRouteRouteWithChildren
+  '/_auth/initialize': typeof AuthInitializeRoute
+  '/_auth/purgatory': typeof AuthPurgatoryRoute
+  '/_auth/_league/trades': typeof AuthLeagueTradesRoute
+  '/_auth/_league/': typeof AuthLeagueIndexRoute
+  '/_auth/_league/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
+  '/_auth/_league/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/login'
-    | '/league/$leagueId'
-    | '/league/'
-    | '/league/$leagueId/'
-    | '/league/$leagueId/user/$userId/collection'
-    | '/league/$leagueId/user/$userId/trades'
-    | '/league/$leagueId/user/$userId/decks/$deckId'
-    | '/league/$leagueId/user/$userId/decks/'
+    | '/initialize'
+    | '/purgatory'
+    | '/trades'
+    | '/user/$userId/collection'
+    | '/user/$userId/decks'
   fileRoutesByTo: FileRoutesByTo
   to:
-    | '/login'
     | '/'
-    | '/league'
-    | '/league/$leagueId'
-    | '/league/$leagueId/user/$userId/collection'
-    | '/league/$leagueId/user/$userId/trades'
-    | '/league/$leagueId/user/$userId/decks/$deckId'
-    | '/league/$leagueId/user/$userId/decks'
+    | '/login'
+    | '/initialize'
+    | '/purgatory'
+    | '/trades'
+    | '/user/$userId/collection'
+    | '/user/$userId/decks'
   id:
     | '__root__'
-    | '/_authenticated'
+    | '/_auth'
     | '/login'
-    | '/_authenticated/'
-    | '/_authenticated/league/$leagueId'
-    | '/_authenticated/league/'
-    | '/_authenticated/league/$leagueId/'
-    | '/_authenticated/league/$leagueId/user/$userId/collection'
-    | '/_authenticated/league/$leagueId/user/$userId/trades'
-    | '/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
-    | '/_authenticated/league/$leagueId/user/$userId/decks/'
+    | '/_auth/_league'
+    | '/_auth/initialize'
+    | '/_auth/purgatory'
+    | '/_auth/_league/trades'
+    | '/_auth/_league/'
+    | '/_auth/_league/user/$userId/collection'
+    | '/_auth/_league/user/$userId/decks'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
-  AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
+  AuthRouteRoute: typeof AuthRouteRouteWithChildren
   LoginRoute: typeof LoginRoute
 }
 
@@ -161,117 +141,101 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof LoginRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated': {
-      id: '/_authenticated'
+    '/_auth': {
+      id: '/_auth'
       path: ''
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      preLoaderRoute: typeof AuthRouteRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/': {
-      id: '/_authenticated/'
+    '/_auth/purgatory': {
+      id: '/_auth/purgatory'
+      path: '/purgatory'
+      fullPath: '/purgatory'
+      preLoaderRoute: typeof AuthPurgatoryRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/initialize': {
+      id: '/_auth/initialize'
+      path: '/initialize'
+      fullPath: '/initialize'
+      preLoaderRoute: typeof AuthInitializeRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/_league': {
+      id: '/_auth/_league'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthLeagueRouteRouteImport
+      parentRoute: typeof AuthRouteRoute
+    }
+    '/_auth/_league/': {
+      id: '/_auth/_league/'
       path: '/'
       fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+      preLoaderRoute: typeof AuthLeagueIndexRouteImport
+      parentRoute: typeof AuthLeagueRouteRoute
     }
-    '/_authenticated/league/': {
-      id: '/_authenticated/league/'
-      path: '/league'
-      fullPath: '/league/'
-      preLoaderRoute: typeof AuthenticatedLeagueIndexRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
+    '/_auth/_league/trades': {
+      id: '/_auth/_league/trades'
+      path: '/trades'
+      fullPath: '/trades'
+      preLoaderRoute: typeof AuthLeagueTradesRouteImport
+      parentRoute: typeof AuthLeagueRouteRoute
     }
-    '/_authenticated/league/$leagueId': {
-      id: '/_authenticated/league/$leagueId'
-      path: '/league/$leagueId'
-      fullPath: '/league/$leagueId'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdRouteRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/_authenticated/league/$leagueId/': {
-      id: '/_authenticated/league/$leagueId/'
-      path: '/'
-      fullPath: '/league/$leagueId/'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdIndexRouteImport
-      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
-    }
-    '/_authenticated/league/$leagueId/user/$userId/trades': {
-      id: '/_authenticated/league/$leagueId/user/$userId/trades'
-      path: '/user/$userId/trades'
-      fullPath: '/league/$leagueId/user/$userId/trades'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRouteImport
-      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
-    }
-    '/_authenticated/league/$leagueId/user/$userId/collection': {
-      id: '/_authenticated/league/$leagueId/user/$userId/collection'
-      path: '/user/$userId/collection'
-      fullPath: '/league/$leagueId/user/$userId/collection'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRouteImport
-      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
-    }
-    '/_authenticated/league/$leagueId/user/$userId/decks/': {
-      id: '/_authenticated/league/$leagueId/user/$userId/decks/'
+    '/_auth/_league/user/$userId/decks': {
+      id: '/_auth/_league/user/$userId/decks'
       path: '/user/$userId/decks'
-      fullPath: '/league/$leagueId/user/$userId/decks/'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRouteImport
-      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
+      fullPath: '/user/$userId/decks'
+      preLoaderRoute: typeof AuthLeagueUserUserIdDecksRouteImport
+      parentRoute: typeof AuthLeagueRouteRoute
     }
-    '/_authenticated/league/$leagueId/user/$userId/decks/$deckId': {
-      id: '/_authenticated/league/$leagueId/user/$userId/decks/$deckId'
-      path: '/user/$userId/decks/$deckId'
-      fullPath: '/league/$leagueId/user/$userId/decks/$deckId'
-      preLoaderRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRouteImport
-      parentRoute: typeof AuthenticatedLeagueLeagueIdRouteRoute
+    '/_auth/_league/user/$userId/collection': {
+      id: '/_auth/_league/user/$userId/collection'
+      path: '/user/$userId/collection'
+      fullPath: '/user/$userId/collection'
+      preLoaderRoute: typeof AuthLeagueUserUserIdCollectionRouteImport
+      parentRoute: typeof AuthLeagueRouteRoute
     }
   }
 }
 
-interface AuthenticatedLeagueLeagueIdRouteRouteChildren {
-  AuthenticatedLeagueLeagueIdIndexRoute: typeof AuthenticatedLeagueLeagueIdIndexRoute
-  AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute
-  AuthenticatedLeagueLeagueIdUserUserIdTradesRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdTradesRoute
-  AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute
-  AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute: typeof AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute
+interface AuthLeagueRouteRouteChildren {
+  AuthLeagueTradesRoute: typeof AuthLeagueTradesRoute
+  AuthLeagueIndexRoute: typeof AuthLeagueIndexRoute
+  AuthLeagueUserUserIdCollectionRoute: typeof AuthLeagueUserUserIdCollectionRoute
+  AuthLeagueUserUserIdDecksRoute: typeof AuthLeagueUserUserIdDecksRoute
 }
 
-const AuthenticatedLeagueLeagueIdRouteRouteChildren: AuthenticatedLeagueLeagueIdRouteRouteChildren =
-  {
-    AuthenticatedLeagueLeagueIdIndexRoute:
-      AuthenticatedLeagueLeagueIdIndexRoute,
-    AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute:
-      AuthenticatedLeagueLeagueIdUserUserIdCollectionRoute,
-    AuthenticatedLeagueLeagueIdUserUserIdTradesRoute:
-      AuthenticatedLeagueLeagueIdUserUserIdTradesRoute,
-    AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute:
-      AuthenticatedLeagueLeagueIdUserUserIdDecksDeckIdRoute,
-    AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute:
-      AuthenticatedLeagueLeagueIdUserUserIdDecksIndexRoute,
-  }
-
-const AuthenticatedLeagueLeagueIdRouteRouteWithChildren =
-  AuthenticatedLeagueLeagueIdRouteRoute._addFileChildren(
-    AuthenticatedLeagueLeagueIdRouteRouteChildren,
-  )
-
-interface AuthenticatedRouteRouteChildren {
-  AuthenticatedIndexRoute: typeof AuthenticatedIndexRoute
-  AuthenticatedLeagueLeagueIdRouteRoute: typeof AuthenticatedLeagueLeagueIdRouteRouteWithChildren
-  AuthenticatedLeagueIndexRoute: typeof AuthenticatedLeagueIndexRoute
+const AuthLeagueRouteRouteChildren: AuthLeagueRouteRouteChildren = {
+  AuthLeagueTradesRoute: AuthLeagueTradesRoute,
+  AuthLeagueIndexRoute: AuthLeagueIndexRoute,
+  AuthLeagueUserUserIdCollectionRoute: AuthLeagueUserUserIdCollectionRoute,
+  AuthLeagueUserUserIdDecksRoute: AuthLeagueUserUserIdDecksRoute,
 }
 
-const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
-  AuthenticatedIndexRoute: AuthenticatedIndexRoute,
-  AuthenticatedLeagueLeagueIdRouteRoute:
-    AuthenticatedLeagueLeagueIdRouteRouteWithChildren,
-  AuthenticatedLeagueIndexRoute: AuthenticatedLeagueIndexRoute,
+const AuthLeagueRouteRouteWithChildren = AuthLeagueRouteRoute._addFileChildren(
+  AuthLeagueRouteRouteChildren,
+)
+
+interface AuthRouteRouteChildren {
+  AuthLeagueRouteRoute: typeof AuthLeagueRouteRouteWithChildren
+  AuthInitializeRoute: typeof AuthInitializeRoute
+  AuthPurgatoryRoute: typeof AuthPurgatoryRoute
 }
 
-const AuthenticatedRouteRouteWithChildren =
-  AuthenticatedRouteRoute._addFileChildren(AuthenticatedRouteRouteChildren)
+const AuthRouteRouteChildren: AuthRouteRouteChildren = {
+  AuthLeagueRouteRoute: AuthLeagueRouteRouteWithChildren,
+  AuthInitializeRoute: AuthInitializeRoute,
+  AuthPurgatoryRoute: AuthPurgatoryRoute,
+}
+
+const AuthRouteRouteWithChildren = AuthRouteRoute._addFileChildren(
+  AuthRouteRouteChildren,
+)
 
 const rootRouteChildren: RootRouteChildren = {
-  AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
+  AuthRouteRoute: AuthRouteRouteWithChildren,
   LoginRoute: LoginRoute,
 }
 export const routeTree = rootRouteImport

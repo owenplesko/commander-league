@@ -4,7 +4,7 @@ import db from "../db";
 import { createMember } from "./member";
 
 export function getLeague(): League {
-  const settings = repo.getLeagueSettings();
+  const settings = repo.getPublicSettings();
 
   if (!settings) return { initialized: false };
 
@@ -20,6 +20,6 @@ export function initializeLeague({
 }) {
   db.transaction((tx) => {
     createMember({ userId: ownerId, admin: true }, tx);
-    repo.insertLeagueSettings({ name, ownerId }, tx);
+    repo.insertSettings({ name, ownerId }, tx);
   });
 }

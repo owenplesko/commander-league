@@ -1,6 +1,6 @@
-import { member, admin } from "../orpc";
 import { ORPCError } from "@orpc/server";
 import * as service from "../services";
+import { admin, member } from "../middleware/member";
 
 const getCollection = member.collection.get.handler(({ input: { userId } }) => {
   const member = service.getMember({ userId });

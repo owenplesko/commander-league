@@ -1,6 +1,6 @@
-import { member } from "../orpc";
 import { ORPCError } from "@orpc/server";
 import * as service from "../services/";
+import { member } from "../middleware/member";
 
 const listDecksController = member.deck.list.handler(({ input }) => {
   const decks = service.listDecks({ ownerId: input.userId });

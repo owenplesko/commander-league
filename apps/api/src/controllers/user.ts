@@ -1,4 +1,4 @@
-import { admin } from "../orpc";
+import { admin } from "../middleware/member";
 import * as service from "../services/";
 
 const listUsers = admin.user.list.handler(({ input: { isMember } }) => {
