@@ -2,6 +2,7 @@ import z from "zod";
 import { UserSchema } from "./user";
 import { CardSchema } from "./card";
 import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
+import { MemberSchema } from "./member";
 
 export const ListDeckParamsSchema = z.object({
   userId: UserSchema.shape.id.optional(),
@@ -10,6 +11,7 @@ export const ListDeckParamsSchema = z.object({
 export const DeckListEntrySchema = z.object({
   id: z.number(),
   commanderCard: CardSchema,
+  owner: MemberSchema,
   name: z.string(),
 });
 export type DeckListEntry = z.infer<typeof DeckListEntrySchema>;
@@ -17,7 +19,7 @@ export type DeckListEntry = z.infer<typeof DeckListEntrySchema>;
 export const DeckSchema = DeckListEntrySchema.extend({
   id: z.number(),
   name: z.string(),
-  owner: UserSchema,
+  owner: MemberSchema,
   cardQuantities: CardQuantitySchema.array(),
   commanderCard: CardSchema,
   partnerCard: CardSchema.nullish(),

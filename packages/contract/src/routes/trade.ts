@@ -12,16 +12,23 @@ const listTrades = oc
 
 const createTrade = oc
   .route({ method: "POST", path: "/trade", successStatus: 201 })
-  .input(CreateTradeRequestSchema)
-  .output(TradeRequestSchema);
+  .input(CreateTradeRequestSchema);
 
 const setTradeStatus = oc
   .route({
-    method: "POST",
+    method: "PATCH",
     path: "/trade/{tradeId}/status",
     successStatus: 204,
   })
   .input(GetTradeSchema.extend(UpdateTradeStatusSchema.shape));
+
+const executeTrade = oc
+  .route({
+    method: "POST",
+    path: "/trade/{tradeId}/execute",
+    successStatus: 204,
+  })
+  .input(GetTradeSchema);
 
 const deleteTrade = oc
   .route({
@@ -35,5 +42,6 @@ export const tradeRoutes = {
   list: listTrades,
   create: createTrade,
   setStatus: setTradeStatus,
+  execute: executeTrade,
   delete: deleteTrade,
 };

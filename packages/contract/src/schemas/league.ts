@@ -14,6 +14,6 @@ export const LeagueSchema = z.discriminatedUnion("initialized", [
   }),
 ]);
 
-export const InitializeLeagueSchema = z.object({});
+export const InitializeLeagueSchema = z.object({ name: z.string() });
 
 export type League = z.infer<typeof LeagueSchema>;

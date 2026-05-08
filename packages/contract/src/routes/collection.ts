@@ -2,7 +2,7 @@ import { oc } from "@orpc/contract";
 import {
   CardSchema,
   CollectionSchema,
-  CreateCollectionBodySchema,
+  SetCollectionBodySchema,
   GetMemberSchema,
 } from "../schemas";
 import z from "zod";
@@ -21,7 +21,7 @@ const setCollection = oc
     path: "/member/{userId}/collection",
     successStatus: 204,
   })
-  .input(GetMemberSchema.extend(CreateCollectionBodySchema.shape))
+  .input(GetMemberSchema.extend(SetCollectionBodySchema.shape))
   .errors({
     BAD_REQUEST: {
       data: z.object({

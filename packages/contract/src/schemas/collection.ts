@@ -19,6 +19,6 @@ export const CreateCardQuantitySchema = z.object({
 });
 export type CreateCardQuantity = z.infer<typeof CreateCardQuantitySchema>;
 
-export const CreateCollectionBodySchema = z.object({
-  cardQuantites: CreateCardQuantitySchema.array(),
+export const SetCollectionBodySchema = z.object({
+  cardQuantities: CreateCardQuantitySchema.array(),
 });

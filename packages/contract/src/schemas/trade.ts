@@ -1,18 +1,18 @@
 import z from "zod";
 import { UserSchema } from "./user";
 import { CardQuantitySchema, CreateCardQuantitySchema } from "./collection";
+import { MemberSchema } from "./member";
 
-const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
-
+export const tradeStatusValues = ["accepted", "pending", "rejected"] as const;
 export const TradeStatusSchema = z.enum(tradeStatusValues);
 export type TradeStatus = z.infer<typeof TradeStatusSchema>;
 
 export const TradeRequestSchema = z.object({
   id: z.number(),
-  requester: UserSchema,
+  requester: MemberSchema,
   requesterStatus: TradeStatusSchema,
   requesterCardQuantities: CardQuantitySchema.array(),
-  recipient: UserSchema,
+  recipient: MemberSchema,
   recipientStatus: TradeStatusSchema,
   recipientCardQuantities: CardQuantitySchema.array(),
 });

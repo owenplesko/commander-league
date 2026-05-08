@@ -21,8 +21,7 @@ const createDeck = oc
     path: "/deck",
     successStatus: 201,
   })
-  .input(CreateDeckBodySchema)
-  .output(DeckSchema);
+  .input(CreateDeckBodySchema);
 
 const getDeck = oc
   .route({ method: "GET", path: "/deck/{deckId}" })
