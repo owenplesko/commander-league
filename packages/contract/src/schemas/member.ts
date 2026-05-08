@@ -10,7 +10,6 @@ export type Member = z.infer<typeof MemberSchema>;
 
 export const CreateMemberSchema = z.object({
   userId: UserSchema.shape.id,
-  admin: z.boolean().optional(),
 });
 
 export const GetMemberSchema = z.object({
