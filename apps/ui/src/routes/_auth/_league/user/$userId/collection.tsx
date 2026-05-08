@@ -1,7 +1,7 @@
 import { CollectionBulkEditModal } from "@/components/modals/CollectionBulkEdit";
 import { CardTable } from "@/features/cardTable/components/CardTable";
 import type { MenuCard } from "@/features/cardTable/types/menuCard";
-import { orpc } from "@/lib/client";
+import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery, useQuery, useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
 import { Button } from "primereact/button";
@@ -10,6 +10,14 @@ import { useState } from "react";
 
 export const Route = createFileRoute("/_auth/_league/user/$userId/collection")({
   component: RouteComponent,
+  loader: async ({ params: { userId } }) => {
+    await queryClient.ensureQueryData(
+      orpc.member.get.queryOptions({ input: { userId } }),
+    );
+    await queryClient.ensureQueryData(
+      orpc.collection.get.queryOptions({ input: { userId } }),
+    );
+  },
 });
 
 function RouteComponent() {

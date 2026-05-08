@@ -1,0 +1,12 @@
+.deckGrid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, 20rem);
+  grid-auto-rows: 15rem;
+  gap: 1rem;
+}
+
+.deck {
+  cursor: pointer;
+  border-radius: var(--border-radius);
+  background-color: var(--surface-card);
+}

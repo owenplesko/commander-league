@@ -16,6 +16,7 @@ import { Route as AuthInitializeRouteImport } from './routes/_auth/initialize'
 import { Route as AuthLeagueRouteRouteImport } from './routes/_auth/_league/route'
 import { Route as AuthLeagueIndexRouteImport } from './routes/_auth/_league/index'
 import { Route as AuthLeagueTradesRouteImport } from './routes/_auth/_league/trades'
+import { Route as AuthLeagueDeckDeckIdRouteImport } from './routes/_auth/_league/deck/$deckId'
 import { Route as AuthLeagueUserUserIdDecksRouteImport } from './routes/_auth/_league/user/$userId/decks'
 import { Route as AuthLeagueUserUserIdCollectionRouteImport } from './routes/_auth/_league/user/$userId/collection'
 
@@ -52,6 +53,11 @@ const AuthLeagueTradesRoute = AuthLeagueTradesRouteImport.update({
   path: '/trades',
   getParentRoute: () => AuthLeagueRouteRoute,
 } as any)
+const AuthLeagueDeckDeckIdRoute = AuthLeagueDeckDeckIdRouteImport.update({
+  id: '/deck/$deckId',
+  path: '/deck/$deckId',
+  getParentRoute: () => AuthLeagueRouteRoute,
+} as any)
 const AuthLeagueUserUserIdDecksRoute =
   AuthLeagueUserUserIdDecksRouteImport.update({
     id: '/user/$userId/decks',
@@ -71,6 +77,7 @@ export interface FileRoutesByFullPath {
   '/initialize': typeof AuthInitializeRoute
   '/purgatory': typeof AuthPurgatoryRoute
   '/trades': typeof AuthLeagueTradesRoute
+  '/deck/$deckId': typeof AuthLeagueDeckDeckIdRoute
   '/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
   '/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
@@ -80,6 +87,7 @@ export interface FileRoutesByTo {
   '/initialize': typeof AuthInitializeRoute
   '/purgatory': typeof AuthPurgatoryRoute
   '/trades': typeof AuthLeagueTradesRoute
+  '/deck/$deckId': typeof AuthLeagueDeckDeckIdRoute
   '/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
   '/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
@@ -92,6 +100,7 @@ export interface FileRoutesById {
   '/_auth/purgatory': typeof AuthPurgatoryRoute
   '/_auth/_league/trades': typeof AuthLeagueTradesRoute
   '/_auth/_league/': typeof AuthLeagueIndexRoute
+  '/_auth/_league/deck/$deckId': typeof AuthLeagueDeckDeckIdRoute
   '/_auth/_league/user/$userId/collection': typeof AuthLeagueUserUserIdCollectionRoute
   '/_auth/_league/user/$userId/decks': typeof AuthLeagueUserUserIdDecksRoute
 }
@@ -103,6 +112,7 @@ export interface FileRouteTypes {
     | '/initialize'
     | '/purgatory'
     | '/trades'
+    | '/deck/$deckId'
     | '/user/$userId/collection'
     | '/user/$userId/decks'
   fileRoutesByTo: FileRoutesByTo
@@ -112,6 +122,7 @@ export interface FileRouteTypes {
     | '/initialize'
     | '/purgatory'
     | '/trades'
+    | '/deck/$deckId'
     | '/user/$userId/collection'
     | '/user/$userId/decks'
   id:
@@ -123,6 +134,7 @@ export interface FileRouteTypes {
     | '/_auth/purgatory'
     | '/_auth/_league/trades'
     | '/_auth/_league/'
+    | '/_auth/_league/deck/$deckId'
     | '/_auth/_league/user/$userId/collection'
     | '/_auth/_league/user/$userId/decks'
   fileRoutesById: FileRoutesById
@@ -183,6 +195,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthLeagueTradesRouteImport
       parentRoute: typeof AuthLeagueRouteRoute
     }
+    '/_auth/_league/deck/$deckId': {
+      id: '/_auth/_league/deck/$deckId'
+      path: '/deck/$deckId'
+      fullPath: '/deck/$deckId'
+      preLoaderRoute: typeof AuthLeagueDeckDeckIdRouteImport
+      parentRoute: typeof AuthLeagueRouteRoute
+    }
     '/_auth/_league/user/$userId/decks': {
       id: '/_auth/_league/user/$userId/decks'
       path: '/user/$userId/decks'
@@ -203,6 +222,7 @@ declare module '@tanstack/react-router' {
 interface AuthLeagueRouteRouteChildren {
   AuthLeagueTradesRoute: typeof AuthLeagueTradesRoute
   AuthLeagueIndexRoute: typeof AuthLeagueIndexRoute
+  AuthLeagueDeckDeckIdRoute: typeof AuthLeagueDeckDeckIdRoute
   AuthLeagueUserUserIdCollectionRoute: typeof AuthLeagueUserUserIdCollectionRoute
   AuthLeagueUserUserIdDecksRoute: typeof AuthLeagueUserUserIdDecksRoute
 }
@@ -210,6 +230,7 @@ interface AuthLeagueRouteRouteChildren {
 const AuthLeagueRouteRouteChildren: AuthLeagueRouteRouteChildren = {
   AuthLeagueTradesRoute: AuthLeagueTradesRoute,
   AuthLeagueIndexRoute: AuthLeagueIndexRoute,
+  AuthLeagueDeckDeckIdRoute: AuthLeagueDeckDeckIdRoute,
   AuthLeagueUserUserIdCollectionRoute: AuthLeagueUserUserIdCollectionRoute,
   AuthLeagueUserUserIdDecksRoute: AuthLeagueUserUserIdDecksRoute,
 }

@@ -1,7 +1,7 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation } from "@tanstack/react-query";
-import type { Card, LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, Member } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputText } from "../../forms/FormInputText";
@@ -14,13 +14,12 @@ type FormData = {
 };
 
 type Props = {
-  leagueId: number;
-  leagueMember: LeagueMember;
+  member: Member;
   visible: boolean;
   onHide: () => void;
 };
 
-export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
+export function NewDeck({ member, visible, onHide }: Props) {
   const { control, handleSubmit } = useForm<FormData>();
 
   const mutation = useMutation(orpc.deck.create.mutationOptions());
@@ -34,7 +33,6 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
       name,
       commanderCardName: commander.name,
       partnerCardName: partner?.name,
-      leagueId,
     });
     onHide();
   };
@@ -66,7 +64,7 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
           name="commander"
           label="Commander"
           placeholder="card name..."
-          collectionId={leagueMember.collectionId}
+          collectionId={member.collectionId}
           rules={{ required: true }}
           control={control}
         />
@@ -74,7 +72,7 @@ export function NewDeck({ leagueId, leagueMember, visible, onHide }: Props) {
           name="partner"
           label="Partner"
           placeholder="card name..."
-          collectionId={leagueMember.collectionId}
+          collectionId={member.collectionId}
           control={control}
         />
       </form>

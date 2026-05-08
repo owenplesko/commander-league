@@ -36,9 +36,9 @@ export function CardAutoComplete({
         suggestions={suggestions}
         completeMethod={async (e) => {
           const res = await queryClient.fetchQuery(
-            orpc.card.search.queryOptions({
+            orpc.card.list.queryOptions({
               input: {
-                cardName: e.query,
+                searchTerm: e.query,
                 collectionId: collectionId,
               },
             }),
