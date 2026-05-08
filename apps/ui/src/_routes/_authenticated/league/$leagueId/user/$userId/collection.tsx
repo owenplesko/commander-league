@@ -7,7 +7,6 @@ import { queryClient, orpc } from "../../../../../../lib/client";
 import { CardTable } from "../../../../../../features/cardTable/components/CardTable";
 import type { MenuCard } from "../../../../../../features/cardTable/types/menuCard";
 import type { MenuItem } from "primereact/menuitem";
-import { de } from "zod/v4/locales";
 
 export const Route = createFileRoute(
   "/_authenticated/league/$leagueId/user/$userId/collection",

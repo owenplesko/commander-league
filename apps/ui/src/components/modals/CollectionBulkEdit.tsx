@@ -11,7 +11,6 @@ import { Message } from "primereact/message";
 type Props = {
   collection: Collection;
   userId: string;
-  leagueId: number;
   visible: boolean;
   onHide: () => void;
 };
@@ -47,16 +46,15 @@ function unmarshalCollection(text: string) {
 export function CollectionBulkEditModal({
   collection,
   userId,
-  leagueId,
   visible,
   onHide,
 }: Props) {
   const mutation = useMutation(
     orpc.collection.set.mutationOptions({
-      onSuccess: (_output, { userId, leagueId }, _err, ctx) => {
+      onSuccess: (_output, { userId }, _err, ctx) => {
         ctx.client.invalidateQueries({
           queryKey: orpc.collection.get.key({
-            input: { leagueId, userId },
+            input: { userId },
           }),
         });
         onHide();
@@ -92,8 +90,8 @@ export function CollectionBulkEditModal({
         <Button
           label="Save"
           onClick={() => {
-            const cardQuantites = unmarshalCollection(collectionText ?? "");
-            mutation.mutate({ leagueId, userId, cardQuantites });
+            const cardQuantities = unmarshalCollection(collectionText ?? "");
+            mutation.mutate({ userId, cardQuantities });
           }}
         />
       }

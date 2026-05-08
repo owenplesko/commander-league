@@ -1,9 +1,79 @@
-import { createFileRoute } from '@tanstack/react-router'
+import { CollectionBulkEditModal } from "@/components/modals/CollectionBulkEdit";
+import { CardTable } from "@/features/cardTable/components/CardTable";
+import type { MenuCard } from "@/features/cardTable/types/menuCard";
+import { orpc } from "@/lib/client";
+import { useSuspenseQuery, useQuery, useMutation } from "@tanstack/react-query";
+import { createFileRoute } from "@tanstack/react-router";
+import { Button } from "primereact/button";
+import type { MenuItem } from "primereact/menuitem";
+import { useState } from "react";
 
-export const Route = createFileRoute('/_auth/_league/user/$userId/collection')({
+export const Route = createFileRoute("/_auth/_league/user/$userId/collection")({
   component: RouteComponent,
-})
+});
 
 function RouteComponent() {
-  return <div>Hello "/_auth/_league/user/$userId/collection"!</div>
+  const { userId } = Route.useParams();
+  const { user: self } = Route.useRouteContext();
+  const isSelf = userId === self.id;
+
+  const { data: member } = useSuspenseQuery(
+    orpc.member.get.queryOptions({ input: { userId } }),
+  );
+  const { data: collection } = useSuspenseQuery(
+    orpc.collection.get.queryOptions({ input: { userId } }),
+  );
+
+  const addToDeckMutation = useMutation(
+    orpc.deck.updateCards.mutationOptions(),
+  );
+  const { data: decks } = useQuery(
+    orpc.deck.list.queryOptions({ enabled: isSelf, input: { userId } }),
+  );
+
+  const [modal, setModal] = useState<"bulk-edit" | null>(null);
+
+  function cardMenuOptions({ card }: MenuCard): MenuItem[] | null {
+    if (!isSelf) return null;
+
+    return [
+      {
+        label: "Add to Deck",
+        items: decks?.map((deck) => ({
+          label: deck.name,
+          async command() {
+            addToDeckMutation.mutateAsync({
+              deckId: deck.id,
+              cardDeltas: [{ cardName: card.name, quantity: 1 }],
+            });
+          },
+        })),
+      },
+    ];
+  }
+
+  return (
+    <>
+      <h1>{`${member.user.name}'s Collection`}</h1>
+      <Button
+        style={{ marginRight: "auto" }}
+        label="Bulk Edit"
+        onClick={() => {
+          setModal("bulk-edit");
+        }}
+      />
+      <CardTable
+        cardQuantities={collection.cardQuantities}
+        menuOptionsTemplate={cardMenuOptions}
+      />
+      <CollectionBulkEditModal
+        collection={collection}
+        userId={userId}
+        visible={modal === "bulk-edit"}
+        onHide={() => {
+          setModal(null);
+        }}
+      />
+    </>
+  );
 }
