@@ -6,6 +6,7 @@ import { cardRoutes } from "./card";
 import { base } from "../orpc";
 import { memberRoutes } from "./member";
 import { settingsRoutes } from "./settings";
+import { userRoutes } from "./user";
 
 export const routes = base.router({
   card: cardRoutes,
@@ -15,5 +16,5 @@ export const routes = base.router({
   settings: settingsRoutes,
   trade: tradeRoutes,
   deck: deckRoutes,
-  user: undefined,
+  user: userRoutes,
 });
