@@ -1,12 +1,12 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useEffect, useState } from "react";
-import { orpc } from "../../lib/client";
 import { useMutation } from "@tanstack/react-query";
 import { InputTextarea } from "primereact/inputtextarea";
 import type { Collection } from "@commander-league/contract/schemas";
 import { isDefinedError } from "@orpc/client";
 import { Message } from "primereact/message";
+import { orpc } from "@/lib/client";
 
 type Props = {
   collection: Collection;

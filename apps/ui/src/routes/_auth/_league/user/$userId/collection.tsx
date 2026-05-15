@@ -1,6 +1,6 @@
-import { CollectionBulkEditModal } from "@/components/modals/CollectionBulkEdit";
 import { CardTable } from "@/features/cardTable/components/CardTable";
 import type { MenuCard } from "@/features/cardTable/types/menuCard";
+import { CollectionBulkEditModal } from "@/features/collection/components/CollectionBulkEdit";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery, useQuery, useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
