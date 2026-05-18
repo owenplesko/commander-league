@@ -1,4 +1,4 @@
-import { UserBadge } from "@/features/common/components/UserBade";
+import { UserBadge } from "@/features/common/components/UserBadge";
 import classes from "./route.module.css";
 import { CreateTradeRequestModal } from "@/features/trade/components/CreateTradeModal";
 import { orpc, queryClient } from "@/lib/client";
@@ -22,7 +22,7 @@ import { Menu } from "primereact/menu";
 
 export const Route = createFileRoute("/_auth/_league")({
   component: RouteComponent,
-  beforeLoad: async ({ context }) => {
+  beforeLoad: async () => {
     // validate that league has been initialized
     const league = await queryClient.ensureQueryData(
       orpc.league.get.queryOptions(),
@@ -31,21 +31,13 @@ export const Route = createFileRoute("/_auth/_league")({
     if (!league.initialized) throw redirect({ to: "/initialize" });
 
     // validate that you are a member & add role to context
-    try {
-      const membership = await queryClient.ensureQueryData(
-        orpc.member.get.queryOptions({ input: { userId: context.user.id } }),
-      );
+    const membership = await queryClient
+      .ensureQueryData(orpc.member.me.queryOptions())
+      .catch(() => null);
 
-      return {
-        league,
-        membership,
-      };
-    } catch (e) {
-      if (e instanceof ORPCError && e.code === "NOT_FOUND") {
-        throw redirect({});
-      }
-      throw e;
-    }
+    if (!membership) throw redirect({ to: "/purgatory" });
+
+    return { league, membership };
   },
   loader: async () => {
     await queryClient.ensureQueryData(orpc.league.get.queryOptions());

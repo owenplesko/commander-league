@@ -18,67 +18,16 @@ const client: Client = createORPCClient(link);
 
 export const orpc = createTanstackQueryUtils(client, {
   experimental_defaults: {
-    league: {
+    member: {
       create: {
         mutationOptions: {
-          onSuccess: (_output, _input, _err, ctx) => {
-            ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
-          },
-        },
-      },
-      join: {
-        mutationOptions: {
-          onSuccess: (_output, _input, _err, ctx) => {
-            ctx.client.invalidateQueries({ queryKey: orpc.league.list.key() });
-          },
-        },
-      },
-      member: {
-        delete: {
-          mutationOptions: {
-            onSuccess: (_output, input, _err, ctx) => {
-              ctx.client.invalidateQueries({
-                queryKey: [
-                  orpc.league.member.list.key({
-                    input: { leagueId: input.leagueId },
-                  }),
-                ],
-              });
-            },
-          },
-        },
-      },
-
-      inviteCode: {
-        create: {
-          mutationOptions: {
-            onSuccess: (_output, input, _err, ctx) => {
-              ctx.client.invalidateQueries({
-                queryKey: orpc.league.inviteCode.list.key({ input }),
-              });
-            },
-          },
-        },
-        update: {
-          mutationOptions: {
-            onSuccess: (_output, input, _err, ctx) => {
-              ctx.client.invalidateQueries({
-                queryKey: orpc.league.inviteCode.list.key({
-                  input: { leagueId: input.leagueId },
-                }),
-              });
-            },
-          },
-        },
-        delete: {
-          mutationOptions: {
-            onSuccess: (_output, { leagueId }, _err, ctx) => {
-              ctx.client.invalidateQueries({
-                queryKey: orpc.league.inviteCode.list.key({
-                  input: { leagueId },
-                }),
-              });
-            },
+          onSuccess(data, variables, onMutateResult, context) {
+            context.client.invalidateQueries({
+              queryKey: orpc.user.list.key(),
+            });
+            context.client.invalidateQueries({
+              queryKey: orpc.member.list.key(),
+            });
           },
         },
       },
@@ -91,7 +40,6 @@ export const orpc = createTanstackQueryUtils(client, {
             ctx.client.invalidateQueries({
               queryKey: orpc.collection.get.key({
                 input: {
-                  leagueId: variables.leagueId,
                   userId: variables.userId,
                 },
               }),
@@ -106,9 +54,7 @@ export const orpc = createTanstackQueryUtils(client, {
         mutationOptions: {
           onSuccess(_data, variables, _onMutateResult, ctx) {
             ctx.client.invalidateQueries({
-              queryKey: orpc.trade.list.key({
-                input: { leagueId: variables.leagueId },
-              }),
+              queryKey: orpc.trade.list.key(),
             });
           },
         },
@@ -117,9 +63,7 @@ export const orpc = createTanstackQueryUtils(client, {
         mutationOptions: {
           onSuccess(data, variables, onMutateResult, ctx) {
             ctx.client.invalidateQueries({
-              queryKey: orpc.trade.list.key({
-                input: { leagueId: variables.leagueId },
-              }),
+              queryKey: orpc.trade.list.key(),
             });
           },
         },
@@ -128,9 +72,7 @@ export const orpc = createTanstackQueryUtils(client, {
         mutationOptions: {
           onSuccess(data, variables, onMutateResult, ctx) {
             ctx.client.invalidateQueries({
-              queryKey: orpc.trade.list.key({
-                input: { leagueId: variables.leagueId },
-              }),
+              queryKey: orpc.trade.list.key(),
             });
           },
         },

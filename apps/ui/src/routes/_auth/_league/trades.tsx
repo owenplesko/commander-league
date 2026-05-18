@@ -1,4 +1,4 @@
-import { UserBadge } from "@/features/common/components/UserBade";
+import { UserBadge } from "@/features/common/components/UserBadge";
 import { TradeItemsPreview } from "@/features/trade/components/TradePreview";
 import { orpc, queryClient } from "@/lib/client";
 import type {

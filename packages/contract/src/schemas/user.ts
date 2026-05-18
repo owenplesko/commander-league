@@ -1,7 +1,7 @@
-import z, { boolean } from "zod";
+import z from "zod";
 
 export const GetUserParams = z.object({
-  isMember: boolean().optional(),
+  isMember: z.stringbool().optional(),
 });
 
 export const UserSchema = z.object({

@@ -8,7 +8,7 @@ import { CardAutoComplete } from "../../common/components/CardAutoComplete";
 import { useEffect, useState } from "react";
 import type { AutoCompleteSelectEvent } from "primereact/autocomplete";
 import { TradeItemsPreview } from "./TradePreview";
-import { UserBadge } from "../../common/components/UserBade";
+import { UserBadge } from "../../common/components/UserBadge";
 
 type Props = {
   requester: Member;

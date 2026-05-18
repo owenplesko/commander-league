@@ -14,6 +14,10 @@ const getMember = oc
   .input(GetMemberSchema)
   .output(MemberSchema);
 
+const getMe = oc
+  .route({ method: "GET", path: "/member/@me" })
+  .output(MemberSchema);
+
 const updateMember = oc
   .route({ method: "PATCH", path: "/member/{userId}", successStatus: 204 })
   .input(GetMemberSchema);
@@ -25,6 +29,7 @@ const deleteMember = oc
 export const memberRoutes = {
   list: listMembers,
   create: createMember,
+  me: getMe,
   get: getMember,
   update: updateMember,
   delete: deleteMember,

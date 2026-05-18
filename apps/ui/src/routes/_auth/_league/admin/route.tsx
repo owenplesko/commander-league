@@ -1,3 +1,4 @@
+import { OnboardingCard } from "@/features/admin/components/OnboardingCard";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/_auth/_league/admin")({
@@ -11,5 +12,9 @@ export const Route = createFileRoute("/_auth/_league/admin")({
 });
 
 function RouteComponent() {
-  return <div>Hello "/_auth/_league/admin"!</div>;
+  return (
+    <div>
+      <OnboardingCard />
+    </div>
+  );
 }
