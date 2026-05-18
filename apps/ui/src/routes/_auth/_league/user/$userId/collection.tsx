@@ -1,12 +1,11 @@
 import { CardTable } from "@/features/cardTable/components/CardTable";
 import type { MenuCard } from "@/features/cardTable/types/menuCard";
 import { CollectionBulkEditModal } from "@/features/collection/components/CollectionBulkEdit";
+import { CollectionSettings } from "@/features/collection/components/CollectionSettings";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery, useQuery, useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Button } from "primereact/button";
 import type { MenuItem } from "primereact/menuitem";
-import { useState } from "react";
 
 export const Route = createFileRoute("/_auth/_league/user/$userId/collection")({
   component: RouteComponent,
@@ -22,7 +21,7 @@ export const Route = createFileRoute("/_auth/_league/user/$userId/collection")({
 
 function RouteComponent() {
   const { userId } = Route.useParams();
-  const { user: self } = Route.useRouteContext();
+  const { user: self, membership } = Route.useRouteContext();
   const isSelf = userId === self.id;
 
   const { data: member } = useSuspenseQuery(
@@ -38,8 +37,6 @@ function RouteComponent() {
   const { data: decks } = useQuery(
     orpc.deck.list.queryOptions({ enabled: isSelf, input: { userId } }),
   );
-
-  const [modal, setModal] = useState<"bulk-edit" | null>(null);
 
   function cardMenuOptions({ card }: MenuCard): MenuItem[] | null {
     if (!isSelf) return null;
@@ -62,25 +59,13 @@ function RouteComponent() {
 
   return (
     <>
-      <h1>{`${member.user.name}'s Collection`}</h1>
-      <Button
-        style={{ marginRight: "auto" }}
-        label="Bulk Edit"
-        onClick={() => {
-          setModal("bulk-edit");
-        }}
-      />
+      <div style={{ display: "flex" }}>
+        <h1>{`${member.user.name}'s Collection`}</h1>
+        {(membership.admin || isSelf) && <CollectionSettings userId={userId} />}
+      </div>
       <CardTable
         cardQuantities={collection.cardQuantities}
         menuOptionsTemplate={cardMenuOptions}
-      />
-      <CollectionBulkEditModal
-        collection={collection}
-        userId={userId}
-        visible={modal === "bulk-edit"}
-        onHide={() => {
-          setModal(null);
-        }}
       />
     </>
   );
