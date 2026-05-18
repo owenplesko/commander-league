@@ -144,3 +144,43 @@ CREATE TABLE `verification` (
 CREATE INDEX `account_userId_idx` ON `account` (`user_id`);--> statement-breakpoint
 CREATE INDEX `session_userId_idx` ON `session` (`user_id`);--> statement-breakpoint
 CREATE INDEX `verification_identifier_idx` ON `verification` (`identifier`);
+--> statement-breakpoint
+
+-- Trigger: delete collection when league_member is deleted
+CREATE TRIGGER cleanup_collection_on_member_delete
+AFTER DELETE ON league_member
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;
+--> statement-breakpoint
+
+-- Trigger: delete collection when deck is deleted
+CREATE TRIGGER cleanup_collection_on_deck_delete
+AFTER DELETE ON deck
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;
+--> statement-breakpoint
+
+-- Trigger: delete requester collection when trade_request is deleted
+CREATE TRIGGER cleanup_requester_collection_on_trade_delete
+AFTER DELETE ON trade_request
+BEGIN
+  DELETE FROM collection WHERE id = OLD.requester_collection_id;
+END;
+--> statement-breakpoint
+
+-- Trigger: delete recipient collection when trade_request is deleted
+CREATE TRIGGER cleanup_recipient_collection_on_trade_delete
+AFTER DELETE ON trade_request
+BEGIN
+  DELETE FROM collection WHERE id = OLD.recipient_collection_id;
+END;
+--> statement-breakpoint
+
+-- Trigger: delete collection when pack_card_pool is deleted
+CREATE TRIGGER cleanup_collection_on_pack_card_pool_delete
+AFTER DELETE ON pack_card_pool
+BEGIN
+  DELETE FROM collection WHERE id = OLD.collection_id;
+END;

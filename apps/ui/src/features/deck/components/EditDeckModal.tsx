@@ -1,7 +1,7 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import type { Card, LeagueMember } from "@commander-league/contract/schemas";
+import type { Card, Member } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputText } from "../../forms/FormInputText";
@@ -15,7 +15,7 @@ type FormData = {
 
 type Props = {
   deckId: number;
-  leagueMember: LeagueMember;
+  leagueMember: Member;
   visible: boolean;
   onHide: () => void;
 };

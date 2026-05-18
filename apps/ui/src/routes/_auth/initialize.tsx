@@ -28,7 +28,7 @@ function RouteComponent() {
 
   const onSubmit: SubmitHandler<FormData> = async ({ name }) => {
     await mutation.mutateAsync({ name });
-    router.navigate({ to: "/" });
+    await router.invalidate();
   };
 
   return (

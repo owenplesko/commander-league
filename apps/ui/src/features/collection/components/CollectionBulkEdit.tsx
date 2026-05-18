@@ -1,22 +1,22 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
-import { useEffect, useState } from "react";
-import { useMutation } from "@tanstack/react-query";
-import { InputTextarea } from "primereact/inputtextarea";
-import type { Collection } from "@commander-league/contract/schemas";
+import { useEffect } from "react";
+import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import type { CardQuantity } from "@commander-league/contract/schemas";
+import { orpc } from "@/lib/client";
+import { useForm, type SubmitHandler } from "react-hook-form";
+import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { isDefinedError } from "@orpc/client";
 import { Message } from "primereact/message";
-import { orpc } from "@/lib/client";
 
 type Props = {
-  collection: Collection;
   userId: string;
   visible: boolean;
   onHide: () => void;
 };
 
-function marshalCollection(collection: Collection) {
-  return collection.cardQuantities
+function marshalCollection(cardQuantities: CardQuantity[]) {
+  return cardQuantities
     .map(({ card: { name }, quantity }) => `${quantity} ${name}`)
     .join("\n");
 }
@@ -43,78 +43,65 @@ function unmarshalCollection(text: string) {
     .filter((entry) => entry.quantity > 0 && entry.cardName.length > 0);
 }
 
-export function CollectionBulkEditModal({
-  collection,
-  userId,
-  visible,
-  onHide,
-}: Props) {
-  const mutation = useMutation(
-    orpc.collection.set.mutationOptions({
-      onSuccess: (_output, { userId }, _err, ctx) => {
-        ctx.client.invalidateQueries({
-          queryKey: orpc.collection.get.key({
-            input: { userId },
-          }),
-        });
-        onHide();
-        setCollectionText(undefined);
-      },
-    }),
+type FormData = {
+  collectionText: string;
+};
+
+export function CollectionBulkEditModal({ userId, visible, onHide }: Props) {
+  const mutation = useMutation(orpc.collection.set.mutationOptions());
+  const { data: collection } = useSuspenseQuery(
+    orpc.collection.get.queryOptions({ input: { userId } }),
   );
+
+  const { control, handleSubmit, reset, setValue } = useForm<FormData>();
+
+  const onSubmit: SubmitHandler<FormData> = async ({ collectionText }) => {
+    const cardQuantities = unmarshalCollection(collectionText);
+
+    await mutation.mutateAsync({ userId, cardQuantities });
+    onHide();
+  };
+
+  useEffect(() => {
+    if (visible) {
+      reset();
+      mutation.reset();
+      setValue("collectionText", marshalCollection(collection.cardQuantities));
+    }
+  }, [visible]);
 
   const invalidCards = isDefinedError(mutation.error)
     ? mutation.error.data.invalidCardNames
     : null;
 
-  const [collectionText, setCollectionText] = useState<string>();
-
-  useEffect(() => {
-    if (visible) setCollectionText(marshalCollection(collection));
-  }, [visible]);
-
   return (
     <Dialog
       header="Bulk Edit"
       visible={visible}
-      onHide={() => {
-        onHide();
-        mutation.reset();
-        setCollectionText(undefined);
-      }}
+      onHide={onHide}
       style={{ width: "40rem" }}
       draggable={false}
       resizable={false}
       modal
-      footer={
-        <Button
-          label="Save"
-          onClick={() => {
-            const cardQuantities = unmarshalCollection(collectionText ?? "");
-            mutation.mutate({ userId, cardQuantities });
-          }}
-        />
-      }
+      footer={<Button label="Save" type="submit" form="bulk-edit" />}
     >
-      <div className="form">
-        <div className="field">
-          <label>Cards</label>
-          <InputTextarea
-            invalid={!!mutation.error}
-            autoResize={false}
-            rows={20}
-            style={{ resize: "none", overflowY: "auto" }}
-            value={collectionText}
-            onChange={(e) => setCollectionText(e.target.value)}
+      <form
+        id="bulk-edit"
+        className="modalForm"
+        onSubmit={handleSubmit(onSubmit)}
+      >
+        <FormInputTextArea
+          control={control}
+          label="Cards"
+          name="collectionText"
+        />
+        {invalidCards && (
+          <Message
+            severity="error"
+            text={`Invalid Cards: "${invalidCards.join('", "')}"`}
           />
-          {invalidCards && (
-            <Message
-              severity="error"
-              text={`Invalid Cards: "${invalidCards.join('", "')}"`}
-            />
-          )}
-        </div>
-      </div>
+        )}
+      </form>
     </Dialog>
   );
 }
