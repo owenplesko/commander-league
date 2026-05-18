@@ -1,7 +1,7 @@
 import { Button } from "primereact/button";
 import { Dialog } from "primereact/dialog";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
-import type { Card, Member } from "@commander-league/contract/schemas";
+import type { Card } from "@commander-league/contract/schemas";
 import { orpc } from "../../../lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputText } from "../../forms/FormInputText";
@@ -15,17 +15,11 @@ type FormData = {
 
 type Props = {
   deckId: number;
-  leagueMember: Member;
   visible: boolean;
   onHide: () => void;
 };
 
-export function EditDeckModal({
-  deckId,
-  leagueMember,
-  visible,
-  onHide,
-}: Props) {
+export function EditDeckModal({ deckId, visible, onHide }: Props) {
   const { data: deck } = useSuspenseQuery(
     orpc.deck.get.queryOptions({ input: { deckId } }),
   );
@@ -81,7 +75,7 @@ export function EditDeckModal({
           name="commander"
           label="Commander"
           placeholder="card name..."
-          collectionId={leagueMember.collectionId}
+          collectionId={deck.owner.collectionId}
           rules={{ required: true }}
           control={control}
         />
@@ -89,7 +83,7 @@ export function EditDeckModal({
           name="partner"
           label="Partner"
           placeholder="card name..."
-          collectionId={leagueMember.collectionId}
+          collectionId={deck.owner.collectionId}
           control={control}
         />
       </form>

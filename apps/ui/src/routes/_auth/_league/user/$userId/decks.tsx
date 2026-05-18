@@ -3,6 +3,7 @@ import { NewDeck } from "@/features/deck/components/NewDeckModal";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { PrimeIcons } from "primereact/api";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { useState } from "react";
@@ -36,13 +37,16 @@ function RouteComponent() {
 
   return (
     <>
-      {isSelf && (
-        <Button
-          style={{ marginRight: "auto" }}
-          label="New"
-          onClick={() => setModal("create")}
-        />
-      )}
+      <div style={{ display: "flex", gap: "1rem" }}>
+        <h1>{`${member.user.name}'s Decks`}</h1>
+        {isSelf && (
+          <Button
+            icon={PrimeIcons.PLUS}
+            label="New"
+            onClick={() => setModal("create")}
+          />
+        )}
+      </div>
       <div className={classes.deckGrid}>
         {decks.map((deck) => (
           <Card
