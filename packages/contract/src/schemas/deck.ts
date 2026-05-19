@@ -21,6 +21,7 @@ export const DeckSchema = DeckListEntrySchema.extend({
   name: z.string(),
   owner: MemberSchema,
   cardQuantities: CardQuantitySchema.array(),
+  insufficientCardQuantities: CreateCardQuantitySchema.array(),
   commanderCard: CardSchema,
   partnerCard: CardSchema.nullish(),
 });

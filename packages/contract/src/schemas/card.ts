@@ -28,3 +28,7 @@ export const CardListParams = z.object({
   collectionId: z.coerce.number<number>().optional(),
   limit: z.coerce.number<number>().min(1).max(100).optional(),
 });
+
+export const InvalidCardsSchema = z.object({
+  invalidCardNames: CardSchema.shape.name.array(),
+});

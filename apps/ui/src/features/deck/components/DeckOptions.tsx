@@ -8,11 +8,12 @@ import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
 import { orpc } from "@/lib/client";
 import { useRouter } from "@tanstack/react-router";
 import { confirmDialog } from "primereact/confirmdialog";
+import { DeckBulkEditModal } from "./BulkEdit";
 
 export function DeckOptions({ deckId }: { deckId: number }) {
   const router = useRouter();
   const menuRef = useRef<Menu>(null);
-  const [visible, setVisible] = useState(false);
+  const [modal, setModal] = useState<"edit-deck" | "bulk-edit" | null>(null);
 
   const deleteMutation = useMutation(orpc.deck.delete.mutationOptions());
   const { data: deck } = useSuspenseQuery(
@@ -20,9 +21,10 @@ export function DeckOptions({ deckId }: { deckId: number }) {
   );
 
   const menuOptions: MenuItem[] = [
+    { label: "Bulk Edit", command: () => setModal("bulk-edit") },
     {
       label: "Edit",
-      command: () => setVisible(true),
+      command: () => setModal("edit-deck"),
     },
     {
       label: "Delete",
@@ -52,10 +54,15 @@ export function DeckOptions({ deckId }: { deckId: number }) {
         onClick={(e) => menuRef.current?.toggle(e)}
       />
       <Menu popup model={menuOptions} ref={menuRef} />
+      <DeckBulkEditModal
+        deckId={deckId}
+        visible={modal === "bulk-edit"}
+        onHide={() => setModal((cur) => (cur === "bulk-edit" ? null : cur))}
+      />
       <EditDeckModal
         deckId={deckId}
-        visible={visible}
-        onHide={() => setVisible(false)}
+        visible={modal === "edit-deck"}
+        onHide={() => setModal((cur) => (cur === "edit-deck" ? null : cur))}
       />
     </>
   );

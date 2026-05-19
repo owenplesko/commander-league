@@ -23,7 +23,19 @@ export function createDeck({
 }
 
 export const listDecks = repo.listDecks;
-export const getDeck = repo.getDeck;
+
+export function getDeck({ deckId }: { deckId: number }) {
+  const deck = repo.getDeck({ deckId });
+  if (!deck) return null;
+
+  const insufficientCardQuantities = repo.getInsufficientCardQuantities({
+    requiredCollectionId: deck.collectionId,
+    availableCollectionId: deck.owner.collectionId,
+  });
+
+  return { ...deck, insufficientCardQuantities };
+}
+
 export const deleteDeck = repo.deleteDeck;
 export const updateDeck = repo.updateDeck;
 export const getDeckCollectionId = repo.getDeckCollectionId;

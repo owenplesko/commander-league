@@ -103,6 +103,17 @@ export const orpc = createTanstackQueryUtils(client, {
           },
         },
       },
+      setCards: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, context) {
+            context.client.invalidateQueries({
+              queryKey: orpc.deck.get.key({
+                input: { deckId: variables.deckId },
+              }),
+            });
+          },
+        },
+      },
       updateCards: {
         mutationOptions: {
           onSuccess(error, variables, onMutateResult, context) {

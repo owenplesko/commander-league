@@ -42,7 +42,7 @@ function RouteComponent() {
         {isSelf && (
           <Button
             icon={PrimeIcons.PLUS}
-            label="New"
+            text
             onClick={() => setModal("create")}
           />
         )}

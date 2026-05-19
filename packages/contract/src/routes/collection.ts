@@ -1,11 +1,10 @@
 import { oc } from "@orpc/contract";
 import {
-  CardSchema,
   CollectionSchema,
   SetCollectionBodySchema,
   GetMemberSchema,
 } from "../schemas";
-import z from "zod";
+import { invalidCardsError } from "../errors/card";
 
 const getCollection = oc
   .route({
@@ -22,13 +21,7 @@ const setCollection = oc
     successStatus: 204,
   })
   .input(GetMemberSchema.extend(SetCollectionBodySchema.shape))
-  .errors({
-    BAD_REQUEST: {
-      data: z.object({
-        invalidCardNames: CardSchema.shape.name.array(),
-      }),
-    },
-  });
+  .errors(invalidCardsError);
 
 export const collectionRoutes = {
   get: getCollection,

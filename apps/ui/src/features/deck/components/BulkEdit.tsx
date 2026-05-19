@@ -13,7 +13,7 @@ import {
 } from "@/features/common/lib/bulkEdit";
 
 type Props = {
-  userId: string;
+  deckId: number;
   visible: boolean;
   onHide: () => void;
 };
@@ -22,10 +22,10 @@ type FormData = {
   collectionText: string;
 };
 
-export function CollectionBulkEditModal({ userId, visible, onHide }: Props) {
-  const mutation = useMutation(orpc.collection.set.mutationOptions());
-  const { data: collection } = useSuspenseQuery(
-    orpc.collection.get.queryOptions({ input: { userId } }),
+export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
+  const mutation = useMutation(orpc.deck.setCards.mutationOptions());
+  const { data: deck } = useSuspenseQuery(
+    orpc.deck.get.queryOptions({ input: { deckId } }),
   );
 
   const { control, handleSubmit, reset, setValue } = useForm<FormData>();
@@ -33,7 +33,7 @@ export function CollectionBulkEditModal({ userId, visible, onHide }: Props) {
   const onSubmit: SubmitHandler<FormData> = async ({ collectionText }) => {
     const cardQuantities = unmarshalCardQuantities(collectionText);
 
-    await mutation.mutateAsync({ userId, cardQuantities });
+    await mutation.mutateAsync({ deckId, cardQuantities });
     onHide();
   };
 
@@ -41,10 +41,7 @@ export function CollectionBulkEditModal({ userId, visible, onHide }: Props) {
     if (visible) {
       reset();
       mutation.reset();
-      setValue(
-        "collectionText",
-        marshalCardQuantities(collection.cardQuantities),
-      );
+      setValue("collectionText", marshalCardQuantities(deck.cardQuantities));
     }
   }, [visible]);
 

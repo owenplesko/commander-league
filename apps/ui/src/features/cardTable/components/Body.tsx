@@ -20,7 +20,6 @@ export function Body({
   menuOptionsTemplate?: (mc: MenuCard) => MenuItem[] | null;
 }) {
   const [menuCard, setMenuCard] = useState<MenuCard>();
-  const [menuVisible, setMenuVisible] = useState<boolean>(false);
   const menuRef = useRef<ContextMenu>(null);
   const menuOptions: MenuItem[] | null =
     menuOptionsTemplate && menuCard ? menuOptionsTemplate(menuCard) : null;
@@ -68,7 +67,7 @@ export function Body({
                         <HoverCard card={cq.card}>
                           <div
                             className={classes.item}
-                            onClick={(e) => {
+                            onContextMenu={(e) => {
                               setMenuCard({ ...cq, groupId: id });
                               menuRef.current?.show(e);
                             }}
@@ -90,8 +89,6 @@ export function Body({
       <ContextMenu
         model={menuOptions ?? [{ label: "No Options", disabled: true }]}
         ref={menuRef}
-        onShow={() => setMenuVisible(true)}
-        onHide={() => setMenuVisible(false)}
       />
     </>
   );

@@ -1,7 +1,8 @@
-import { and, eq, inArray, sql } from "drizzle-orm";
-import db, { type TX } from "../db";
+import { and, eq, gt, inArray, sql } from "drizzle-orm";
+import db, { type DB, type TX } from "../db";
 import { collection, collectionCard } from "../db/schema";
 import type { CreateCardQuantity } from "@commander-league/contract/schemas";
+import { alias } from "drizzle-orm/sqlite-core";
 
 export function getCollection({ collectionId }: { collectionId: number }) {
   const res = db.query.collection
@@ -77,6 +78,44 @@ export function getCollectionCardQuantitiesByName(
     )
     .all();
   return res;
+}
+
+export function getInsufficientCardQuantities(
+  {
+    requiredCollectionId,
+    availableCollectionId,
+  }: {
+    requiredCollectionId: number;
+    availableCollectionId: number;
+  },
+  tx: TX | DB = db,
+) {
+  const required = alias(collectionCard, "required");
+  const available = alias(collectionCard, "available");
+  const insufficientQuantity = sql<number>`${required.quantity} - COALESCE(${available.quantity}, 0)`;
+
+  const insufficientCardQuantities = tx
+    .select({
+      cardName: required.cardName,
+      quantity: insufficientQuantity,
+    })
+    .from(required)
+    .leftJoin(
+      available,
+      and(
+        eq(required.cardName, available.cardName),
+        eq(available.collectionId, availableCollectionId),
+      ),
+    )
+    .where(
+      and(
+        eq(required.collectionId, requiredCollectionId),
+        gt(insufficientQuantity, 0),
+      ),
+    )
+    .all();
+
+  return insufficientCardQuantities;
 }
 
 export function getCollectionCardQuantities(
