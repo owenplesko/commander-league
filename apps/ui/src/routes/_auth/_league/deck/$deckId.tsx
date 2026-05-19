@@ -2,9 +2,12 @@ import { InsufficientCardMessage } from "@/features/common/components/Insufficie
 import { AddDeckCard } from "@/features/deck/components/AddDeckCard";
 import { DeckCardTable } from "@/features/deck/components/DeckCardTable";
 import { DeckOptions } from "@/features/deck/components/DeckOptions";
+import { marshalDeck } from "@/features/deck/lib/marshalDeck";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
+import { PrimeIcons } from "primereact/api";
+import { Button } from "primereact/button";
 import z from "zod";
 
 export const Route = createFileRoute("/_auth/_league/deck/$deckId")({
@@ -29,16 +32,23 @@ function RouteComponent() {
 
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <h1>{deck.name}</h1> {isSelf && <DeckOptions deckId={deckId} />}
+      <div style={{ display: "flex", gap: "0.5rem" }}>
+        <h1>{deck.name}</h1>
+        {isSelf && <DeckOptions deckId={deckId} />}
+        <Button
+          text
+          icon={PrimeIcons.COPY}
+          label="Export"
+          onClick={() => navigator.clipboard.writeText(marshalDeck(deck))}
+        />
       </div>
-      {isSelf && (
-        <AddDeckCard deckId={deckId} collectionId={deck.owner.collectionId} />
-      )}
       {deck.insufficientCardQuantities.length > 0 && (
         <InsufficientCardMessage
           insufficientCardQuantities={deck.insufficientCardQuantities}
         />
+      )}
+      {isSelf && (
+        <AddDeckCard deckId={deckId} collectionId={deck.owner.collectionId} />
       )}
       <DeckCardTable deck={deck} readonly={!isSelf} />
     </>
