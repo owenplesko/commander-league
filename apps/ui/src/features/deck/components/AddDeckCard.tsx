@@ -1,9 +1,10 @@
 import { orpc } from "../../../lib/client";
 import { useMutation } from "@tanstack/react-query";
-import { FormCardAutoComplete } from "../../forms/FormCardAutoComplete";
-import { useForm, type SubmitHandler } from "react-hook-form";
+import { useController, useForm, type SubmitHandler } from "react-hook-form";
 import { Button } from "primereact/button";
 import type { Card } from "@commander-league/contract/schemas";
+import { CardAutoComplete } from "@/features/common/components/CardAutoComplete";
+import { PrimeIcons } from "primereact/api";
 
 type FormData = {
   card: Card;
@@ -17,6 +18,7 @@ export function AddDeckCard({
   collectionId: number;
 }) {
   const { control, handleSubmit, reset } = useForm<FormData>();
+  const { field } = useController({ control, name: "card" });
 
   const mutation = useMutation(orpc.deck.updateCards.mutationOptions());
 
@@ -29,18 +31,16 @@ export function AddDeckCard({
   };
 
   return (
-    <form
-      onSubmit={handleSubmit(onSubmit)}
-      style={{ display: "flex", width: "100rem", gap: "0.5rem" }}
-    >
-      <FormCardAutoComplete
-        name="card"
-        placeholder="add card..."
-        control={control}
-        rules={{ required: true }}
-        collectionId={collectionId}
-      />
-      <Button label="Add" type="submit" />
+    <form onSubmit={handleSubmit(onSubmit)}>
+      <div className="p-inputgroup">
+        <CardAutoComplete
+          {...field}
+          collectionId={collectionId}
+          forceSelection
+          placeholder="add card..."
+        />
+        <Button icon={PrimeIcons.PLUS} type="submit" outlined />
+      </div>
     </form>
   );
 }

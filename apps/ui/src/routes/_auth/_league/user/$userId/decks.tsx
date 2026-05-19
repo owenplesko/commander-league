@@ -1,12 +1,9 @@
+import { DeckListActions } from "@/features/deck/components/DeckListActions";
 import classes from "./deck.module.css";
-import { NewDeck } from "@/features/deck/components/NewDeckModal";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { PrimeIcons } from "primereact/api";
-import { Button } from "primereact/button";
 import { Card } from "primereact/card";
-import { useState } from "react";
 
 export const Route = createFileRoute("/_auth/_league/user/$userId/decks")({
   component: RouteComponent,
@@ -23,8 +20,6 @@ export const Route = createFileRoute("/_auth/_league/user/$userId/decks")({
 function RouteComponent() {
   const router = useRouter();
   const { userId } = Route.useParams();
-  const { user: self } = Route.useRouteContext();
-  const isSelf = userId === self.id;
 
   const { data: member } = useSuspenseQuery(
     orpc.member.get.queryOptions({ input: { userId } }),
@@ -33,20 +28,10 @@ function RouteComponent() {
     orpc.deck.list.queryOptions({ input: { userId } }),
   );
 
-  const [modal, setModal] = useState<"create" | null>(null);
-
   return (
     <>
-      <div style={{ display: "flex", gap: "1rem" }}>
-        <h1>{`${member.user.name}'s Decks`}</h1>
-        {isSelf && (
-          <Button
-            icon={PrimeIcons.PLUS}
-            text
-            onClick={() => setModal("create")}
-          />
-        )}
-      </div>
+      <h1>{`${member.user.name}'s Decks`}</h1>
+      <DeckListActions member={member} />
       <div className={classes.deckGrid}>
         {decks.map((deck) => (
           <Card
@@ -61,11 +46,6 @@ function RouteComponent() {
           />
         ))}
       </div>
-      <NewDeck
-        member={member}
-        visible={modal === "create"}
-        onHide={() => setModal(null)}
-      />
     </>
   );
 }
