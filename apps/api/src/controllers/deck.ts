@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import * as service from "../services/";
 import { member } from "../middleware/member";
+import { invalidCardsMiddleware } from "../middleware/cards";
 
 const listDecksController = member.deck.list.handler(({ input }) => {
   const decks = service.listDecks({ ownerId: input.userId });
@@ -33,18 +34,20 @@ const updateDeckController = member.deck.update.handler(({ input }) => {
   });
 });
 
-const setDeckCardsController = member.deck.setCards.handler(({ input }) => {
-  const res = service.getDeckCollectionId({
-    deckId: input.deckId,
-  });
+const setDeckCardsController = member.deck.setCards
+  .use(invalidCardsMiddleware)
+  .handler(({ input }) => {
+    const res = service.getDeckCollectionId({
+      deckId: input.deckId,
+    });
 
-  if (!res) throw new ORPCError("NOT_FOUND");
+    if (!res) throw new ORPCError("NOT_FOUND");
 
-  service.setCollectionCards({
-    collectionId: res.collectionId,
-    cardQuantities: input.cardQuantities,
+    service.setCollectionCards({
+      collectionId: res.collectionId,
+      cardQuantities: input.cardQuantities,
+    });
   });
-});
 
 const updateDeckCardsController = member.deck.updateCards.handler(
   ({ input }) => {

@@ -1,6 +1,7 @@
 import { ORPCError } from "@orpc/server";
 import * as service from "../services";
 import { admin, member } from "../middleware/member";
+import { invalidCardsMiddleware } from "../middleware/cards";
 
 const getCollection = member.collection.get.handler(({ input: { userId } }) => {
   const member = service.getMember({ userId });
@@ -16,23 +17,17 @@ const getCollection = member.collection.get.handler(({ input: { userId } }) => {
   return collection;
 });
 
-const setCollection = admin.collection.set.handler(
-  ({ input: { userId, cardQuantities }, errors }) => {
+const setCollection = admin.collection.set
+  .use(invalidCardsMiddleware)
+  .handler(({ input: { userId, cardQuantities } }) => {
     const member = service.getMember({ userId });
     if (!member) throw new ORPCError("NOT_FOUND");
-
-    const invalidCardNames = service.filterInvalidCardNames({
-      cardNames: cardQuantities.map(({ cardName }) => cardName),
-    });
-    if (invalidCardNames.length > 0)
-      throw errors.BAD_REQUEST({ data: { invalidCardNames } });
 
     service.setCollectionCards({
       collectionId: member.collectionId,
       cardQuantities,
     });
-  },
-);
+  });
 
 export const collectionRoutes = {
   get: getCollection,
