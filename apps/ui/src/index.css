@@ -11,6 +11,11 @@
   gap: 2rem;
 }
 
+.routeActions {
+  display: flex;
+  gap: 0.5rem;
+}
+
 li,
 a {
   list-style-type: none;

@@ -1,7 +1,6 @@
 import { CardTable } from "@/features/cardTable/components/CardTable";
 import type { MenuCard } from "@/features/cardTable/types/menuCard";
-import { CollectionBulkEditModal } from "@/features/collection/components/CollectionBulkEdit";
-import { CollectionSettings } from "@/features/collection/components/CollectionSettings";
+import { CollectionActions } from "@/features/collection/components/CollectionSettings";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery, useQuery, useMutation } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
@@ -21,7 +20,7 @@ export const Route = createFileRoute("/_auth/_league/user/$userId/collection")({
 
 function RouteComponent() {
   const { userId } = Route.useParams();
-  const { user: self, membership } = Route.useRouteContext();
+  const { user: self } = Route.useRouteContext();
   const isSelf = userId === self.id;
 
   const { data: member } = useSuspenseQuery(
@@ -59,10 +58,8 @@ function RouteComponent() {
 
   return (
     <>
-      <div style={{ display: "flex" }}>
-        <h1>{`${member.user.name}'s Collection`}</h1>
-        {(membership.admin || isSelf) && <CollectionSettings userId={userId} />}
-      </div>
+      <h1>{`${member.user.name}'s Collection`}</h1>
+      <CollectionActions userId={userId} />
       <CardTable
         cardQuantities={collection.cardQuantities}
         menuOptionsTemplate={cardMenuOptions}

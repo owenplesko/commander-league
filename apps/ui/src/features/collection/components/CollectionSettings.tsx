@@ -1,30 +1,33 @@
 import { Button } from "primereact/button";
-import { Menu } from "primereact/menu";
-import { CollectionBulkEditModal } from "./CollectionBulkEdit";
-import { useRef, useState } from "react";
-import type { MenuItem } from "primereact/menuitem";
 import { PrimeIcons } from "primereact/api";
+import { useRouteContext } from "@tanstack/react-router";
+import { CollectionBulkEditModal } from "./CollectionBulkEdit";
+import { useState } from "react";
 
-export function CollectionSettings({ userId }: { userId: string }) {
-  const menuRef = useRef<Menu>(null);
-  const [visible, setVisible] = useState(false);
+export function CollectionActions({ userId }: { userId: string }) {
+  const { membership } = useRouteContext({ from: "/_auth/_league" });
 
-  const menuOptions: MenuItem[] = [
-    { label: "Bulk Edit", command: () => setVisible(true) },
-  ];
+  const selfOrAdmin = membership.admin || membership.user.id === userId;
+
+  const [modal, setModal] = useState<"bulk-edit" | null>(null);
 
   return (
     <>
-      <Button
-        icon={PrimeIcons.COG}
-        text
-        onClick={(e) => menuRef.current?.toggle(e)}
-      />
-      <Menu ref={menuRef} model={menuOptions} popup />
+      <div className="routeActions">
+        {selfOrAdmin && (
+          <Button
+            icon={PrimeIcons.PENCIL}
+            label="Bulk Edit"
+            text
+            onClick={() => setModal("bulk-edit")}
+          />
+        )}
+      </div>
+
       <CollectionBulkEditModal
         userId={userId}
-        visible={visible}
-        onHide={() => setVisible(false)}
+        visible={modal === "bulk-edit"}
+        onHide={() => setModal(null)}
       />
     </>
   );
