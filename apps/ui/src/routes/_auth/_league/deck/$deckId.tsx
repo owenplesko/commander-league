@@ -1,10 +1,10 @@
+import { InsufficientCardMessage } from "@/features/common/components/InsufficientCardMessage";
 import { AddDeckCard } from "@/features/deck/components/AddDeckCard";
 import { DeckCardTable } from "@/features/deck/components/DeckCardTable";
 import { DeckOptions } from "@/features/deck/components/DeckOptions";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute } from "@tanstack/react-router";
-import { Message } from "primereact/message";
 import z from "zod";
 
 export const Route = createFileRoute("/_auth/_league/deck/$deckId")({
@@ -36,9 +36,8 @@ function RouteComponent() {
         <AddDeckCard deckId={deckId} collectionId={deck.owner.collectionId} />
       )}
       {deck.insufficientCardQuantities.length > 0 && (
-        <Message
-          severity="error"
-          text={`Missing Cards: ${deck.insufficientCardQuantities.map(({ quantity, cardName }) => `${quantity} ${cardName}`).join(", ")}`}
+        <InsufficientCardMessage
+          insufficientCardQuantities={deck.insufficientCardQuantities}
         />
       )}
       <DeckCardTable deck={deck} readonly={!isSelf} />

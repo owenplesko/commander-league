@@ -40,16 +40,19 @@ const setTradeStatus = member.trade.setStatus
 
 const executeTrade = member.trade.execute
   .use(tradeParticipantMiddleware)
-  .handler(({ input: { tradeId } }) => {
+  .handler(({ input: { tradeId }, errors }) => {
     const res = service.executeTrade({ tradeId });
-    if (!res.success) {
-      switch (res.error) {
-        case "not_found":
-          throw new ORPCError("NOT_FOUND");
-        case "not_accepted":
-        case "insufficient_cards":
-          throw new ORPCError("PRECONDITION_FAILED");
-      }
+    if (res.success) return;
+
+    switch (res.error) {
+      case "not_found":
+        throw new ORPCError("NOT_FOUND");
+      case "not_accepted":
+        throw new ORPCError("PRECONDITION_FAILED");
+      case "insufficient_cards":
+        throw errors.CONFLICT({
+          data: { insufficientCardQuantities: res.insufficientCardQuantities },
+        });
     }
   });
 

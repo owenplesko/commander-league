@@ -5,6 +5,7 @@ import {
   TradeRequestSchema,
   UpdateTradeStatusSchema,
 } from "../schemas";
+import { insufficientCardQuantitiesError } from "../errors/card";
 
 const listTrades = oc
   .route({ method: "GET", path: "/trade" })
@@ -28,7 +29,8 @@ const executeTrade = oc
     path: "/trade/{tradeId}/execute",
     successStatus: 204,
   })
-  .input(GetTradeSchema);
+  .input(GetTradeSchema)
+  .errors(insufficientCardQuantitiesError);
 
 const deleteTrade = oc
   .route({

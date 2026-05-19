@@ -83,9 +83,13 @@ export const deleteTrade = ({ tradeId }: { tradeId: number }, tx?: TX) =>
 
 type TradeResult =
   | { success: true }
-  | { success: false; error: "not_found" }
-  | { success: false; error: "not_accepted" }
-  | { success: false; error: "insufficient_cards" };
+  | { success?: boolean; error: "not_found" }
+  | { success?: boolean; error: "not_accepted" }
+  | {
+      success?: boolean;
+      error: "insufficient_cards";
+      insufficientCardQuantities: CreateCardQuantity[];
+    };
 
 export function executeTrade({ tradeId }: { tradeId: number }): TradeResult {
   return db.transaction((tx) => {
@@ -101,6 +105,30 @@ export function executeTrade({ tradeId }: { tradeId: number }): TradeResult {
       return { success: false, error: "not_accepted" };
 
     // TODO: validate enough card quantity in collection
+    const insufficientRequesterCardQuantities =
+      repo.getInsufficientCardQuantities(
+        {
+          requiredCollectionId: tradeMeta.requesterCollectionId,
+          availableCollectionId: tradeMeta.requester.collectionId,
+        },
+        tx,
+      );
+    const insufficientRecipientCardQuantities =
+      repo.getInsufficientCardQuantities(
+        {
+          requiredCollectionId: tradeMeta.recipientCollectionId,
+          availableCollectionId: tradeMeta.recipient.collectionId,
+        },
+        tx,
+      );
+
+    const insufficientCardQuantities = [
+      ...insufficientRequesterCardQuantities,
+      ...insufficientRecipientCardQuantities,
+    ];
+
+    if (insufficientCardQuantities.length > 0)
+      return { error: "insufficient_cards", insufficientCardQuantities };
 
     const requesterCardQuantities = repo.getCollectionCardQuantities(
       { collectionId: tradeMeta.requesterCollectionId },
