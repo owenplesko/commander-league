@@ -1,29 +1,46 @@
-import type { CardQuantity } from "@commander-league/contract/schemas";
+import {
+  CreateCardQuantitySchema,
+  type CreateCardQuantity,
+} from "@commander-league/contract/schemas";
+import z from "zod";
 
-export function marshalCardQuantities(cardQuantities: CardQuantity[]) {
-  return cardQuantities
-    .map(({ card: { name }, quantity }) => `${quantity} ${name}`)
-    .join("\n");
-}
+export const CardQuantitiesCodec = z.codec(
+  z.string(),
+  CreateCardQuantitySchema.array(),
+  {
+    encode(cardQuantities: CreateCardQuantity[]) {
+      return cardQuantities
+        .map(({ cardName, quantity }) => `${quantity} ${cardName}`)
+        .join("\n");
+    },
+    decode(input: string, ctx) {
+      const lines = input.trim().split("\n").filter(Boolean);
+      const results: CreateCardQuantity[] = [];
 
-export function unmarshalCardQuantities(text: string) {
-  return text
-    .split("\n")
-    .map((line) => line.trim())
-    .filter((line) => line.length > 0)
-    .map((line) => {
-      const match = line.match(/^(\d+)\s+(.+)$/);
-
-      if (!match) {
-        return { quantity: 0, cardName: "" };
+      for (const line of lines) {
+        const match = line.match(/^(\d+)\s+(.+?)(?:\s+\((\w+)\)\s+(\S+).*)?$/);
+        if (!match) {
+          ctx.issues.push({
+            code: "custom",
+            message: `Failed to parse line: "${line}"`,
+            input,
+          });
+          continue;
+        }
+        const [, quantity, rawName] = match;
+        if (!quantity || !rawName) {
+          ctx.issues.push({
+            code: "custom",
+            message: `Failed to parse line: "${line}"`,
+            input,
+          });
+          continue;
+        }
+        const cardName = rawName.replace(/(?<!\/)\s*\/\s*(?!\/)/g, " // ");
+        results.push({ quantity: parseInt(quantity, 10), cardName });
       }
 
-      const [, quantityStr, name] = match;
-
-      return {
-        quantity: Number(quantityStr),
-        cardName: name?.trim() ?? "",
-      };
-    })
-    .filter((entry) => entry.quantity > 0 && entry.cardName.length > 0);
-}
+      return results;
+    },
+  },
+);

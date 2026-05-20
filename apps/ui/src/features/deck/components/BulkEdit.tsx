@@ -7,10 +7,8 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { isDefinedError } from "@orpc/client";
 import { Message } from "primereact/message";
-import {
-  marshalCardQuantities,
-  unmarshalCardQuantities,
-} from "@/features/common/lib/bulkEdit";
+import { CardQuantitiesCodec } from "@/features/common/lib/bulkEdit";
+import z from "zod";
 
 type Props = {
   deckId: number;
@@ -28,12 +26,23 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
     orpc.deck.get.queryOptions({ input: { deckId } }),
   );
 
-  const { control, handleSubmit, reset, setValue } = useForm<FormData>();
+  const { control, handleSubmit, reset, setValue, setError } =
+    useForm<FormData>();
 
   const onSubmit: SubmitHandler<FormData> = async ({ collectionText }) => {
-    const cardQuantities = unmarshalCardQuantities(collectionText);
+    const cardQuantities = CardQuantitiesCodec.decode(collectionText);
 
-    await mutation.mutateAsync({ deckId, cardQuantities });
+    await mutation.mutateAsync(
+      { deckId, cardQuantities },
+      {
+        onError(err) {
+          if (isDefinedError(err))
+            setError("collectionText", {
+              message: `Unknown Cards: ${err.data.invalidCardNames.join(", ")}`,
+            });
+        },
+      },
+    );
     onHide();
   };
 
@@ -41,7 +50,15 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
     if (visible) {
       reset();
       mutation.reset();
-      setValue("collectionText", marshalCardQuantities(deck.cardQuantities));
+      setValue(
+        "collectionText",
+        CardQuantitiesCodec.encode(
+          deck.cardQuantities.map(({ quantity, card }) => ({
+            quantity,
+            cardName: card.name,
+          })),
+        ),
+      );
     }
   }, [visible]);
 
@@ -69,6 +86,12 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
           control={control}
           label="Cards"
           name="collectionText"
+          rules={{
+            validate: (val) => {
+              const { error } = CardQuantitiesCodec.safeDecode(val);
+              return error ? z.prettifyError(error) : true;
+            },
+          }}
         />
         {invalidCards && (
           <Message

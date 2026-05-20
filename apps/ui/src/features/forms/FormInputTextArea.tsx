@@ -1,5 +1,6 @@
 import classes from "./styles.module.css";
 import { InputTextarea } from "primereact/inputtextarea";
+import { Message } from "primereact/message";
 import {
   useController,
   type UseControllerProps,
@@ -22,6 +23,9 @@ export function FormInputTextArea<T extends FieldValues>({
         placeholder={placeholder}
         invalid={fieldState.invalid}
       />
+      {fieldState.error?.message && (
+        <Message severity="error" text={fieldState.error.message} />
+      )}
     </div>
   );
 }

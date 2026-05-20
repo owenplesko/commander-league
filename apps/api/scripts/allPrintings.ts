@@ -2,7 +2,7 @@ import { gunzipSync } from "zlib";
 import { existsSync, writeFileSync, unlinkSync, mkdirSync } from "fs";
 import { join } from "path";
 import type { Set } from "./types/mtg";
-import type { CardData } from "@commander-league/contract/schemas";
+import type { card } from "../src/db/schema";
 
 const CACHE_DIR = join(import.meta.dirname, "/cache");
 const GZ_PATH = join(CACHE_DIR, "AllPrintings.json.gz");
@@ -43,29 +43,39 @@ export async function getAllPrintings(): Promise<Record<string, Set>> {
   return file.data as Record<string, Set>;
 }
 
-export async function getCardData(): Promise<Record<string, CardData>> {
+export async function getCardData(): Promise<
+  Record<string, typeof card.$inferInsert>
+> {
   const sets = await getAllPrintings();
-  const cardData: Record<string, CardData> = {};
+  const cardData: Record<string, typeof card.$inferInsert> = {};
 
   for (const [_, set] of Object.entries(sets)) {
     for (const card of set.cards) {
       const name = card.name;
       const scryfallId = card.identifiers.scryfallId;
+      const faceName = card.faceName;
 
       if (!scryfallId) continue;
+      if (faceName?.includes("Start"))
+        console.log(`face: ${faceName} card: ${name}`);
+      if (!faceName) continue;
 
       if (!cardData[name]) {
         cardData[name] = {
-          manaValue: card.manaValue,
-          colorIdentity: card.colorIdentity,
-          rarity: card.rarity,
-          types: card.types,
-          subTypes: card.subtypes,
-          printings: [],
+          name,
+          faceName,
+          data: {
+            manaValue: card.manaValue,
+            colorIdentity: card.colorIdentity,
+            rarity: card.rarity,
+            types: card.types,
+            subTypes: card.subtypes,
+            printings: [],
+          },
         };
       }
 
-      cardData[name].printings.push({
+      cardData[name]!.data.printings.push({
         set: card.setCode,
         number: card.number,
         scryfallId,
