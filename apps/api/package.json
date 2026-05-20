@@ -7,7 +7,9 @@
     "mtg:download": "bun scripts/downloadAllPrintings.ts",
     "mtg:load-cards": "bun scripts/loadCards.ts",
     "db:migrate": "bunx drizzle-kit migrate",
-    "dev": "bun --watch src/index.ts"
+    "dev": "bun --watch src/index.ts",
+    "start": "bun src/index.ts",
+    "init": "bun run db:migrate && bun run db:load-cards"
   },
   "devDependencies": {
     "better-sqlite3": "^12.6.2",

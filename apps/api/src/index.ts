@@ -4,6 +4,7 @@ import { auth } from "./auth";
 import { Hono } from "hono";
 import { base } from "./orpc";
 import { routes } from "./controllers";
+import { serveStatic } from "hono/bun";
 
 const app = new Hono();
 
@@ -31,8 +32,11 @@ app.use("/api/*", async (c, next) => {
   await next();
 });
 
+app.use("/assets/*", serveStatic({ root: "./dist" }));
+
+app.use("*", serveStatic({ path: "./dist/index.html" }));
+
 const server = Bun.serve({
-  port: 3000,
   fetch: app.fetch,
 });
 

@@ -9,7 +9,7 @@ import { QueryClient } from "@tanstack/react-query";
 export const queryClient = new QueryClient();
 
 const link = new OpenAPILink(contract, {
-  url: "http://localhost:5173/api",
+  url: `${window.location.origin}/api`,
 });
 
 type Client = JsonifiedClient<ContractRouterClient<typeof contract>>;
