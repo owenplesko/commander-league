@@ -18,6 +18,18 @@ const client: Client = createORPCClient(link);
 
 export const orpc = createTanstackQueryUtils(client, {
   experimental_defaults: {
+    league: {
+      initialize: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, context) {
+            context.client.invalidateQueries({
+              queryKey: orpc.league.get.key(),
+            });
+          },
+        },
+      },
+    },
+
     member: {
       create: {
         mutationOptions: {
