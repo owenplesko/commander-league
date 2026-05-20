@@ -3,6 +3,14 @@
   border-radius: var(--border-radius);
   border: 1px solid var(--surface-border);
   padding: 1rem;
+  transition: border-color 0.2s;
+
+  &.interactable {
+    cursor: pointer;
+    &:hover {
+      border-color: var(--primary-color);
+    }
+  }
 }
 
 .modalForm {

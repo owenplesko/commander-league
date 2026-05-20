@@ -1,7 +1,7 @@
 .deckGrid {
   display: grid;
-  grid-template-columns: repeat(auto-fill, 20rem);
-  grid-auto-rows: 15rem;
+  grid-template-columns: repeat(auto-fill, 367px);
+  grid-auto-rows: 200px;
   gap: 1rem;
 }
 

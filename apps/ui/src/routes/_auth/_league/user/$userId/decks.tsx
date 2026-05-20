@@ -3,7 +3,6 @@ import classes from "./deck.module.css";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
-import { Card } from "primereact/card";
 import { scryfallArtCropUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/_league/user/$userId/decks")({
@@ -36,10 +35,10 @@ function RouteComponent() {
       <div className={classes.deckGrid}>
         {decks.map((deck) => (
           <div
-            className="card"
+            className="card interactable"
             style={{
-              cursor: "pointer",
               backgroundImage: `
+              radial-gradient(transparent, rgb(0, 0, 0)),
               url(${scryfallArtCropUrl(
                 deck.commanderCard.data.printings[0]!.scryfallId,
               )})`,
@@ -52,7 +51,9 @@ function RouteComponent() {
               })
             }
           >
-            <strong>{deck.name}</strong>
+            <span style={{ fontWeight: "bold", fontSize: "1.2rem" }}>
+              {deck.name}
+            </span>
           </div>
         ))}
       </div>
