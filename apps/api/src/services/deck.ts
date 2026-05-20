@@ -36,6 +36,7 @@ export function getDeck({ deckId }: { deckId: number }) {
   return { ...deck, insufficientCardQuantities };
 }
 
+export const getDeckMetadata = repo.getDeckMetadata;
 export const deleteDeck = repo.deleteDeck;
 export const updateDeck = repo.updateDeck;
 export const getDeckCollectionId = repo.getDeckCollectionId;

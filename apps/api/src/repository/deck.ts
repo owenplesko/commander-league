@@ -13,6 +13,13 @@ export const listDecks = ({ ownerId }: { ownerId?: string }) =>
     })
     .sync();
 
+export const getDeckMetadata = ({ deckId }: { deckId: number }) =>
+  db.query.deck
+    .findFirst({
+      where: { id: deckId },
+    })
+    .sync();
+
 export const getDeck = ({ deckId }: { deckId: number }) =>
   db.query.deck
     .findFirst({
