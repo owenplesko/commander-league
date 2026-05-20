@@ -4,6 +4,7 @@ import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import { Card } from "primereact/card";
+import { scryfallArtCropUrl } from "@/lib/utils";
 
 export const Route = createFileRoute("/_auth/_league/user/$userId/decks")({
   component: RouteComponent,
@@ -34,16 +35,25 @@ function RouteComponent() {
       <DeckListActions member={member} />
       <div className={classes.deckGrid}>
         {decks.map((deck) => (
-          <Card
-            style={{ cursor: "pointer" }}
+          <div
+            className="card"
+            style={{
+              cursor: "pointer",
+              backgroundImage: `
+              url(${scryfallArtCropUrl(
+                deck.commanderCard.data.printings[0]!.scryfallId,
+              )})`,
+              backgroundSize: "cover",
+            }}
             onClick={() =>
               router.navigate({
                 to: "/deck/$deckId",
                 params: { deckId: deck.id },
               })
             }
-            title={deck.name}
-          />
+          >
+            <strong>{deck.name}</strong>
+          </div>
         ))}
       </div>
     </>
