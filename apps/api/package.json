@@ -9,7 +9,7 @@
     "db:migrate": "bunx drizzle-kit migrate",
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",
-    "init": "bun run db:migrate && bun run db:load-cards"
+    "init": "bun run db:migrate && bun run mtg:load-cards"
   },
   "devDependencies": {
     "better-sqlite3": "^12.6.2",
