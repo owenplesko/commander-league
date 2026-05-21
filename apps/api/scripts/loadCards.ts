@@ -5,7 +5,7 @@ import { sql } from "drizzle-orm";
 
 const cardData = await getCardData();
 
-const rows = Object.entries(cardData).map(([name, data]) => ({ name, data }));
+const rows = Object.values(cardData);
 
 const BATCH_SIZE = 10000;
 

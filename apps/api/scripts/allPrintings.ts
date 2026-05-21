@@ -53,17 +53,12 @@ export async function getCardData(): Promise<
     for (const card of set.cards) {
       const name = card.name;
       const scryfallId = card.identifiers.scryfallId;
-      const faceName = card.faceName;
 
       if (!scryfallId) continue;
-      if (faceName?.includes("Start"))
-        console.log(`face: ${faceName} card: ${name}`);
-      if (!faceName) continue;
 
       if (!cardData[name]) {
         cardData[name] = {
           name,
-          faceName,
           data: {
             manaValue: card.manaValue,
             colorIdentity: card.colorIdentity,
