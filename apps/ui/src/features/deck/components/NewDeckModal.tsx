@@ -57,7 +57,7 @@ export function NewDeck({ member, visible, onHide }: Props) {
           name="name"
           label="Name"
           placeholder="name..."
-          rules={{ required: true, minLength: 3, maxLength: 20 }}
+          rules={{ required: true, minLength: 3, maxLength: 100 }}
           control={control}
         />
         <FormCardAutoComplete
