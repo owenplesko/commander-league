@@ -1,6 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import * as service from "../services";
-import { admin, member } from "../middleware/member";
+import { member, selfOrAdminMiddleware } from "../middleware/member";
 import { invalidCardsMiddleware } from "../middleware/cards";
 
 const getCollection = member.collection.get.handler(({ input: { userId } }) => {
@@ -17,7 +17,8 @@ const getCollection = member.collection.get.handler(({ input: { userId } }) => {
   return collection;
 });
 
-const setCollection = admin.collection.set
+const setCollection = member.collection.set
+  .use(selfOrAdminMiddleware)
   .use(invalidCardsMiddleware)
   .handler(({ input: { userId, cardQuantities } }) => {
     const member = service.getMember({ userId });

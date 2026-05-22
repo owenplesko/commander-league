@@ -40,7 +40,20 @@ export const CardQuantitiesCodec = z.codec(
         results.push({ quantity: parseInt(quantity, 10), cardName });
       }
 
-      return results;
+      const grouped = Object.values(
+        results.reduce<Record<string, CreateCardQuantity>>(
+          (acc, { cardName, quantity }) => {
+            if (acc[cardName]) {
+              acc[cardName].quantity += quantity;
+            } else {
+              acc[cardName] = { cardName, quantity };
+            }
+            return acc;
+          },
+          {},
+        ),
+      );
+      return grouped;
     },
   },
 );
