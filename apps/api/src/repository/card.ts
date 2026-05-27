@@ -1,6 +1,6 @@
-import { inArray, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import db from "../db";
-import { card } from "../db/schema";
+import { card, cardAlias } from "../db/schema";
 
 export function globalCardSearch({
   searchTerm,
@@ -55,14 +55,29 @@ export function collectionCardSearch({
 export function resolveCardNames({ cardNames }: { cardNames: string[] }) {
   if (cardNames.length === 0) return [];
 
-  const inputCardNames = db.$with("input_card_names").as(
-    sql`SELECT * FROM (VALUES ${sql.join(
-      cardNames.map((name) => sql`(${name})`),
-      sql`, `,
-    )}) AS t(input)`,
-  );
+  const inputCardNames = db
+    .$with("input_card_names", {
+      input: sql<string>`input`,
+    })
+    .as(
+      sql`SELECT * FROM (VALUES ${sql.join(
+        cardNames.map((name) => sql`(${name})`),
+        sql`, `,
+      )}) AS t(input)`,
+    );
 
-  const res = db.select();
+  const res = db
+    .select({
+      input: inputCardNames.input,
+      cardName: card.name,
+      aliasedCardName: cardAlias.cardName,
+    })
+    .from(inputCardNames)
+    .leftJoin(card, eq(card.name, inputCardNames.input))
+    .leftJoin(cardAlias, eq(cardAlias.alias, inputCardNames.input))
+    .all();
+
+  return res;
 }
 
 export function filterValidCardNames({ cardNames }: { cardNames: string[] }) {
