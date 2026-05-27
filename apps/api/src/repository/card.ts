@@ -1,4 +1,4 @@
-import { inArray } from "drizzle-orm";
+import { inArray, sql } from "drizzle-orm";
 import db from "../db";
 import { card } from "../db/schema";
 
@@ -50,6 +50,19 @@ export function collectionCardSearch({
     .map(({ card }) => card);
 
   return res;
+}
+
+export function resolveCardNames({ cardNames }: { cardNames: string[] }) {
+  if (cardNames.length === 0) return [];
+
+  const inputCardNames = db.$with("input_card_names").as(
+    sql`SELECT * FROM (VALUES ${sql.join(
+      cardNames.map((name) => sql`(${name})`),
+      sql`, `,
+    )}) AS t(input)`,
+  );
+
+  const res = db.select();
 }
 
 export function filterValidCardNames({ cardNames }: { cardNames: string[] }) {

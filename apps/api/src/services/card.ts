@@ -40,6 +40,7 @@ export function searchCards({
   return repo.globalCardSearch({ searchTerm, limit });
 }
 
+// TODO: remove
 export function filterInvalidCardNames({ cardNames }: { cardNames: string[] }) {
   const validCards = repo.filterValidCardNames({ cardNames });
 
