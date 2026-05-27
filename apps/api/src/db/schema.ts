@@ -31,6 +31,17 @@ export const card = sqliteTable("card", {
   data: blob({ mode: "json" }).$type<CardData>().notNull(),
 });
 
+export const cardAlias = sqliteTable(
+  "card_alias",
+  {
+    cardName: text()
+      .notNull()
+      .references(() => card.name),
+    alias: text().notNull(),
+  },
+  (t) => [primaryKey({ columns: [t.alias, t.cardName] })],
+);
+
 export const collection = sqliteTable("collection", {
   id: integer().primaryKey().notNull(),
 });
