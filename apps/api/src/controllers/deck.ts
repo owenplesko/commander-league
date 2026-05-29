@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import * as service from "../services/";
 import { member } from "../middleware/member";
-import { invalidCardsMiddleware } from "../middleware/cards";
 import { deckOwnerMiddleware } from "../middleware/deck";
 
 const listDecksController = member.deck.list.handler(({ input }) => {
@@ -39,17 +38,23 @@ const updateDeckController = member.deck.update
 
 const setDeckCardsController = member.deck.setCards
   .use(deckOwnerMiddleware)
-  .use(invalidCardsMiddleware)
-  .handler(({ input }) => {
+  .handler(({ input, errors }) => {
     const res = service.getDeckCollectionId({
       deckId: input.deckId,
     });
 
     if (!res) throw new ORPCError("NOT_FOUND");
 
+    const { unknown, ambiguous, resolutions } =
+      service.resolveCardQuantityAliases({
+        cardQuantities: input.cardQuantities,
+      });
+    if (unknown || ambiguous)
+      throw errors.BAD_REQUEST({ data: { unknown, ambiguous } });
+
     service.setCollectionCards({
       collectionId: res.collectionId,
-      cardQuantities: input.cardQuantities,
+      cardQuantities: resolutions,
     });
   });
 

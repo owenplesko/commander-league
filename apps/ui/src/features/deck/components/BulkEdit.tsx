@@ -7,7 +7,10 @@ import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { isDefinedError } from "@orpc/client";
 import { Message } from "primereact/message";
-import { CardQuantitiesCodec } from "@/features/common/lib/bulkEdit";
+import {
+  CardQuantitiesCodec,
+  cardResolutionErrorMessage,
+} from "@/features/common/lib/bulkEdit";
 import z from "zod";
 
 type Props = {
@@ -38,7 +41,7 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
         onError(err) {
           if (isDefinedError(err))
             setError("collectionText", {
-              message: `Unknown Cards: ${err.data.invalidCardNames.join(", ")}`,
+              message: cardResolutionErrorMessage(err.data),
             });
         },
       },
@@ -61,10 +64,6 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
       );
     }
   }, [visible]);
-
-  const invalidCards = isDefinedError(mutation.error)
-    ? mutation.error.data.invalidCardNames
-    : null;
 
   return (
     <Dialog
@@ -93,12 +92,6 @@ export function DeckBulkEditModal({ deckId, visible, onHide }: Props) {
             },
           }}
         />
-        {invalidCards && (
-          <Message
-            severity="error"
-            text={`Invalid Cards: "${invalidCards.join('", "')}"`}
-          />
-        )}
       </form>
     </Dialog>
   );

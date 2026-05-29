@@ -56,17 +56,16 @@ export function resolveCardNames({ cardNames }: { cardNames: string[] }) {
   if (cardNames.length === 0) return [];
 
   const inputCardNames = db
-    .$with("input_card_names", {
-      input: sql<string>`input`,
-    })
+    .$with("input_card_names", { input: sql<string>`input`.as("input") })
     .as(
-      sql`SELECT * FROM (VALUES ${sql.join(
-        cardNames.map((name) => sql`(${name})`),
-        sql`, `,
-      )}) AS t(input)`,
+      sql.join(
+        cardNames.map((name) => sql`SELECT ${name} AS input`),
+        sql` UNION ALL `,
+      ),
     );
 
   const res = db
+    .with(inputCardNames)
     .select({
       input: inputCardNames.input,
       cardName: card.name,
@@ -78,16 +77,4 @@ export function resolveCardNames({ cardNames }: { cardNames: string[] }) {
     .all();
 
   return res;
-}
-
-export function filterValidCardNames({ cardNames }: { cardNames: string[] }) {
-  if (cardNames.length === 0) return [];
-
-  const validCards = db
-    .select({ name: card.name })
-    .from(card)
-    .where(inArray(card.name, cardNames))
-    .all();
-
-  return validCards;
 }

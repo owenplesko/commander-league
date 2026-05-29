@@ -9,7 +9,7 @@ import {
   UpdateDeckBodySchema,
   UpdateDeckCardsBodySchema,
 } from "../schemas";
-import { invalidCardsError } from "../errors/card";
+import { cardResolutionError } from "../errors/card";
 
 const listDecks = oc
   .route({ method: "GET", path: "/deck" })
@@ -36,7 +36,7 @@ const updateDeck = oc
 const setDeckCards = oc
   .route({ method: "PUT", path: "/deck/{deckId}/card", successStatus: 204 })
   .input(GetDeckSchema.extend(SetDeckCardsBodySchema.shape))
-  .errors(invalidCardsError);
+  .errors(cardResolutionError);
 
 const updateDeckCards = oc
   .route({ method: "PATCH", path: "/deck/{deckId}/card", successStatus: 204 })

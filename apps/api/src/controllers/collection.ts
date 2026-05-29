@@ -1,7 +1,6 @@
 import { ORPCError } from "@orpc/server";
 import * as service from "../services";
 import { member, selfOrAdminMiddleware } from "../middleware/member";
-import { invalidCardsMiddleware } from "../middleware/cards";
 
 const getCollection = member.collection.get.handler(({ input: { userId } }) => {
   const member = service.getMember({ userId });
@@ -19,14 +18,18 @@ const getCollection = member.collection.get.handler(({ input: { userId } }) => {
 
 const setCollection = member.collection.set
   .use(selfOrAdminMiddleware)
-  .use(invalidCardsMiddleware)
-  .handler(({ input: { userId, cardQuantities } }) => {
+  .handler(({ input: { userId, cardQuantities }, errors }) => {
     const member = service.getMember({ userId });
     if (!member) throw new ORPCError("NOT_FOUND");
 
+    const { unknown, ambiguous, resolutions } =
+      service.resolveCardQuantityAliases({ cardQuantities });
+    if (unknown || ambiguous)
+      throw errors.BAD_REQUEST({ data: { unknown, ambiguous } });
+
     service.setCollectionCards({
       collectionId: member.collectionId,
-      cardQuantities,
+      cardQuantities: resolutions,
     });
   });
 

@@ -1,5 +1,6 @@
 import {
   CreateCardQuantitySchema,
+  type CardResolution,
   type CreateCardQuantity,
 } from "@commander-league/contract/schemas";
 import z from "zod";
@@ -57,3 +58,16 @@ export const CardQuantitiesCodec = z.codec(
     },
   },
 );
+
+export function cardResolutionErrorMessage({
+  unknown,
+  ambiguous,
+}: CardResolution) {
+  return [
+    ...(unknown?.map(({ cardName }) => `unknown card ${cardName}`) ?? []),
+    ...(ambiguous?.map(
+      ({ cardName, resolutions }) =>
+        `ambiguous card ${cardName}, specify as one of ${resolutions.join(", ")}`,
+    ) ?? []),
+  ].join("\n");
+}

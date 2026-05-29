@@ -1,9 +1,9 @@
 import z from "zod";
-import { CreateCardQuantitySchema, InvalidCardsSchema } from "../schemas";
+import { CreateCardQuantitySchema, CardnameResolutionSchema } from "../schemas";
 
-export const invalidCardsError = {
+export const cardResolutionError = {
   BAD_REQUEST: {
-    data: InvalidCardsSchema,
+    data: CardnameResolutionSchema,
   },
 };
 

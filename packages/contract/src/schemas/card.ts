@@ -29,6 +29,11 @@ export const CardListParams = z.object({
   limit: z.coerce.number<number>().min(1).max(100).optional(),
 });
 
-export const InvalidCardsSchema = z.object({
-  invalidCardNames: CardSchema.shape.name.array(),
+export const CardnameResolutionSchema = z.object({
+  unknown: z.object({ cardName: z.string() }).array().nullable(),
+  ambiguous: z
+    .object({ cardName: z.string(), resolutions: z.string().array() })
+    .array()
+    .nullable(),
 });
+export type CardResolution = z.infer<typeof CardnameResolutionSchema>;

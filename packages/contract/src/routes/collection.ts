@@ -4,7 +4,7 @@ import {
   SetCollectionBodySchema,
   GetMemberSchema,
 } from "../schemas";
-import { invalidCardsError } from "../errors/card";
+import { cardResolutionError } from "../errors/card";
 
 const getCollection = oc
   .route({
@@ -21,7 +21,7 @@ const setCollection = oc
     successStatus: 204,
   })
   .input(GetMemberSchema.extend(SetCollectionBodySchema.shape))
-  .errors(invalidCardsError);
+  .errors(cardResolutionError);
 
 export const collectionRoutes = {
   get: getCollection,

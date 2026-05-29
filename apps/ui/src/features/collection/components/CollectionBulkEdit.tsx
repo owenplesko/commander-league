@@ -6,7 +6,10 @@ import { orpc } from "@/lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { isDefinedError } from "@orpc/client";
-import { CardQuantitiesCodec } from "@/features/common/lib/bulkEdit";
+import {
+  CardQuantitiesCodec,
+  cardResolutionErrorMessage,
+} from "@/features/common/lib/bulkEdit";
 import z from "zod";
 
 type Props = {
@@ -37,7 +40,7 @@ export function CollectionBulkEditModal({ userId, visible, onHide }: Props) {
         onError(err) {
           if (isDefinedError(err))
             setError("collectionText", {
-              message: `Unknown Cards: ${err.data.invalidCardNames.join(", ")}`,
+              message: cardResolutionErrorMessage(err.data),
             });
         },
       },

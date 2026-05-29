@@ -2,6 +2,7 @@ import { inArray } from "drizzle-orm";
 import db, { type DB, type TX } from "../db";
 import { card } from "../db/schema";
 import * as repo from "../repository/";
+import type { CreateCardQuantity } from "@commander-league/contract/schemas";
 
 export function getInvalidCardNames({
   qc = db,
@@ -53,35 +54,49 @@ export function resolveCardAliases({ cardNames }: { cardNames: string[] }) {
     if (aliasedCardName) map.get(input)!.aliasedCardNames.push(aliasedCardName);
   }
 
-  const unknown: string[] = [];
-  const ambiguous: { alias: string; cardNames: string[] }[] = [];
-  const resolvedCardNames: string[] = [];
+  const unknown: { cardName: string }[] = [];
+  const ambiguous: { cardName: string; resolutions: string[] }[] = [];
+  const resolutions: { cardName: string; resolution: string }[] = [];
 
   for (const { input, cardName, aliasedCardNames } of map.values()) {
     if (cardName !== null) {
-      resolvedCardNames.push(cardName);
+      resolutions.push({ cardName: input, resolution: cardName });
     } else if (aliasedCardNames.length === 1) {
-      resolvedCardNames.push(aliasedCardNames[0]!);
+      resolutions.push({ cardName: input, resolution: aliasedCardNames[0]! });
     } else if (aliasedCardNames.length === 0) {
-      unknown.push(input);
+      unknown.push({ cardName: input });
     } else {
-      ambiguous.push({ alias: input, cardNames: aliasedCardNames });
+      ambiguous.push({ cardName: input, resolutions: aliasedCardNames });
     }
   }
 
-  if (unknown.length > 0 || ambiguous.length > 0) {
-    return { success: false, unknown, ambiguous };
-  }
-  return { success: true, cardNames: resolvedCardNames };
+  return {
+    unknown: unknown.length > 0 ? unknown : null,
+    ambiguous: ambiguous.length > 0 ? ambiguous : null,
+    resolutions,
+  };
 }
 
-// TODO: remove
-export function filterInvalidCardNames({ cardNames }: { cardNames: string[] }) {
-  const validCards = repo.filterValidCardNames({ cardNames });
+export function resolveCardQuantityAliases({
+  cardQuantities,
+}: {
+  cardQuantities: CreateCardQuantity[];
+}) {
+  const res = resolveCardAliases({
+    cardNames: cardQuantities.map(({ cardName }) => cardName),
+  });
 
-  const validNames = new Set(validCards.map((c) => c.name));
+  const quantityMap = new Map(
+    cardQuantities.map(({ cardName, quantity }) => [cardName, quantity]),
+  );
 
-  const invalidNames = cardNames.filter((name) => !validNames.has(name));
+  const resolutions = {
+    ...res,
+    resolutions: res.resolutions.map(({ cardName, resolution }) => ({
+      cardName: resolution,
+      quantity: quantityMap.get(cardName)!,
+    })),
+  };
 
-  return invalidNames;
+  return resolutions;
 }
