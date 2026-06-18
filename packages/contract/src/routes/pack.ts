@@ -2,6 +2,7 @@ import { oc } from "@orpc/contract";
 import {
   CreatePackOfferingSchema,
   GetPackSchema,
+  PackOfferingSchema,
   PackSchema,
 } from "../schemas/pack";
 
@@ -26,10 +27,12 @@ const deletePack = oc
   })
   .input(GetPackSchema);
 
-const listPackOfferings = oc.route({
-  method: "GET",
-  path: "/pack/offering",
-});
+const listPackOfferings = oc
+  .route({
+    method: "GET",
+    path: "/pack/offering",
+  })
+  .output(PackOfferingSchema.array());
 
 const setPackOfferings = oc
   .route({
@@ -39,15 +42,8 @@ const setPackOfferings = oc
   })
   .input(CreatePackOfferingSchema.array());
 
-const deletePackOffering = oc
-  .route({
-    method: "DELETE",
-    path: "/pack/{packId}/offering",
-    successStatus: 204,
-  })
-  .input(GetPackSchema);
-
 export const packRoutes = {
   list: listPacks,
   setOfferings: setPackOfferings,
+  listOfferings: listPackOfferings,
 };

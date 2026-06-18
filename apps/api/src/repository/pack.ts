@@ -15,3 +15,13 @@ export function setPackOfferings(values: { packId: string; cost: number }[]) {
     })
     .run();
 }
+
+export function listPackOfferings() {
+  return db.query.packOffering
+    .findMany({
+      with: {
+        pack: true,
+      },
+    })
+    .sync();
+}

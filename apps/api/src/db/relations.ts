@@ -67,4 +67,11 @@ export const relations = defineRelations(schema, (r) => ({
       to: r.card.name,
     }),
   },
+  packOffering: {
+    pack: r.one.pack({
+      from: r.packOffering.packId,
+      to: r.pack.id,
+      optional: false,
+    }),
+  },
 }));

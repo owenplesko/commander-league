@@ -5,6 +5,11 @@ export const PackSchema = z.object({
   name: z.string(),
 });
 
+export const PackOfferingSchema = z.object({
+  cost: z.number().nonnegative(),
+  pack: PackSchema,
+});
+
 export const GetPackSchema = z.object({
   packId: z.string(),
 });
