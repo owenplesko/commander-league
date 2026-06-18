@@ -6,6 +6,7 @@ import { cardRoutes } from "./routes/card";
 import { memberRoutes } from "./routes/member";
 import { settingsRoutes } from "./routes/settings";
 import { userRoutes } from "./routes/user";
+import { packRoutes } from "./routes/pack";
 
 export const contract = {
   card: cardRoutes,
@@ -16,4 +17,5 @@ export const contract = {
   settings: settingsRoutes,
   trade: tradeRoutes,
   user: userRoutes,
+  pack: packRoutes,
 };

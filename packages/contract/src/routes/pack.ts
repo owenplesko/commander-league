@@ -1,0 +1,46 @@
+import { oc } from "@orpc/contract";
+import { CreatePackOfferingSchema, GetPackSchema } from "../schemas/pack";
+
+const listPacks = oc.route({
+  method: "GET",
+  path: "/pack",
+});
+
+const setPack = oc.route({
+  method: "PUT",
+  path: "/pack",
+  successStatus: 201,
+});
+
+const deletePack = oc
+  .route({
+    method: "DELETE",
+    path: "/pack/{packId}",
+    successStatus: 204,
+  })
+  .input(GetPackSchema);
+
+const listPackOfferings = oc.route({
+  method: "GET",
+  path: "/pack/offering",
+});
+
+const setPackOfferings = oc
+  .route({
+    method: "PUT",
+    path: "/pack/{packId}/offering",
+    successStatus: 201,
+  })
+  .input(CreatePackOfferingSchema.array());
+
+const deletePackOffering = oc
+  .route({
+    method: "DELETE",
+    path: "/pack/{packId}/offering",
+    successStatus: 204,
+  })
+  .input(GetPackSchema);
+
+export const packRoutes = {
+  setOfferings: setPackOfferings,
+};

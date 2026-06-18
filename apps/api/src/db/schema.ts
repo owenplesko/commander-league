@@ -72,6 +72,7 @@ export const member = sqliteTable("league_member", {
     .primaryKey()
     .references(() => user.id),
   admin: integer({ mode: "boolean" }).notNull(),
+  packPoints: integer().notNull().default(0),
   collectionId: integer()
     .notNull()
     .references(() => collection.id),
@@ -114,6 +115,17 @@ export const pack = sqliteTable("pack", {
   id: text().notNull().primaryKey(),
   name: text().notNull(),
 });
+
+export const packOffering = sqliteTable(
+  "pack_offering",
+  {
+    packId: text()
+      .notNull()
+      .references(() => pack.id, { onDelete: "cascade" }),
+    cost: integer().notNull(),
+  },
+  (t) => [check("pack_offering_cost", sql`${t.cost} >= 0`)],
+);
 
 export const packPool = sqliteTable(
   "pack_card_pool",
