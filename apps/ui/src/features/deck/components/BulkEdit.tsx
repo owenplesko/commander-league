@@ -6,7 +6,6 @@ import { orpc } from "@/lib/client";
 import { useForm, type SubmitHandler } from "react-hook-form";
 import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { isDefinedError } from "@orpc/client";
-import { Message } from "primereact/message";
 import {
   CardQuantitiesCodec,
   cardResolutionErrorMessage,

@@ -37,7 +37,7 @@ const listPackOfferings = oc
 const setPackOfferings = oc
   .route({
     method: "PUT",
-    path: "/pack/{packId}/offering",
+    path: "/pack/offering",
     successStatus: 201,
   })
   .input(CreatePackOfferingSchema.array());

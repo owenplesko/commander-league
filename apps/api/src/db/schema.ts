@@ -121,6 +121,7 @@ export const packOffering = sqliteTable(
   {
     packId: text()
       .notNull()
+      .primaryKey()
       .references(() => pack.id, { onDelete: "cascade" }),
     cost: integer().notNull(),
   },

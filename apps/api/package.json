@@ -6,6 +6,7 @@
   "scripts": {
     "mtg:download": "bun scripts/downloadAllPrintings.ts",
     "mtg:load-cards": "bun scripts/loadCards.ts",
+    "mtg:load-packs": "bun scripts/loadPacks.ts",
     "db:migrate": "bunx drizzle-kit migrate",
     "dev": "bun --watch src/index.ts",
     "start": "bun src/index.ts",

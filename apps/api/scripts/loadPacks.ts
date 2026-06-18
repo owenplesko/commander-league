@@ -6,7 +6,7 @@ import {
   packStructure,
   packStructureSlot,
 } from "../src/db/schema";
-import { createCollection } from "../src/services/collection";
+import { insertCollection } from "../src/repository";
 import { getAllPrintings, getCardUUIDToName } from "./allPrintings";
 import type { Pack } from "./types/cardPack";
 import type { BoosterConfig } from "./types/mtg";
@@ -55,7 +55,7 @@ function insertPack(input: Pack) {
 
     // Insert pools — each pool gets its own collection of cards
     for (const [poolId, cardPool] of Object.entries(input.cardPools)) {
-      const { collectionId } = createCollection({ qc: tx });
+      const { id: collectionId } = insertCollection(tx);
       tx.insert(packPool).values({ id: poolId, packId, collectionId }).run();
       const cardRows = Object.entries(cardPool).map(([cardName, quantity]) => ({
         collectionId,

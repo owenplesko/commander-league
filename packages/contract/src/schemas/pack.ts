@@ -16,5 +16,5 @@ export const GetPackSchema = z.object({
 
 export const CreatePackOfferingSchema = z.object({
   packId: z.string(),
-  cost: z.number().nonnegative(),
+  cost: z.coerce.number<number>().nonnegative(),
 });
