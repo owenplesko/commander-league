@@ -1,10 +1,16 @@
 import { oc } from "@orpc/contract";
-import { CreatePackOfferingSchema, GetPackSchema } from "../schemas/pack";
+import {
+  CreatePackOfferingSchema,
+  GetPackSchema,
+  PackSchema,
+} from "../schemas/pack";
 
-const listPacks = oc.route({
-  method: "GET",
-  path: "/pack",
-});
+const listPacks = oc
+  .route({
+    method: "GET",
+    path: "/pack",
+  })
+  .output(PackSchema.array());
 
 const setPack = oc.route({
   method: "PUT",
@@ -42,5 +48,6 @@ const deletePackOffering = oc
   .input(GetPackSchema);
 
 export const packRoutes = {
+  list: listPacks,
   setOfferings: setPackOfferings,
 };

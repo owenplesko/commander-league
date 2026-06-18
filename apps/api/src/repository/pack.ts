@@ -1,6 +1,10 @@
 import { sql } from "drizzle-orm";
 import db from "../db";
-import { packOffering } from "../db/schema";
+import { pack, packOffering } from "../db/schema";
+
+export function listPacks() {
+  return db.select().from(pack).all();
+}
 
 export function setPackOfferings(values: { packId: string; cost: number }[]) {
   db.insert(packOffering)
