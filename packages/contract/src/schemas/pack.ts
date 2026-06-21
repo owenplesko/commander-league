@@ -18,3 +18,8 @@ export const CreatePackOfferingSchema = z.object({
   packId: z.string(),
   cost: z.coerce.number<number>().nonnegative(),
 });
+
+export const PackResolutionSchema = z.object({
+  unknown: z.string().array(),
+});
+export type PackResolution = z.infer<typeof PackResolutionSchema>;

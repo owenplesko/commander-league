@@ -1,11 +1,13 @@
 import { FormInputTextArea } from "@/features/forms/FormInputTextArea";
 import { orpc } from "@/lib/client";
 import { CreatePackOfferingSchema } from "@commander-league/contract/schemas";
+import { isDefinedError } from "@orpc/client";
 import { useMutation, useSuspenseQuery } from "@tanstack/react-query";
+import { PrimeIcons } from "primereact/api";
 import { Button } from "primereact/button";
 import { Card } from "primereact/card";
 import { useForm, type SubmitHandler } from "react-hook-form";
-import z, { ZodError } from "zod";
+import z from "zod";
 
 type FormData = {
   config: string;
@@ -19,7 +21,7 @@ export function PackOfferings() {
     cost: o.cost,
   }));
 
-  const { control, handleSubmit, reset } = useForm<FormData>({
+  const { control, handleSubmit, reset, setError } = useForm<FormData>({
     defaultValues: {
       config: PackOfferingsCodec.encode(createOfferings),
     },
@@ -27,17 +29,31 @@ export function PackOfferings() {
 
   const onSubmit: SubmitHandler<FormData> = async ({ config }) => {
     const offerings = PackOfferingsCodec.decode(config);
-    await mutation.mutateAsync(offerings);
+    await mutation.mutateAsync(offerings, {
+      onError(err) {
+        if (isDefinedError(err))
+          setError("config", {
+            message: `unknown pack ids: "${err.data.unknown.join('", "')}"`,
+          });
+      },
+    });
   };
 
   const footer = (
     <>
-      <Button label="Save" type="submit" form="pack-offerings" />
+      <Button
+        label={mutation.isSuccess ? "Saved" : "Save"}
+        icon={mutation.isSuccess ? PrimeIcons.CHECK : undefined}
+        type="submit"
+        form="pack-offerings"
+        loading={mutation.isPending}
+      />
       <Button
         label="Reset"
         severity="danger"
         style={{ marginLeft: "0.5em" }}
         onClick={() => reset()}
+        disabled={mutation.isPending}
       />
     </>
   );

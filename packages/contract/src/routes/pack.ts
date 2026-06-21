@@ -5,6 +5,7 @@ import {
   PackOfferingSchema,
   PackSchema,
 } from "../schemas/pack";
+import { packResolutionError } from "../errors/pack";
 
 const listPacks = oc
   .route({
@@ -40,7 +41,8 @@ const setPackOfferings = oc
     path: "/pack/offering",
     successStatus: 201,
   })
-  .input(CreatePackOfferingSchema.array());
+  .input(CreatePackOfferingSchema.array())
+  .errors(packResolutionError);
 
 export const packRoutes = {
   list: listPacks,
