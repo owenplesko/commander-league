@@ -3,7 +3,6 @@ import classes from "./route.module.css";
 import { CreateTradeRequestModal } from "@/features/trade/components/CreateTradeModal";
 import { orpc, queryClient } from "@/lib/client";
 import type { Member } from "@commander-league/contract/schemas";
-import { ORPCError } from "@orpc/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
 import {
   createFileRoute,
@@ -109,6 +108,14 @@ function RouteComponent() {
                   className={classNames(classes.item, classes.interactable)}
                 >
                   Decks
+                </Link>
+              </li>
+              <li>
+                <Link
+                  to="/packs"
+                  className={classNames(classes.item, classes.interactable)}
+                >
+                  Packs
                 </Link>
               </li>
               <li>

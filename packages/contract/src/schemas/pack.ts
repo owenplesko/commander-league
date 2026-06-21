@@ -9,6 +9,7 @@ export const PackOfferingSchema = z.object({
   cost: z.number().nonnegative(),
   pack: PackSchema,
 });
+export type PackOffering = z.infer<typeof PackOfferingSchema>;
 
 export const GetPackSchema = z.object({
   packId: z.string(),
