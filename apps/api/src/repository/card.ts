@@ -1,4 +1,4 @@
-import { eq, inArray, sql } from "drizzle-orm";
+import { eq, sql } from "drizzle-orm";
 import db from "../db";
 import { card, cardAlias } from "../db/schema";
 

@@ -1,3 +1,4 @@
+import { PP } from "@/features/common/components/PackPoints";
 import { PackOfferingTable } from "@/features/pack/components/PackOfferingTable";
 import { orpc, queryClient } from "@/lib/client";
 import { useSuspenseQuery } from "@tanstack/react-query";
@@ -11,13 +12,18 @@ export const Route = createFileRoute("/_auth/_league/packs")({
 });
 
 function RouteComponent() {
+  const { membership } = Route.useRouteContext();
   const { data: offerings } = useSuspenseQuery(
     orpc.pack.listOfferings.queryOptions(),
   );
   return (
     <>
       <h1>Packs</h1>
-      <PackOfferingTable offerings={offerings} />
+      <PP packPoints={membership.packPoints} accent />
+      <PackOfferingTable
+        offerings={offerings}
+        ppBalance={membership.packPoints}
+      />
     </>
   );
 }
