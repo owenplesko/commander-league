@@ -1,4 +1,4 @@
-import { eq, sql } from "drizzle-orm";
+import { eq, inArray, sql } from "drizzle-orm";
 import db from "../db";
 import { card, cardAlias } from "../db/schema";
 
@@ -77,4 +77,14 @@ export function resolveCardNames({ cardNames }: { cardNames: string[] }) {
     .all();
 
   return res;
+}
+
+export function getCardsByCardname({ cardNames }: { cardNames: string[] }) {
+  return db.query.card
+    .findMany({
+      where: {
+        name: { in: cardNames },
+      },
+    })
+    .sync();
 }

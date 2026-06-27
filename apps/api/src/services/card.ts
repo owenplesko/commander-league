@@ -2,7 +2,10 @@ import { inArray } from "drizzle-orm";
 import db, { type DB, type TX } from "../db";
 import { card } from "../db/schema";
 import * as repo from "../repository/";
-import type { CreateCardQuantity } from "@commander-league/contract/schemas";
+import type {
+  CardQuantity,
+  CreateCardQuantity,
+} from "@commander-league/contract/schemas";
 
 export function getInvalidCardNames({
   qc = db,
@@ -99,4 +102,33 @@ export function resolveCardQuantityAliases({
   };
 
   return resolutions;
+}
+
+export function hydrateCardQuantities({
+  cardQuantities,
+}: {
+  cardQuantities: CreateCardQuantity[];
+}): CardQuantity[] {
+  const cardDetailsMap = new Map(
+    repo
+      .getCardsByCardname({
+        cardNames: cardQuantities.map(({ cardName }) => cardName),
+      })
+      .map((card) => [card.name, card]),
+  );
+
+  const hydrated = cardQuantities.map(({ cardName, quantity }) => {
+    const details = cardDetailsMap.get(cardName);
+    if (!details)
+      throw new Error(
+        `hydrateCardQuantities failed to hydrate card name: ${cardName}`,
+      );
+
+    return {
+      quantity,
+      card: details,
+    };
+  });
+
+  return hydrated;
 }

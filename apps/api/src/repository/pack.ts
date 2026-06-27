@@ -34,3 +34,20 @@ export function filterExistingPackIds({ packIds }: { packIds: string[] }) {
     .all()
     .map(({ id }) => id);
 }
+
+export function getPack({ packId }: { packId: string }) {
+  return db.query.pack
+    .findFirst({
+      where: {
+        id: packId,
+      },
+      with: {
+        structures: {
+          with: {
+            slots: { with: { cardPool: { with: { cardQuantities: true } } } },
+          },
+        },
+      },
+    })
+    .sync();
+}

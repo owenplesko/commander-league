@@ -74,4 +74,29 @@ export const relations = defineRelations(schema, (r) => ({
       optional: false,
     }),
   },
+  pack: {
+    structures: r.many.packStructure({
+      from: r.pack.id,
+      to: r.packStructure.packId,
+    }),
+  },
+  packStructure: {
+    slots: r.many.packStructureSlot({
+      from: [r.packStructure.packId, r.packStructure.index],
+      to: [r.packStructureSlot.packId, r.packStructureSlot.structureIndex],
+    }),
+  },
+  packStructureSlot: {
+    cardPool: r.one.packPool({
+      from: r.packStructureSlot.poolId,
+      to: r.packPool.id,
+      optional: false,
+    }),
+  },
+  packPool: {
+    cardQuantities: r.many.collectionCard({
+      from: r.packPool.collectionId,
+      to: r.collectionCard.collectionId,
+    }),
+  },
 }));

@@ -6,6 +6,7 @@ import {
   PackSchema,
 } from "../schemas/pack";
 import { packResolutionError } from "../errors/pack";
+import { CardQuantitySchema } from "../schemas";
 
 const listPacks = oc
   .route({
@@ -44,8 +45,17 @@ const setPackOfferings = oc
   .input(CreatePackOfferingSchema.array())
   .errors(packResolutionError);
 
+const openPackOffering = oc
+  .route({
+    method: "GET",
+    path: "/pack/{packId}/open",
+  })
+  .input(GetPackSchema)
+  .output(CardQuantitySchema.array());
+
 export const packRoutes = {
   list: listPacks,
   setOfferings: setPackOfferings,
   listOfferings: listPackOfferings,
+  openOffering: openPackOffering,
 };
