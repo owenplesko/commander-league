@@ -1,3 +1,4 @@
+import { HoverCard } from "@/features/common/components/HoverCard";
 import { randRange, scryfallImgUrl } from "@/lib/utils";
 import type { CardQuantity } from "@commander-league/contract/schemas";
 import { Dialog } from "primereact/dialog";
@@ -12,7 +13,7 @@ type Props = {
 export function PackContents({ visible, onHide, packContents }: Props) {
   // add stable card rotation
   const cardRotations = useMemo(
-    () => packContents.map(() => randRange(-15, 15)),
+    () => packContents.map(() => randRange(-10, 10)),
     [packContents],
   );
 
@@ -46,14 +47,17 @@ export function PackContents({ visible, onHide, packContents }: Props) {
               opacity: 0,
               animation: "fadeIn 0.4s ease forwards",
               animationDelay: `${i * 0.1}s`,
+              cursor: "pointer",
+              rotate: `${cardRotations[i]}deg`,
             }}
           >
-            <img
-              style={{ rotate: `${cardRotations[i]}deg` }}
-              height={200}
-              width={136}
-              src={scryfallImgUrl(cq.card.data.printings[0]!.scryfallId)}
-            />
+            <HoverCard card={cq.card}>
+              <img
+                height={200}
+                width={136}
+                src={scryfallImgUrl(cq.card.data.printings[0]!.scryfallId)}
+              />
+            </HoverCard>
           </li>
         ))}
       </ul>

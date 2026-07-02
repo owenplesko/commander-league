@@ -26,8 +26,8 @@ export function HoverCard({
         }}
       >
         <img
-          height={300}
-          width={213}
+          height={400}
+          width={284}
           src={scryfallImgUrl(scryfallId)}
           alt={card.name}
         />
