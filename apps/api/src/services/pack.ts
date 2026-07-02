@@ -1,4 +1,4 @@
-import type { CardQuantity } from "@commander-league/contract/schemas";
+import type { PackOpening } from "@commander-league/contract/schemas";
 import * as repo from "../repository";
 import { hydrateCardQuantities } from "./card";
 
@@ -17,13 +17,16 @@ export function filterInvalidPackIds({ packIds }: { packIds: string[] }) {
   return invalid;
 }
 
-export function openPack({ packId }: { packId: string }): CardQuantity[] {
-  const pack = repo.getPack({ packId });
-  if (!pack) throw Error(`No pack found with id: ${packId}`);
+export function openPack({ packId }: { packId: string }): PackOpening {
+  const offering = repo.getPackOffering({ packId });
+  if (!offering) throw Error(`No pack offering found with id: ${packId}`);
 
   // 1: select pack structure
   const packStructure = weightedSample(
-    pack.structures.map((struct) => ({ item: struct, weight: struct.weight })),
+    offering.pack.structures.map((struct) => ({
+      item: struct,
+      weight: struct.weight,
+    })),
   );
 
   // 2: select cards from card pool for each slot
@@ -49,7 +52,16 @@ export function openPack({ packId }: { packId: string }): CardQuantity[] {
     .map(([cardName, quantity]) => ({ cardName, quantity }));
 
   // 3: hydrate card data
-  return hydrateCardQuantities({ cardQuantities: cardPulls });
+  const cardQuantities = hydrateCardQuantities({ cardQuantities: cardPulls });
+
+  const packOpening: PackOpening = {
+    packId: offering.pack.id,
+    packName: offering.pack.name,
+    cost: offering.cost,
+    contents: cardQuantities,
+  };
+
+  return packOpening;
 }
 
 function weightedSample<T>(input: { item: T; weight: number }[]) {

@@ -1,3 +1,5 @@
+import type { ReactNode } from "react";
+
 export function scryfallImgUrl(scryfallId: string | null) {
   if (!scryfallId) return "https://cards.scryfall.io/back.png";
 
@@ -40,4 +42,13 @@ export function minIndex(arr: number[]) {
 
 export function randRange(min: number, max: number) {
   return Math.random() * (max - min) + min;
+}
+
+export function repeat<T extends () => ReactNode>(
+  fn: T,
+  n: number,
+): ReactNode[] {
+  let arr = [];
+  for (let i = 0; i < n; i++) arr.push(fn());
+  return arr;
 }

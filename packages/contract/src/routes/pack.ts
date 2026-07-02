@@ -3,6 +3,7 @@ import {
   CreatePackOfferingSchema,
   GetPackSchema,
   PackOfferingSchema,
+  PackOpeningSchema,
   PackSchema,
 } from "../schemas/pack";
 import { packResolutionError } from "../errors/pack";
@@ -51,7 +52,7 @@ const openPackOffering = oc
     path: "/pack/{packId}/open",
   })
   .input(GetPackSchema)
-  .output(CardQuantitySchema.array());
+  .output(PackOpeningSchema);
 
 export const packRoutes = {
   list: listPacks,

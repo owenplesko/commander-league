@@ -51,3 +51,26 @@ export function getPack({ packId }: { packId: string }) {
     })
     .sync();
 }
+
+export function getPackOffering({ packId }: { packId: string }) {
+  return db.query.packOffering
+    .findFirst({
+      where: {
+        packId,
+      },
+      with: {
+        pack: {
+          with: {
+            structures: {
+              with: {
+                slots: {
+                  with: { cardPool: { with: { cardQuantities: true } } },
+                },
+              },
+            },
+          },
+        },
+      },
+    })
+    .sync();
+}
