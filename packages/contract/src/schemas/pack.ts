@@ -1,5 +1,6 @@
 import z from "zod";
 import { CardQuantitySchema } from "./collection";
+import { MemberSchema } from "./member";
 
 export const PackSchema = z.object({
   id: z.string(),
@@ -27,9 +28,8 @@ export const PackResolutionSchema = z.object({
 export type PackResolution = z.infer<typeof PackResolutionSchema>;
 
 export const PackOpeningSchema = z.object({
-  packId: z.string(),
-  packName: z.string(),
-  cost: z.number(),
+  member: MemberSchema,
+  packOffering: PackOfferingSchema,
   contents: CardQuantitySchema.array(),
 });
 

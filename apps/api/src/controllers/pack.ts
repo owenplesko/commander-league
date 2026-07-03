@@ -22,10 +22,15 @@ const listPackOfferings = member.pack.listOfferings.handler(() => {
   return service.listPackOfferings();
 });
 
-const openPackOffering = member.pack.openOffering.handler(({ input }) => {
-  const packCards = service.openPack({ packId: input.packId });
-  return packCards;
-});
+const openPackOffering = member.pack.openOffering.handler(
+  ({ context, input }) => {
+    const packCards = service.openPack({
+      packId: input.packId,
+      userId: context.userId,
+    });
+    return packCards;
+  },
+);
 
 export const packRoutes = {
   list: listPacks,

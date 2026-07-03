@@ -19,7 +19,7 @@ export function PackOpeningModal({ visible, onHide, packOpening }: Props) {
 
   return (
     <Dialog
-      header={packOpening.packName}
+      header={packOpening.packOffering.pack.name}
       visible={visible}
       onHide={onHide}
       style={{ width: "60rem" }}

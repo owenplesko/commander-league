@@ -5,6 +5,7 @@ import { OpenAPILink } from "@orpc/openapi-client/fetch";
 import { contract } from "@commander-league/contract";
 import { createTanstackQueryUtils } from "@orpc/tanstack-query";
 import { QueryClient } from "@tanstack/react-query";
+import { authClient } from "./authClient";
 
 export const queryClient = new QueryClient();
 
@@ -135,6 +136,13 @@ export const orpc = createTanstackQueryUtils(client, {
               }),
             });
           },
+        },
+      },
+    },
+    pack: {
+      openOffering: {
+        mutationOptions: {
+          onSuccess(data, variables, onMutateResult, context) {},
         },
       },
     },

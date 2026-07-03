@@ -1,3 +1,4 @@
+import { eq } from "drizzle-orm";
 import db, { type TX } from "../db";
 import { member } from "../db/schema";
 
@@ -17,4 +18,17 @@ export function insertMember(
 
 export function listMembers() {
   return db.query.member.findMany({ with: { user: true } }).sync();
+}
+
+export function setMemberPackPoints(
+  {
+    userId,
+    packPoints,
+  }: {
+    userId: string;
+    packPoints: number;
+  },
+  tx: TX,
+) {
+  tx.update(member).set({ packPoints }).where(eq(member.userId, userId)).run();
 }

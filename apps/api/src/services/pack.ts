@@ -1,6 +1,8 @@
 import type { PackOpening } from "@commander-league/contract/schemas";
 import * as repo from "../repository";
 import { hydrateCardQuantities } from "./card";
+import db from "../db";
+import { applyCollectionDeltas } from "./collection";
 
 export const listPacks = repo.listPacks;
 
@@ -17,7 +19,13 @@ export function filterInvalidPackIds({ packIds }: { packIds: string[] }) {
   return invalid;
 }
 
-export function openPack({ packId }: { packId: string }): PackOpening {
+export function openPack({
+  packId,
+  userId,
+}: {
+  packId: string;
+  userId: string;
+}): PackOpening {
   const offering = repo.getPackOffering({ packId });
   if (!offering) throw Error(`No pack offering found with id: ${packId}`);
 
@@ -51,13 +59,42 @@ export function openPack({ packId }: { packId: string }): PackOpening {
     .toArray()
     .map(([cardName, quantity]) => ({ cardName, quantity }));
 
-  // 3: hydrate card data
+  const member = db.transaction((tx) => {
+    // 3: get member
+    const member = repo.getMember({ userId });
+    if (!member) throw new Error(`No user found with id: ${userId}`);
+
+    // 4: validate pp balance
+    if (member.packPoints < offering.cost)
+      throw new Error("insufficient balance");
+
+    // 5: charge player
+    repo.setMemberPackPoints(
+      {
+        userId,
+        packPoints: member.packPoints - offering.cost,
+      },
+      tx,
+    );
+
+    // 6: add cards to collection
+    applyCollectionDeltas(
+      {
+        collectionId: member.collectionId,
+        cardDeltas: cardPulls,
+      },
+      tx,
+    );
+
+    return member;
+  });
+
+  // 7: build response object
   const cardQuantities = hydrateCardQuantities({ cardQuantities: cardPulls });
 
   const packOpening: PackOpening = {
-    packId: offering.pack.id,
-    packName: offering.pack.name,
-    cost: offering.cost,
+    member,
+    packOffering: offering,
     contents: cardQuantities,
   };
 
