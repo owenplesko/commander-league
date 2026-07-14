@@ -1,5 +1,5 @@
-import { eq } from "drizzle-orm";
-import db, { type TX } from "../db";
+import { inArray, sql } from "drizzle-orm";
+import db, { type DB, type TX } from "../db";
 import { member } from "../db/schema";
 
 export function getMember({ userId }: { userId: string }) {
@@ -22,13 +22,49 @@ export function listMembers() {
 
 export function setMemberPackPoints(
   {
-    userId,
-    packPoints,
+    userIds,
+    value: packPoints,
   }: {
-    userId: string;
-    packPoints: number;
+    userIds: string[];
+    value: number;
   },
-  tx: TX,
+  tx: TX | DB = db,
 ) {
-  tx.update(member).set({ packPoints }).where(eq(member.userId, userId)).run();
+  tx.update(member)
+    .set({ packPoints })
+    .where(inArray(member.userId, userIds))
+    .run();
+}
+
+export function incrementMemberPackPoints(
+  {
+    userIds,
+    increment,
+  }: {
+    userIds: string[];
+    increment: number;
+  },
+  tx: TX | DB = db,
+) {
+  tx.update(member)
+    .set({
+      packPoints: sql`${member.packPoints} + ${increment}`,
+    })
+    .where(inArray(member.userId, userIds))
+    .run();
+}
+
+export function incrementAllMemberPackPoints(
+  {
+    increment,
+  }: {
+    increment: number;
+  },
+  tx: TX | DB = db,
+) {
+  tx.update(member)
+    .set({
+      packPoints: sql`${member.packPoints} + ${increment}`,
+    })
+    .run();
 }

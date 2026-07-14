@@ -24,9 +24,20 @@ const getMember = member.member.get.handler(({ input }) => {
   return member;
 });
 
-const updateMember = admin.member.update.handler(({ input }) => {
-  throw new ORPCError("NOT_IMPLEMENTED");
-});
+const incrementMemberPackPoints = admin.member.incrementPackPoints.handler(
+  ({ input }) => {
+    if (input.userIds) {
+      service.incrementMemberPackPoints({
+        userIds: input.userIds,
+        increment: input.increment,
+      });
+    } else {
+      service.incrementAllMemberPackPoints({
+        increment: input.increment,
+      });
+    }
+  },
+);
 
 const deleteMember = admin.member.delete.handler(({ input }) => {
   throw new ORPCError("NOT_IMPLEMENTED");
@@ -37,6 +48,6 @@ export const memberRoutes = {
   create: createMember,
   me: getMe,
   get: getMember,
-  update: updateMember,
+  incrementPackPoints: incrementMemberPackPoints,
   delete: deleteMember,
 };

@@ -1,5 +1,10 @@
 import { oc } from "@orpc/contract";
-import { MemberSchema, GetMemberSchema, CreateMemberSchema } from "../schemas";
+import {
+  MemberSchema,
+  GetMemberSchema,
+  CreateMemberSchema,
+  IncrementPackPointSchema,
+} from "../schemas";
 
 const listMembers = oc
   .route({ method: "GET", path: "/member" })
@@ -18,19 +23,22 @@ const getMe = oc
   .route({ method: "GET", path: "/member/@me" })
   .output(MemberSchema);
 
-const updateMember = oc
-  .route({ method: "PATCH", path: "/member/{userId}", successStatus: 204 })
-  .input(GetMemberSchema);
-
 const deleteMember = oc
   .route({ method: "DELETE", path: "/member/{userId}", successStatus: 204 })
   .input(GetMemberSchema);
+
+const incrementMemberPackPoints = oc
+  .route({
+    method: "POST",
+    path: "/member/packPoint",
+  })
+  .input(IncrementPackPointSchema);
 
 export const memberRoutes = {
   list: listMembers,
   create: createMember,
   me: getMe,
   get: getMember,
-  update: updateMember,
   delete: deleteMember,
+  incrementPackPoints: incrementMemberPackPoints,
 };

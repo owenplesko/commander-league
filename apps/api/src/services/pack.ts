@@ -71,8 +71,8 @@ export function openPack({
     // 5: charge player
     repo.setMemberPackPoints(
       {
-        userId,
-        packPoints: member.packPoints - offering.cost,
+        userIds: [userId],
+        value: member.packPoints - offering.cost,
       },
       tx,
     );

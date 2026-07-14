@@ -17,4 +17,9 @@ export const GetMemberSchema = z.object({
   userId: UserSchema.shape.id,
 });
 
+export const IncrementPackPointSchema = z.object({
+  userIds: z.string().array().optional(),
+  increment: z.number(),
+});
+
 export type GetMemberInput = z.infer<typeof GetMemberSchema>;
