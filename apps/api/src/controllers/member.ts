@@ -26,16 +26,10 @@ const getMember = member.member.get.handler(({ input }) => {
 
 const incrementMemberPackPoints = admin.member.incrementPackPoints.handler(
   ({ input }) => {
-    if (input.userIds) {
-      service.incrementMemberPackPoints({
-        userIds: input.userIds,
-        increment: input.increment,
-      });
-    } else {
-      service.incrementAllMemberPackPoints({
-        increment: input.increment,
-      });
-    }
+    service.incrementMemberPackPoints({
+      userIds: input.userIds,
+      increment: input.increment,
+    });
   },
 );
 

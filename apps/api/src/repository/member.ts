@@ -53,18 +53,3 @@ export function incrementMemberPackPoints(
     .where(inArray(member.userId, userIds))
     .run();
 }
-
-export function incrementAllMemberPackPoints(
-  {
-    increment,
-  }: {
-    increment: number;
-  },
-  tx: TX | DB = db,
-) {
-  tx.update(member)
-    .set({
-      packPoints: sql`${member.packPoints} + ${increment}`,
-    })
-    .run();
-}

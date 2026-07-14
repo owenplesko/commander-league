@@ -18,7 +18,7 @@ export const GetMemberSchema = z.object({
 });
 
 export const IncrementPackPointSchema = z.object({
-  userIds: z.string().array().optional(),
+  userIds: z.string().array(),
   increment: z.number(),
 });
 

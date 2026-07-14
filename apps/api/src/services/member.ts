@@ -15,4 +15,3 @@ export function createMember(
 export const getMember = repo.getMember;
 export const listMembers = repo.listMembers;
 export const incrementMemberPackPoints = repo.incrementMemberPackPoints;
-export const incrementAllMemberPackPoints = repo.incrementAllMemberPackPoints;
